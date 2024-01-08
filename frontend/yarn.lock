@@ -8214,6 +8214,11 @@ react-fast-compare@^2.0.1:
   resolved "https://registry.yarnpkg.com/react-fast-compare/-/react-fast-compare-2.0.4.tgz#e84b4d455b0fec113e0402c329352715196f81f9"
   integrity sha512-suNP+J1VU1MWFKcyt7RtjiSWUjvidmQSlqu+eHslq+342xCbGTYmC0mEhPCOHxlW0CywylOC1u2DFAT+bv4dBw==
 
+react-huge-icons@^1.3.7:
+  version "1.3.7"
+  resolved "https://registry.yarnpkg.com/react-huge-icons/-/react-huge-icons-1.3.7.tgz#08ecb70acb686b7cc0e9e48d8ec039a62ed99196"
+  integrity sha512-jvzzOqFszCm8Smg9N8tp1xtINfI1V3TqFOYQ+apaNhHcNphJEELxbRD+OI7ZzpfDm1qroXCLcQ2ii/7Usmr+7A==
+
 react-is@18.1.0:
   version "18.1.0"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-18.1.0.tgz#61aaed3096d30eacf2a2127118b5b41387d32a67"

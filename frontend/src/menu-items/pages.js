@@ -1,34 +1,44 @@
 // assets
-import { LoginOutlined, ProfileOutlined } from '@ant-design/icons';
+import { LoginOutlined, ProfileOutlined, AntDesignOutlined } from '@ant-design/icons';
+import { MenuUser, Logout } from 'react-huge-icons/outline';
 
 // icons
 const icons = {
   LoginOutlined,
-  ProfileOutlined
+  ProfileOutlined,
+  MenuUser,
+  Logout,
+  AntDesignOutlined
 };
 
 // ==============================|| MENU ITEMS - EXTRA PAGES ||============================== //
 
 const pages = {
-  id: 'authentication',
-  title: 'Authentication',
+  id: 'profile-settings',
+  title: 'Profile Settings',
   type: 'group',
   children: [
     {
-      id: 'login1',
-      title: 'Login',
+      id: 'my-profile',
+      title: 'My Profile',
       type: 'item',
-      url: '/login',
-      icon: icons.LoginOutlined,
-      target: true
+      url: '/my-profile',
+      icon: icons.MenuUser
     },
     {
-      id: 'register1',
-      title: 'Register',
+      id: 'logout',
+      title: 'Logout',
       type: 'item',
-      url: '/register',
-      icon: icons.ProfileOutlined,
-      target: true
+      url: '/logout',
+      icon: icons.Logout
+    },
+    {
+      id: 'ant-icons',
+      title: 'Ant Icons',
+      type: 'item',
+      url: '/icons/ant',
+      icon: icons.AntDesignOutlined,
+      breadcrumbs: false
     }
   ]
 };
