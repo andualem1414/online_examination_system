@@ -1,5 +1,5 @@
 // assets
-import { LoginOutlined, ProfileOutlined, AntDesignOutlined } from '@ant-design/icons';
+import { LoginOutlined, ProfileOutlined, AntDesignOutlined, BgColorsOutlined } from '@ant-design/icons';
 import { MenuUser, Logout } from 'react-huge-icons/outline';
 
 // icons
@@ -8,7 +8,8 @@ const icons = {
   ProfileOutlined,
   MenuUser,
   Logout,
-  AntDesignOutlined
+  AntDesignOutlined,
+  BgColorsOutlined
 };
 
 // ==============================|| MENU ITEMS - EXTRA PAGES ||============================== //
@@ -39,6 +40,13 @@ const pages = {
       url: '/icons/ant',
       icon: icons.AntDesignOutlined,
       breadcrumbs: false
+    },
+    {
+      id: 'util-color',
+      title: 'Color',
+      type: 'item',
+      url: '/color',
+      icon: icons.BgColorsOutlined
     }
   ]
 };

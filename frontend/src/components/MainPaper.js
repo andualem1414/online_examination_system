@@ -3,20 +3,11 @@ import { forwardRef } from 'react';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
-import { Card, CardContent, CardHeader, Divider, Typography } from '@mui/material';
+import { Paper } from '@mui/material';
 
-// project import
-import Highlighter from './third-party/Highlighter';
+// ==============================|| CUSTOM - MAIN Paper ||============================== //
 
-// header style
-const headerSX = {
-  p: 2.5,
-  '& .MuiCardHeader-action': { m: '0px auto', alignSelf: 'center' }
-};
-
-// ==============================|| CUSTOM - MAIN CARD ||============================== //
-
-const MainCard = forwardRef(
+const MainPaper = forwardRef(
   (
     {
       border = true,
@@ -39,7 +30,7 @@ const MainCard = forwardRef(
     boxShadow = theme.palette.mode === 'dark' ? boxShadow || true : boxShadow;
 
     return (
-      <Card
+      <Paper
         elevation={elevation || 0}
         ref={ref}
         {...others}
@@ -60,31 +51,13 @@ const MainCard = forwardRef(
           ...sx
         }}
       >
-        {/* card header and action */}
-        {!darkTitle && title && (
-          <CardHeader sx={headerSX} titleTypographyProps={{ variant: 'subtitle1' }} title={title} action={secondary} />
-        )}
-        {darkTitle && title && <CardHeader sx={headerSX} title={<Typography variant="h3">{title}</Typography>} action={secondary} />}
-
-        {/* card content */}
-        {content && <CardContent sx={contentSX}>{children}</CardContent>}
-        {!content && children}
-
-        {/* card footer - clipboard & highlighter  */}
-        {codeHighlight && (
-          <>
-            <Divider sx={{ borderStyle: 'dashed' }} />
-            <Highlighter codeHighlight={codeHighlight} main>
-              {children}
-            </Highlighter>
-          </>
-        )}
-      </Card>
+        {children}
+      </Paper>
     );
   }
 );
 
-MainCard.propTypes = {
+MainPaper.propTypes = {
   border: PropTypes.bool,
   boxShadow: PropTypes.bool,
   contentSX: PropTypes.object,
@@ -100,4 +73,4 @@ MainCard.propTypes = {
   children: PropTypes.node
 };
 
-export default MainCard;
+export default MainPaper;
