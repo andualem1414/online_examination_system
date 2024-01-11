@@ -1,6 +1,6 @@
 # online_examination_system
 
-Final bsc project on online examination system with semantic analysis and face tracking
+Final BSc project on online examination system with semantic analysis and face tracking
 
 ## Technology stack
 
@@ -20,7 +20,7 @@ Final bsc project on online examination system with semantic analysis and face t
 pipenv install
 pipenv shell
 
-# for frontenc
+# for frontend
 
 yarn
 yarn start
