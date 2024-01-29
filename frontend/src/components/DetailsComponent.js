@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, Stack, Divider, Box } from '@mui/material';
+import { Typography, Stack, Divider, Box, Chip } from '@mui/material';
 import MainPaper from './MainPaper';
 
 const DetailsComponent = (props) => {
@@ -17,10 +17,10 @@ const DetailsComponent = (props) => {
               <Box sx={{ pl: 2, mt: 1.5, mb: 3 }}>
                 {item.descriptions.map((description) => {
                   return (
-                    <Stack direction="row" justifyContent="space-between">
+                    <Stack sx={{ mb: 1 }} alignItems="center" direction="row" justifyContent="space-between">
                       <Typography>{description.name}</Typography>
                       <Typography color="primary" sx={{ fontWeight: 'bold' }}>
-                        {description.value}
+                        <Chip label={description.value} variant="light" color="primary" />
                       </Typography>
                     </Stack>
                   );
