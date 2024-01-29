@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 
 // material-ui
 import MuiBreadcrumbs from '@mui/material/Breadcrumbs';
-import { Grid, Typography } from '@mui/material';
+import { Grid, Typography, Box } from '@mui/material';
 
 // project imports
 import MainCard from '../MainCard';
@@ -73,7 +73,7 @@ const Breadcrumbs = ({ navigation, title, ...others }) => {
     // main
     if (item.breadcrumbs !== false) {
       breadcrumbContent = (
-        <MainCard border={false} sx={{ mb: 3, bgcolor: 'transparent' }} {...others} content={false}>
+        <Box border={false} sx={{ mb: 3, bgcolor: 'transparent' }} {...others} content={false}>
           <Grid container direction="column" justifyContent="flex-start" alignItems="flex-start" spacing={1}>
             <Grid item>
               <MuiBreadcrumbs aria-label="breadcrumb">
@@ -90,7 +90,7 @@ const Breadcrumbs = ({ navigation, title, ...others }) => {
               </Grid>
             )}
           </Grid>
-        </MainCard>
+        </Box>
       );
     }
   }

@@ -1,8 +1,23 @@
 import { React, useState } from 'react';
-import { Box } from '@mui/material';
+import { InputBase, IconButton, Grid } from '@mui/material';
 import TableComponent from 'components/TableComponent';
+import MainPaper from 'components/MainPaper';
+import SearchIcon from '@mui/icons-material/Search';
+import DetailsComponent from 'components/DetailsComponent';
 
 // project import
+
+function InputField(props) {
+  const { handleOnChange } = props;
+  return (
+    <MainPaper component="form" sx={{ p: '2px 10px', display: 'flex', alignItems: 'center', height: '50px' }}>
+      <InputBase onChange={handleOnChange} sx={{ ml: 1, flex: 1 }} placeholder="Search..." />
+      <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
+        <SearchIcon />
+      </IconButton>
+    </MainPaper>
+  );
+}
 
 const MyExam = () => {
   function createData(id, name, calories, fat, carbs, protein, color) {
@@ -17,7 +32,7 @@ const MyExam = () => {
     };
   }
 
-  let [rows, setRows] = useState([
+  let [rows] = useState([
     createData(1, 'Cupcake', 305, 3.7, 67, 4.3),
     createData(2, 'Donut', 452, 25.0, 51, 4.9),
     createData(3, 'Eclair', 262, 16.0, 24, 6.0),
@@ -58,19 +73,21 @@ const MyExam = () => {
     {
       id: 'calories',
       numeric: true,
-      label: 'Calories'
+      label: 'Calories',
+      chip: true,
+      chipColor: chipColorSelector
     },
     {
       id: 'fat',
       numeric: true,
-      label: 'Fat'
+      label: 'Fat',
+      chip: true,
+      chipColor: chipColorSelector
     },
     {
       id: 'carbs',
       numeric: true,
-      label: 'Carbs',
-      chip: true,
-      chipColor: chipColorSelector
+      label: 'Carbs'
     },
 
     {
@@ -80,10 +97,52 @@ const MyExam = () => {
     }
   ];
 
+  const data = [
+    {
+      title: 'Exam Details',
+      descriptions: [
+        {
+          name: 'Number of exams',
+          value: 20
+        },
+        {
+          name: 'Pass Mark',
+          value: 10
+        }
+      ]
+    },
+
+    {
+      title: 'Examinee Details',
+      descriptions: [
+        {
+          name: 'Number of Examinee',
+          value: 20
+        }
+      ]
+    }
+  ];
+
+  const handleOnChange = (e) => {
+    console.log(e);
+  };
   return (
-    <Box sx={{ display: 'flex' }}>
-      <TableComponent headCells={headCells} rows={rows} title="Exams" />
-    </Box>
+    <Grid container spacing={2}>
+      <Grid item xs={12} sx={{ display: { xs: 'block', md: 'none' } }}>
+        <InputField handleOnChange />
+      </Grid>
+      <Grid item xs={12} md={8}>
+        <TableComponent headCells={headCells} rows={rows} title="Exams" />
+      </Grid>
+      <Grid item xs={12} md={4} container spacing={2} direction="column">
+        <Grid item sx={{ display: { xs: 'none', md: 'block' } }}>
+          <InputField handleOnChange={handleOnChange} />
+        </Grid>
+        <Grid item>
+          <DetailsComponent data={data} />
+        </Grid>
+      </Grid>
+    </Grid>
   );
 };
 

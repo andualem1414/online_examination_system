@@ -84,7 +84,6 @@ function EnhancedTableHead(props) {
               direction={orderBy === headCell.id ? order : 'asc'}
               onClick={createSortHandler(headCell.id)}
             >
-              <Divider orientation="vertical" variant="middle" flexItem />
               {headCell.label}
             </TableSortLabel>
           </TableCell>
@@ -135,60 +134,54 @@ export default function EnhancedTable(props) {
   );
 
   return (
-    <Box sx={{ width: { xs: '100%', lg: '65%' } }}>
-      <MainPaper sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar title={title} />
-        <Divider />
-        <TableContainer>
-          <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size="small">
-            <EnhancedTableHead order={order} orderBy={orderBy} onRequestSort={handleRequestSort} headCells={headCells} />
-            <TableBody>
-              {visibleRows.map((row, index) => {
-                return (
-                  <TableRow
-                    hover
-                    onClick={(event) => handleClick(event, row.id)}
-                    role="checkbox"
-                    tabIndex={-1}
-                    key={row.id}
-                    sx={{ cursor: 'pointer' }}
-                  >
-                    {headCells.map((cell, index) => {
-                      let name = cell.id;
+    <MainPaper sx={{ width: '100%', mb: 2 }}>
+      <EnhancedTableToolbar title={title} />
+      <Divider />
+      <TableContainer>
+        <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size="small">
+          <EnhancedTableHead order={order} orderBy={orderBy} onRequestSort={handleRequestSort} headCells={headCells} />
+          <TableBody>
+            {visibleRows.map((row, index) => {
+              return (
+                <TableRow
+                  hover
+                  onClick={(event) => handleClick(event, row.id)}
+                  role="checkbox"
+                  tabIndex={-1}
+                  key={row.id}
+                  sx={{ cursor: 'pointer' }}
+                >
+                  {headCells.map((cell, index) => {
+                    let name = cell.id;
 
-                      return (
-                        <TableCell
-                          sx={{ pl: { xs: 1, sm: index === 0 ? 3 : 1 }, pr: { xs: 1, sm: index === headCells.length - 1 ? 3 : 1 } }}
-                          align={cell.numeric ? 'right' : 'left'}
-                          component="th"
-                          scope="row"
-                          padding="none"
-                        >
-                          {cell?.chip ? (
-                            <Chip size="small" variant="light" label={row[name]} color={cell.chipColor(row[name])} />
-                          ) : (
-                            row[name]
-                          )}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </MainPaper>
-    </Box>
+                    return (
+                      <TableCell
+                        sx={{ pl: { xs: 1, sm: index === 0 ? 3 : 1 }, pr: { xs: 1, sm: index === headCells.length - 1 ? 3 : 1 } }}
+                        align={cell.numeric ? 'right' : 'left'}
+                        component="th"
+                        scope="row"
+                        padding="none"
+                      >
+                        {cell?.chip ? <Chip size="small" variant="light" label={row[name]} color={cell.chipColor(row[name])} /> : row[name]}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25]}
+        component="div"
+        count={rows.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+    </MainPaper>
   );
 }
 EnhancedTable.propTypes = {
