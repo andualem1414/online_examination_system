@@ -42,8 +42,9 @@ INSTALLED_APPS = [
     # apps
     "exams",
     "questions",
-    "examinee_answer",
-    "examinee_exam",
+    "examinee_answers",
+    "examinee_exams",
+    "users",
 ]
 
 MIDDLEWARE = [
@@ -128,3 +129,5 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+AUTH_USER_MODEL = "users.User"
