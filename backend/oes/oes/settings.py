@@ -41,6 +41,9 @@ INSTALLED_APPS = [
     "rest_framework",
     # apps
     "exams",
+    "questions",
+    "examinee_answer",
+    "examinee_exam",
 ]
 
 MIDDLEWARE = [
