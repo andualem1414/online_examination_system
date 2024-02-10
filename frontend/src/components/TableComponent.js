@@ -184,6 +184,7 @@ export default function EnhancedTable(props) {
     </MainPaper>
   );
 }
+
 EnhancedTable.propTypes = {
   headCells: PropTypes.array,
   title: PropTypes.string,
