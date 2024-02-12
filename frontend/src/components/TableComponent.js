@@ -1,9 +1,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-
+import { useNavigate } from 'react-router-dom';
 // Mui components
 import {
-  Box,
   Typography,
   Toolbar,
   Table,
@@ -25,6 +24,10 @@ import MainPaper from 'components/MainPaper';
 
 // icons
 import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded';
+
+// redux
+import { useDispatch } from 'react-redux';
+import { changeExam } from 'store/reducers/exam';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -102,6 +105,9 @@ EnhancedTableHead.propTypes = {
 
 export default function EnhancedTable(props) {
   const { headCells, rows, title } = props;
+  const navigate = useNavigate();
+
+  const dispatch = useDispatch();
 
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState(headCells[0].name);
@@ -116,7 +122,8 @@ export default function EnhancedTable(props) {
   };
 
   const handleClick = (event, id) => {
-    // TODO
+    dispatch(changeExam({ examId: id }));
+    return navigate('/my-exams/exam-details');
   };
 
   const handleChangePage = (event, newPage) => {

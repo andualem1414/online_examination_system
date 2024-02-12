@@ -15,7 +15,9 @@ const Typography = Loadable(lazy(() => import('pages/components-overview/Typogra
 const Color = Loadable(lazy(() => import('pages/components-overview/Color')));
 const Shadow = Loadable(lazy(() => import('pages/components-overview/Shadow')));
 const AntIcons = Loadable(lazy(() => import('pages/components-overview/AntIcons')));
+
 const MyExams = Loadable(lazy(() => import('pages/my-exams')));
+const ExamDetails = Loadable(lazy(() => import('pages/exam-details')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -33,12 +35,7 @@ const MainRoutes = {
     },
     {
       path: 'dashboard',
-      children: [
-        {
-          path: 'default',
-          element: <DashboardDefault />
-        }
-      ]
+      element: <DashboardDefault />
     },
     {
       path: 'sample-page',
@@ -59,6 +56,10 @@ const MainRoutes = {
     {
       path: 'my-exams',
       element: <MyExams />
+    },
+    {
+      path: 'my-exams/exam-details',
+      element: <ExamDetails />
     }
   ]
 };
