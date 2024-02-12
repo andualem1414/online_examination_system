@@ -5,4 +5,14 @@ from .models import Question
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
-        fields = ["id", "question", "answer"]
+        fields = [
+            "id",
+            "exam",
+            "question",
+            # "choice"
+            "answer",
+            "point",
+            "type",
+            "created_at",
+            "updated_at",
+        ]

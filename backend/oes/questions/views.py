@@ -20,3 +20,20 @@ class QuestionListCreateAPIView(generics.ListCreateAPIView):
         qs = super().get_queryset()
         exam = Exam.objects.first()
         return qs.filter(exam=exam)
+
+
+class QuestionDetailAPIView(generics.RetrieveAPIView):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+
+
+class QuestionDestroyAPIView(generics.DestroyAPIView):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+    lookup_field = "pk"
+
+
+class QuestionUpdateAPIView(generics.UpdateAPIView):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+    lookup = "pk"

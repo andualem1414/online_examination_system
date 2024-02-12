@@ -14,4 +14,13 @@ class ExamSerializer(serializers.ModelSerializer):
             "url",
             "title",
             "description",
+            "exam_code",
+            "created_by",
+            "remote",
+            "public",
+            "start_time",
+            "end_time",
+            "updated_at",
+            "created_at",
+            "duration",
         ]
