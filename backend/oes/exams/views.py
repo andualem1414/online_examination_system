@@ -1,6 +1,8 @@
-from django.shortcuts import render
+import random, string
 from rest_framework import generics
-
+from rest_framework.response import Response
+from rest_framework import serializers
+from users.models import User
 from .models import Exam
 from .serializers import ExamSerializer
 from users.mixins import HavePermissionMixin
@@ -12,19 +14,35 @@ class ExamListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIView):
     queryset = Exam.objects.all()
     serializer_class = ExamSerializer
 
+    def random_code(self):
+        exam_code = "".join(random.choices(string.ascii_letters + string.digits, k=10))
+        print(exam_code)
+        if Exam.objects.filter(exam_code=exam_code).exists():
+            return self.random_code()
+        return exam_code
 
-class ExamDetailAPIView(generics.RetrieveAPIView):
+    def perform_create(self, serializer):
+        exam_code = self.random_code()
+        serializer.save(created_by=self.request.user, exam_code=exam_code)
+
+
+class ExamDetailAPIView(HavePermissionMixin, generics.RetrieveAPIView):
     queryset = Exam.objects.all()
     serializer_class = ExamSerializer
 
 
-class ExamDestroyAPIView(generics.DestroyAPIView):
+class ExamUpdateAPIView(HavePermissionMixin, generics.UpdateAPIView):
+    queryset = Exam.objects.all()
+    serializer_class = ExamSerializer
+    lookup = "pk"
+
+
+class ExamDestroyAPIView(HavePermissionMixin, generics.DestroyAPIView):
     queryset = Exam.objects.all()
     serializer_class = ExamSerializer
     lookup_field = "pk"
 
-
-class ExamUpdateAPIView(generics.UpdateAPIView):
-    queryset = Exam.objects.all()
-    serializer_class = ExamSerializer
-    lookup = "pk"
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({"message": "Exam deleted successfully"}, status=200)

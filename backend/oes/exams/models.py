@@ -26,3 +26,15 @@ class Exam(models.Model):
             return self.end_time - self.start_time
         except:
             return None
+
+
+class Payment(models.Model):
+    payment_code = models.CharField(max_length=40)
+    examiner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    exam = models.ForeignKey(Exam, on_delete=models.SET_NULL, null=True)
+
+    amount = models.IntegerField()
+    payment_method = models.CharField(max_length=50)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

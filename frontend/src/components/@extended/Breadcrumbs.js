@@ -1,5 +1,3 @@
-import PropTypes from 'prop-types';
-import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 // material-ui
@@ -8,7 +6,6 @@ import { Grid, Typography, Box } from '@mui/material';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 // project imports
-import MainCard from '../MainCard';
 
 // ==============================|| BREADCRUMBS ||============================== //
 
@@ -30,7 +27,7 @@ const Breadcrumbs = () => {
     <Box border={false} sx={{ mb: 3, bgcolor: 'transparent' }} content={false}>
       <Grid container direction="column" justifyContent="flex-start" alignItems="flex-start" spacing={1}>
         <Grid item>
-          <MuiBreadcrumbs aria-label="breadcrumb">
+          <MuiBreadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
             <Typography component={Link} to="/dashboard" color="textSecondary" variant="h6" sx={{ textDecoration: 'none' }}>
               Home
             </Typography>

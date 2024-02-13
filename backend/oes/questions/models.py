@@ -1,6 +1,7 @@
 from django.db import models
 from exams.models import Exam
 
+
 # Create your models here.
 
 
@@ -11,10 +12,10 @@ class Question(models.Model):
         ("SHORT_ANSWER", "Short_Answer"),
     )
 
-    type = models.CharField(max_length=10, choices=QUESTION_TYPE_CHOICES)
+    type = models.CharField(max_length=50, choices=QUESTION_TYPE_CHOICES)
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     question = models.TextField()
-    choices = models.TextField()
+    # choices
 
     answer = models.TextField()
     point = models.IntegerField()

@@ -23,7 +23,7 @@ class Flag(models.Model):
         ("ANOTHER_PERSON", "Another_person"),
     )
 
-    type = models.CharField(max_length=10, choices=FLAG_TYPE_CHOICES)
+    type = models.CharField(max_length=50, choices=FLAG_TYPE_CHOICES)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)

@@ -142,12 +142,11 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
-        # "users.mixin.HavePermissionMixin",
     ],
 }
 
 SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ["Bearer"],
-    "ACCESS_TOKEN_LIFETIME": datetime.timedelta(minutes=5),
-    "REFRESH_TOKEN_LIFETIME": datetime.timedelta(minutes=10),
+    "ACCESS_TOKEN_LIFETIME": datetime.timedelta(minutes=50),
+    "REFRESH_TOKEN_LIFETIME": datetime.timedelta(hours=3),
 }
