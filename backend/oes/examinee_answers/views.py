@@ -12,6 +12,7 @@ class ExamineeAnswerListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = ExamineeAnswerSerializer
 
     def perform_create(self, serializer):
+
         question = Question.objects.first()
         serializer.save(question=question)
 

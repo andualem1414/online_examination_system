@@ -14,6 +14,11 @@ class ExamListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIView):
     queryset = Exam.objects.all()
     serializer_class = ExamSerializer
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        user = self.request.user
+        return qs.filter(created_by=user)
+
     def random_code(self):
         exam_code = "".join(random.choices(string.ascii_letters + string.digits, k=10))
         print(exam_code)
@@ -22,6 +27,7 @@ class ExamListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIView):
         return exam_code
 
     def perform_create(self, serializer):
+        print(serializer.validated_data)
         exam_code = self.random_code()
         serializer.save(created_by=self.request.user, exam_code=exam_code)
 
