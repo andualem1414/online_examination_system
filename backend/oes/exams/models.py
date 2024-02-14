@@ -27,6 +27,9 @@ class Exam(models.Model):
         except:
             return None
 
+    def __str__(self):
+        return self.title
+
 
 class Payment(models.Model):
     payment_code = models.CharField(max_length=40)

@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 from .models import Exam
 
-from users.serializers import UserSerializer
+from users.models import User
 
 
 class ExamSerializer(serializers.ModelSerializer):
@@ -10,7 +10,7 @@ class ExamSerializer(serializers.ModelSerializer):
         view_name="exam-detail", lookup_field="pk", read_only=True
     )
     exam_code = serializers.CharField(read_only=True)
-    created_by = UserSerializer(read_only=True)
+    created_by = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Exam

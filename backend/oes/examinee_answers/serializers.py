@@ -4,7 +4,9 @@ from questions.serializers import QuestionSerializer
 
 
 class ExamineeAnswerDetailSerializer(serializers.ModelSerializer):
-    question = QuestionSerializer()
+    question = QuestionSerializer(read_only=True)
+    examinee = serializers.PrimaryKeyRelatedField(read_only=True)
+    result = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = ExamineeAnswer
