@@ -2,11 +2,14 @@ from django.db import models
 from questions.models import Question
 
 from users.models import User
+from exams.models import Exam
 
 # Create your models here.
 
 
 class ExamineeAnswer(models.Model):
+
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     examinee = models.ForeignKey(User, on_delete=models.CASCADE)
 

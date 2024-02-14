@@ -23,3 +23,11 @@ class ExamineeExamSerializer(serializers.ModelSerializer):
             "flags",
             "updated_at",
         ]
+
+
+class ExamineeExamUpdateSerializer(serializers.ModelSerializer):
+    time = serializers.TimeField(write_only=True)
+
+    class Meta:
+        model = ExamineeExam
+        fields = ["id", "time"]

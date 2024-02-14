@@ -4,8 +4,9 @@ from rest_framework.response import Response
 from exams.models import Exam
 from .models import ExamineeExam
 from questions.models import Question
-from .serializers import ExamineeExamSerializer
+from .serializers import ExamineeExamSerializer, ExamineeExamUpdateSerializer
 from users.mixins import HavePermissionMixin
+from examinee_answers.models import ExamineeAnswer
 
 # Create your views here.
 
@@ -34,18 +35,36 @@ class ExamineeExamListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIV
         serializer.save(examinee=self.request.user, exam=exam)
 
 
-class ExamineeExamDetailAPIView(generics.RetrieveAPIView):
+class ExamineeExamDetailAPIView(HavePermissionMixin, generics.RetrieveAPIView):
     queryset = ExamineeExam.objects.all()
     serializer_class = ExamineeExamSerializer
 
 
-class ExamineeExamUpdateAPIView(generics.UpdateAPIView):
+class ExamineeExamUpdateAPIView(HavePermissionMixin, generics.UpdateAPIView):
     queryset = ExamineeExam.objects.all()
-    serializer_class = ExamineeExamSerializer
+    serializer_class = ExamineeExamUpdateSerializer
     lookup = "pk"
 
+    def calculate_score(self, exam):
+        score = 0
+        answers = ExamineeAnswer.objects.filter(exam=exam)
+        for answer in answers:
+            score += answer.result
+        return score
 
-class ExamineeExamDestroyAPIView(generics.DestroyAPIView):
+    def perform_update(self, serializer):
+        exam = serializer.instance.exam
+        print(exam)
+
+        total_time = serializer.validated_data.pop("time")
+        score = self.calculate_score(exam)
+        serializer.validated_data["score"] = score
+        serializer.validated_data["total_time"] = total_time
+
+        return super().perform_update(serializer)
+
+
+class ExamineeExamDestroyAPIView(HavePermissionMixin, generics.DestroyAPIView):
     queryset = ExamineeExam.objects.all()
     serializer_class = ExamineeExamSerializer
     lookup = "pk"
