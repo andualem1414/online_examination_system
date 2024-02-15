@@ -30,7 +30,10 @@ class Flag(models.Model):
     )
 
     type = models.CharField(max_length=50, choices=FLAG_TYPE_CHOICES)
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    examinee_answer = models.ForeignKey(ExamineeAnswer, on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.type

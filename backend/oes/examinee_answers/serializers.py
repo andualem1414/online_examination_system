@@ -32,6 +32,8 @@ class ExamineeAnswerSerializer(serializers.ModelSerializer):
 
 
 class FlagSerializer(serializers.ModelSerializer):
+    examinee_answer = ExamineeAnswerSerializer(read_only=True)
+
     class Meta:
         model = Flag
-        fields = ["id", "question", "type"]
+        fields = ["id", "examinee_answer", "type"]

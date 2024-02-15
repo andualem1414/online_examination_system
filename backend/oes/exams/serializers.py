@@ -1,8 +1,9 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
-from .models import Exam
+from .models import Exam, Payment
 
 from users.models import User
+from users.serializers import UserSerializer
 
 
 class ExamSerializer(serializers.ModelSerializer):
@@ -29,3 +30,11 @@ class ExamSerializer(serializers.ModelSerializer):
             "created_at",
             "duration",
         ]
+
+
+class PaymentSerializer(serializers.ModelSerializer):
+    examiner = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Payment
+        fields = ["id", "payment_code", "exam", "examiner", "amount", "payment_method"]

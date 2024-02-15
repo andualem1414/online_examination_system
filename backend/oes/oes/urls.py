@@ -26,3 +26,5 @@ urlpatterns = [
     path("api/examinee-exams/", include("examinee_exams.urls")),
     path("api/users/", include("users.urls")),
 ]
+
+handler500 = "oes.views.error_handler"

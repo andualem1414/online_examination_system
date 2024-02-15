@@ -2,11 +2,12 @@ from rest_framework import generics, serializers, status
 from rest_framework.response import Response
 
 from exams.models import Exam
-from .models import ExamineeExam
-from questions.models import Question
-from .serializers import ExamineeExamSerializer, ExamineeExamUpdateSerializer
 from users.mixins import HavePermissionMixin
-from examinee_answers.models import ExamineeAnswer
+from examinee_answers.models import ExamineeAnswer, Flag
+
+from .models import ExamineeExam
+from .serializers import ExamineeExamSerializer, ExamineeExamUpdateSerializer
+
 
 # Create your views here.
 
@@ -21,7 +22,6 @@ class ExamineeExamListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIV
         return qs.filter(examinee=user)
 
     def perform_create(self, serializer):
-
         exam_code = serializer.validated_data.pop("exam_code")
 
         if Exam.objects.filter(exam_code=exam_code).exists():
@@ -42,26 +42,38 @@ class ExamineeExamDetailAPIView(HavePermissionMixin, generics.RetrieveAPIView):
     queryset = ExamineeExam.objects.all()
     serializer_class = ExamineeExamSerializer
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        user = self.request.user
+        return qs.filter(examinee=user)
+
 
 class ExamineeExamUpdateAPIView(HavePermissionMixin, generics.UpdateAPIView):
     queryset = ExamineeExam.objects.all()
-    serializer_class = ExamineeExamSerializer
+    serializer_class = ExamineeExamUpdateSerializer
     lookup = "pk"
 
-    def calculate_score(self, exam):
-        score = 0
-        answers = ExamineeAnswer.objects.filter(exam=exam)
+    def calculate_score(self, user, exam):
+        score, flags = 0, 0
+        answers = ExamineeAnswer.objects.filter(examinee=user, exam=exam)
+
         for answer in answers:
+            if Flag.objects.filter(examinee_answer=answer).exists():
+                flags += 1
+                continue
             score += answer.result
-        return score
+
+        return [score, flags]
 
     def perform_update(self, serializer):
         exam = serializer.instance.exam
 
-        total_time = serializer.validated_data.pop("total_time")
-        score = self.calculate_score(exam)
+        total_time = serializer.validated_data.pop("current_time")
+        score, flags = self.calculate_score(self.request.user, exam)
+
         serializer.validated_data["score"] = score
         serializer.validated_data["total_time"] = total_time
+        serializer.validated_data["flags"] = flags
 
         return super().perform_update(serializer)
 
@@ -70,6 +82,11 @@ class ExamineeExamDestroyAPIView(HavePermissionMixin, generics.DestroyAPIView):
     queryset = ExamineeExam.objects.all()
     serializer_class = ExamineeExamSerializer
     lookup = "pk"
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        user = self.request.user
+        return qs.filter(examinee=user)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -84,6 +101,11 @@ class ExamineeExamUsersListAPIView(HavePermissionMixin, generics.ListAPIView):
     def get_queryset(self):
 
         qs = super().get_queryset()
+        try:
+            exam = Exam.objects.get(
+                created_by=self.request.user, pk=self.request.query_params["exam-id"]
+            )
+        except:
+            raise serializers.ValidationError({"message": "Exam doesn't exist"})
 
-        exam = Exam.objects.get(pk=self.request.query_params["exam-id"])
         return qs.filter(exam=exam)

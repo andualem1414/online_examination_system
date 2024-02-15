@@ -1,11 +1,12 @@
 from rest_framework import generics, serializers
+from rest_framework.response import Response
 from django.utils import timezone
+
+from exams.models import Exam
+from users.mixins import HavePermissionMixin
+
 from .models import Question
 from .serializers import QuestionSerializer
-from exams.models import Exam
-from rest_framework.response import Response
-
-from users.mixins import HavePermissionMixin
 
 
 # Create your views here.
@@ -29,14 +30,21 @@ class QuestionListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIView)
         qs = super().get_queryset()
         if self.request.method == "GET":
 
-            if "exam-id" in self.request.query_params:
+            # Check if the exam exists
+            if (
+                "exam-id" in self.request.query_params
+                and Exam.objects.filter(
+                    pk=self.request.query_params["exam-id"]
+                ).exists()
+            ):
                 exam = Exam.objects.get(pk=self.request.query_params["exam-id"])
 
             else:
                 raise serializers.ValidationError(
-                    {"message": "Please provide exam ID."}
+                    {"message": "Please provide Valid exam ID."}
                 )
 
+            # Check If the Examiner is the creator of the exam
             if (
                 self.request.user.user_type == "EXAMINER"
                 and exam.created_by != self.request.user
@@ -45,14 +53,13 @@ class QuestionListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIView)
                     {"message": "You don't have access to this exam"}
                 )
 
+            if (
+                self.request.user.user_type == "EXAMINEE"
+                and timezone.localtime() < exam.start_time
+            ):
+                raise serializers.ValidationError({"message": "Exam Haven't Started"})
+
             return qs.filter(exam=exam)
-
-            # if (
-            #     self.request.user.user_type == "EXAMINEE"
-            #     and timezone.now() < exam.start_time
-            # ):
-            #     raise serializers.ValidationError({"message": "Exam Haven't Started"})
-
         return qs
 
 

@@ -1,11 +1,18 @@
 from rest_framework import generics, serializers
 from rest_framework.response import Response
-from .models import ExamineeAnswer
+
 from exams.models import Exam
-from questions.models import Question
-from .serializers import ExamineeAnswerSerializer, ExamineeAnswerDetailSerializer
 from users.models import User
 from users.mixins import HavePermissionMixin
+from examinee_exams.models import ExamineeExam
+
+from .results import calculate_result
+from .models import ExamineeAnswer, Flag
+from .serializers import (
+    ExamineeAnswerSerializer,
+    ExamineeAnswerDetailSerializer,
+    FlagSerializer,
+)
 
 # Create your views here.
 
@@ -23,21 +30,32 @@ class ExamineeAnswerListCreateAPIView(HavePermissionMixin, generics.ListCreateAP
         answer = serializer.validated_data["answer"]
         exam = Exam.objects.get(pk=question.exam.id)
 
+        if not ExamineeExam.objects.filter(
+            exam=exam, examinee=self.request.user
+        ).exists():
+            raise serializers.ValidationError(
+                {"message": "You haven't Joined This Exam"}
+            )
+
         # User ML algorithm here to calculate the result
-        if question.answer == answer:
-            result = question.point
-        else:
-            result = 0
+        result = calculate_result(question, answer)
 
         if ExamineeAnswer.objects.filter(question=question):
             raise serializers.ValidationError({"message": "Answer already exists"})
+
         serializer.save(examinee=self.request.user, exam=exam, result=result)
 
     def get_queryset(self):
         qs = super().get_queryset()
+
         if self.request.method == "GET":
             if "exam-id" in self.request.query_params:
-                exam = Exam.objects.get(pk=self.request.query_params["exam-id"])
+                try:
+                    exam = Exam.objects.get(pk=self.request.query_params["exam-id"])
+                except:
+                    raise serializers.ValidationError(
+                        {"message": "Exam does not exist"}
+                    )
             else:
                 raise serializers.ValidationError(
                     {"message": "Please provide exam ID."}
@@ -61,10 +79,8 @@ class ExamineeAnswerUpdateAPIView(HavePermissionMixin, generics.UpdateAPIView):
         question = serializer.instance.question
         answer = serializer.validated_data["answer"]
 
-        # calculate result
-        if question.answer == answer:
-            result = question.point
-            serializer.validated_data["result"] = result
+        result = calculate_result(question, answer)
+        serializer.validated_data["result"] = result
 
         return super().perform_update(serializer)
 
@@ -82,7 +98,7 @@ class ExamineeAnswerDestroyAPIView(HavePermissionMixin, generics.DestroyAPIView)
 
 class ExamineeAnswerListAnswersCreateAPIView(HavePermissionMixin, generics.ListAPIView):
     queryset = ExamineeAnswer.objects.all()
-    serializer_class = ExamineeAnswerSerializer
+    serializer_class = ExamineeAnswerDetailSerializer
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -99,3 +115,51 @@ class ExamineeAnswerListAnswersCreateAPIView(HavePermissionMixin, generics.ListA
             )
 
         return qs.filter(examinee=user, exam=exam)
+
+
+# Views for Flag
+class FlagListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIView):
+    queryset = Flag.objects.all()
+    serializer_class = FlagSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        if self.request.method == "GET":
+            if "examinee-answer" in self.request.query_params:
+                examinee_answer = ExamineeAnswer.objects.get(
+                    pk=self.request.query_params["examinee-answer"]
+                )
+            else:
+                raise serializers.ValidationError(
+                    {"message": "Please provide exam ID."}
+                )
+
+            return qs.filter(examinee_answer=examinee_answer)
+        return qs
+
+    def perform_create(self, serializer):
+
+        if "examinee-answer" in self.request.query_params:
+            examinee_answer = ExamineeAnswer.objects.get(
+                pk=self.request.query_params["examinee-answer"]
+            )
+
+        serializer.save(examinee_answer=examinee_answer)
+
+
+class FlagDetailAPIView(HavePermissionMixin, generics.RetrieveAPIView):
+    queryset = Flag.objects.all()
+    serializer_class = FlagSerializer
+
+
+class FlagUpdateAPIView(HavePermissionMixin, generics.UpdateAPIView):
+    queryset = Flag.objects.all()
+    serializer_class = FlagSerializer
+    lookup = "pk"
+
+
+class FlagDestroyAPIView(HavePermissionMixin, generics.DestroyAPIView):
+    queryset = Flag.objects.all()
+    serializer_class = FlagSerializer
+    lookup = "pk"
