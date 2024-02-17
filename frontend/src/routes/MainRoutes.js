@@ -18,6 +18,7 @@ const AntIcons = Loadable(lazy(() => import('pages/components-overview/AntIcons'
 
 const MyExams = Loadable(lazy(() => import('pages/my-exams')));
 const ExamDetails = Loadable(lazy(() => import('pages/exam-details')));
+const AddQuestion = Loadable(lazy(() => import('pages/add-question')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -60,6 +61,10 @@ const MainRoutes = {
     {
       path: 'my-exams/exam-details',
       element: <ExamDetails />
+    },
+    {
+      path: 'my-exams/exam-details/add-question',
+      element: <AddQuestion />
     }
   ]
 };

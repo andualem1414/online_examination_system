@@ -1,9 +1,10 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
-from .models import Exam, Payment
-
+from django.utils import timezone
 from users.models import User
 from users.serializers import UserSerializer
+
+from .models import Exam, Payment
 
 
 class ExamSerializer(serializers.ModelSerializer):
@@ -12,6 +13,7 @@ class ExamSerializer(serializers.ModelSerializer):
     )
     exam_code = serializers.CharField(read_only=True)
     created_by = serializers.PrimaryKeyRelatedField(read_only=True)
+    status = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Exam
@@ -29,7 +31,16 @@ class ExamSerializer(serializers.ModelSerializer):
             "updated_at",
             "created_at",
             "duration",
+            "status",
         ]
+
+    def get_status(self, obj):
+        if obj.end_time < timezone.localtime():
+            return "Conducted"
+        elif obj.start_time < timezone.localtime():
+            return "Live"
+        else:
+            return "Scheduled"
 
 
 class PaymentSerializer(serializers.ModelSerializer):

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
+
 // Mui components
 import {
   Typography,
@@ -26,8 +26,8 @@ import MainPaper from 'components/MainPaper';
 import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded';
 
 // redux
-import { useDispatch } from 'react-redux';
-import { changeExam } from 'store/reducers/exam';
+// import { useDispatch } from 'react-redux';
+// import { changeExam } from 'store/reducers/exam';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -104,10 +104,9 @@ EnhancedTableHead.propTypes = {
 };
 
 export default function EnhancedTable(props) {
-  const { headCells, rows, title } = props;
-  const navigate = useNavigate();
+  const { headCells, rows, title, handleRowClick } = props;
 
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState(headCells[0].name);
@@ -119,11 +118,6 @@ export default function EnhancedTable(props) {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
-  };
-
-  const handleClick = (event, id) => {
-    dispatch(changeExam({ examId: id }));
-    return navigate('/my-exams/exam-details');
   };
 
   const handleChangePage = (event, newPage) => {
@@ -152,7 +146,7 @@ export default function EnhancedTable(props) {
               return (
                 <TableRow
                   hover
-                  onClick={(event) => handleClick(event, row.id)}
+                  onClick={(event) => handleRowClick(event, row.id)}
                   role="checkbox"
                   tabIndex={-1}
                   key={row.id}
@@ -160,8 +154,8 @@ export default function EnhancedTable(props) {
                 >
                   {headCells.map((cell, index) => {
                     let name = cell.id;
-
                     return (
+                      // For each column
                       <TableCell
                         sx={{ pl: { xs: 1, sm: index === 0 ? 3 : 1 }, pr: { xs: 1, sm: index === headCells.length - 1 ? 3 : 1 } }}
                         align={cell.numeric ? 'right' : 'left'}

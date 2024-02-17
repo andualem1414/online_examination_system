@@ -14,6 +14,7 @@ export default function Button(theme) {
       },
       styleOverrides: {
         root: {
+          borderRadius: 12,
           fontWeight: 400
         },
         contained: {
