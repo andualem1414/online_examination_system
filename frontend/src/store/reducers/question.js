@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getQuestions } from 'api/questions';
+import { getQuestions, createQuestionRequest } from 'api/questions';
 
 const initialState = {
   questions: [],
@@ -18,10 +18,10 @@ export const fetchQuestions = createAsyncThunk('question/fetchQuestions', async 
 //   return response;
 // });
 
-// export const createData = createAsyncThunk('exam/createData', async (data) => {
-//   const response = await createExam(data);
-//   return response;
-// });
+export const createQuestion = createAsyncThunk('question/createQuestion', async (data) => {
+  const response = await createQuestionRequest(data);
+  return response;
+});
 
 // export const updateData = createAsyncThunk('exam/updateData', async (id, data) => {
 //   const response = await updateExam(id, data);
@@ -51,36 +51,36 @@ const question = createSlice({
       .addCase(fetchQuestions.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+
+      //   // Exam Details
+      //   .addCase(fetchExamDetails.pending, (state) => {
+      //     state.loading = true;
+      //     state.error = null;
+      //   })
+      //   .addCase(fetchExamDetails.fulfilled, (state, action) => {
+      //     state.loading = false;
+      //     state.examDetails = action.payload;
+      //   })
+      //   .addCase(fetchExamDetails.rejected, (state, action) => {
+      //     state.loading = false;
+      //     state.error = action.error.message;
+      //   })
+
+      // Create data
+      .addCase(createQuestion.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createQuestion.fulfilled, (state, action) => {
+        // Add the new data to the state
+        // state.data.push(action.payload);
+        state.loading = false;
+      })
+      .addCase(createQuestion.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
       });
-
-    //   // Exam Details
-    //   .addCase(fetchExamDetails.pending, (state) => {
-    //     state.loading = true;
-    //     state.error = null;
-    //   })
-    //   .addCase(fetchExamDetails.fulfilled, (state, action) => {
-    //     state.loading = false;
-    //     state.examDetails = action.payload;
-    //   })
-    //   .addCase(fetchExamDetails.rejected, (state, action) => {
-    //     state.loading = false;
-    //     state.error = action.error.message;
-    //   })
-
-    //   // Create data
-    //   .addCase(createData.pending, (state) => {
-    //     state.loading = true;
-    //     state.error = null;
-    //   })
-    //   .addCase(createData.fulfilled, (state, action) => {
-    //     // Add the new data to the state
-    //     state.data.push(action.payload);
-    //     state.loading = false;
-    //   })
-    //   .addCase(createData.rejected, (state, action) => {
-    //     state.loading = false;
-    //     state.error = action.error.message;
-    //   })
 
     //   // Update data
     //   .addCase(updateData.pending, (state) => {

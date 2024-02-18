@@ -5,18 +5,19 @@ export const getQuestions = async (id) => {
     const response = await axiosPrivate.get(`/questions/?exam-id=${id}`);
     return response.data;
   } catch (error) {
-    throw new Error('Failed to fetch data:', error);
+    throw new Error('Failed to fetch data', error);
   }
 };
 
-// export const createExam = async (data) => {
-//   try {
-//     const response = await axiosPrivate.post(`/data`, data);
-//     return response.data;
-//   } catch (error) {
-//     throw new Error('Failed to create data:', error);
-//   }
-// };
+export const createQuestionRequest = async (data) => {
+  try {
+    const response = await axiosPrivate.post(`/questions/`, data);
+    return response.data;
+  } catch (error) {
+    // console.log(error.response.data.detail);
+    throw new Error('Failed to create Questions', error);
+  }
+};
 
 // export const updateExam = async (id, data) => {
 //   try {

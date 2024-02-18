@@ -32,6 +32,7 @@ const ExamDetails = () => {
 
   useEffect(() => {
     dispatch(fetchExamDetails(examId));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
   useEffect(() => {
@@ -48,6 +49,7 @@ const ExamDetails = () => {
     console.log(buttonName, endTime.toTimeString());
 
     dispatch(fetchQuestions(examDetails.id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, examDetails]);
 
   const chipColorSelector = (type) => {
