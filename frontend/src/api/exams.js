@@ -1,45 +1,45 @@
 import { axiosPrivate } from './axios';
 
-export const getExams = async () => {
+export const getExamsAPI = async () => {
   try {
     const response = await axiosPrivate.get(`/exams`);
     return response.data;
   } catch (error) {
-    throw new Error('Failed to fetch data:', error);
+    throw new Error('Failed to fetch Exams', error);
   }
 };
 
-export const createExam = async (data) => {
-  try {
-    const response = await axiosPrivate.post(`/data`, data);
-    return response.data;
-  } catch (error) {
-    throw new Error('Failed to create data:', error);
-  }
-};
-
-export const updateExam = async (id, data) => {
-  try {
-    const response = await axiosPrivate.patch(`/data/${id}`, data);
-    return response.data;
-  } catch (error) {
-    throw new Error('Failed to update data:', error);
-  }
-};
-
-export const deleteExam = async (id) => {
-  try {
-    await axiosPrivate.delete(`/data/${id}`);
-  } catch (error) {
-    throw new Error('Failed to delete data:', error);
-  }
-};
-
-export const examDetails = async (id) => {
+export const examDetailsAPI = async (id) => {
   try {
     const response = await axiosPrivate.get(`/exams/${id}/`);
     return response.data;
   } catch (error) {
-    throw new Error('Failed to find exam:', error);
+    throw new Error('Failed to find exam', error);
+  }
+};
+
+export const createExamAPI = async (data) => {
+  try {
+    const response = await axiosPrivate.post(`/exams/`, data);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to create Exam', error);
+  }
+};
+
+export const updateExamAPI = async (id, data) => {
+  try {
+    const response = await axiosPrivate.patch(`exams/${id}/update/`, data);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to update Exam', error);
+  }
+};
+
+export const deleteExamAPI = async (id) => {
+  try {
+    await axiosPrivate.delete(`exams/${id}/delete/`);
+  } catch (error) {
+    throw new Error('Failed to delete Exam', error);
   }
 };

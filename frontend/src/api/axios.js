@@ -10,7 +10,7 @@ export const axiosPrivate = axios.create({
   headers: {
     'Content-Type': 'application/json',
     Authorization:
-      'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzA4Mjg3NDkwLCJpYXQiOjE3MDgyODQ0OTAsImp0aSI6IjY4NzU2ZWY1ZTZjODQwMWJhYjdhYTI0ODJiMjMwZjYwIiwidXNlcl9pZCI6OH0.3lObMhRKcb6BpjAddOxUPc3TXVbefBYvrGz_rDejNs4'
+      'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzA4NTMzNTc4LCJpYXQiOjE3MDg0NDcxNzgsImp0aSI6ImNmYTExYWZhYTFjZjRkMTY4YmU4MDhmZGY1MjkyZmJmIiwidXNlcl9pZCI6OH0.f5_er900gHHve_5Apt19EoAnedjnNER-tGIOMSKPprM'
   }
   // withCredentials: true
 });

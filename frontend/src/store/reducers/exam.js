@@ -1,5 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { createExam, deleteExam, getExams, updateExam, examDetails } from 'api/exams';
+import {
+  getExamsAPI,
+  examDetailsAPI,
+  createExamAPI,
+  updateExamAPI,
+  deleteExamAPI
+} from 'api/exams';
 
 const initialState = {
   exams: [],
@@ -9,28 +15,28 @@ const initialState = {
 };
 
 export const fetchExams = createAsyncThunk('exam/fetchExams', async () => {
-  const response = await getExams();
+  const response = await getExamsAPI();
   return response;
 });
 
-export const fetchExamDetails = createAsyncThunk('exam/ExamDetails', async (id) => {
-  const response = await examDetails(id);
+export const fetchExamDetails = createAsyncThunk('exam/examDetails', async (id) => {
+  const response = await examDetailsAPI(id);
   return response;
 });
 
-export const createData = createAsyncThunk('exam/createData', async (data) => {
-  const response = await createExam(data);
+export const createExam = createAsyncThunk('exam/createExam', async (data) => {
+  const response = await createExamAPI(data);
   return response;
 });
 
-export const updateData = createAsyncThunk('exam/updateData', async (id, data) => {
-  const response = await updateExam(id, data);
+export const updateExam = createAsyncThunk('exam/updateExam', async ({ id, data }) => {
+  const response = await updateExamAPI(id, data);
   return response;
 });
 
-export const deleteData = createAsyncThunk('exam/deleteData', async (id) => {
-  await deleteExam(id);
-  return id; // Return ID so it can be removed from the list
+export const deleteExam = createAsyncThunk('exam/deleteExam', async (id) => {
+  await deleteExamAPI(id);
+  return id;
 });
 
 const exam = createSlice({
@@ -39,7 +45,7 @@ const exam = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Fetch data
+      // Fetch Exam
       .addCase(fetchExams.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -67,53 +73,47 @@ const exam = createSlice({
         state.error = action.error.message;
       })
 
-      // Create data
-      .addCase(createData.pending, (state) => {
+      // Create Exam
+      .addCase(createExam.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(createData.fulfilled, (state, action) => {
-        // Add the new data to the state
-        state.data.push(action.payload);
+      .addCase(createExam.fulfilled, (state, action) => {
+        state.examDetails = action.payload;
         state.loading = false;
       })
-      .addCase(createData.rejected, (state, action) => {
+      .addCase(createExam.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
 
-      // Update data
-      .addCase(updateData.pending, (state) => {
+      // Update Exam
+      .addCase(updateExam.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(updateData.fulfilled, (state, action) => {
-        // Update the existing data in the state
-        const index = state.data.findIndex((item) => item.id === action.payload.id);
-        if (index !== -1) {
-          state.data[index] = action.payload;
-        }
+      .addCase(updateExam.fulfilled, (state, action) => {
+        state.examDetails = action.payload;
         state.loading = false;
       })
-      .addCase(updateData.rejected, (state, action) => {
+      .addCase(updateExam.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
 
-      // Delete data
-      .addCase(deleteData.pending, (state) => {
+      // Delete Exam
+      .addCase(deleteExam.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(deleteData.fulfilled, (state, action) => {
-        // Remove the deleted data from the state
-        const index = state.data.findIndex((item) => item.id === action.payload);
+      .addCase(deleteExam.fulfilled, (state, action) => {
+        const index = state.exams.findIndex((item) => item.id === action.payload);
         if (index !== -1) {
-          state.data.splice(index, 1);
+          state.exams.splice(index, 1);
         }
         state.loading = false;
       })
-      .addCase(deleteData.rejected, (state, action) => {
+      .addCase(deleteExam.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

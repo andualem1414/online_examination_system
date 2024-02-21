@@ -1,38 +1,72 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { createQuestion } from 'store/reducers/question';
 import { useDispatch, useSelector } from 'react-redux';
 
-// material-ui
-import { Button, Divider, FormHelperText, Grid, InputLabel, OutlinedInput, Stack, Typography } from '@mui/material';
+// Material-UI
+import {
+  Button,
+  Divider,
+  FormHelperText,
+  Grid,
+  InputLabel,
+  OutlinedInput,
+  Stack,
+  Typography,
+  Select,
+  MenuItem
+} from '@mui/material';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
-// third party
+// Third party
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 import { useSnackbar } from 'notistack';
+import { fetchQuestionDetails, updateQuestion } from 'store/reducers/question';
 
-// project import
+// Custon Components
 import AnimateButton from 'components/@extended/AnimateButton';
 import MainPaper from 'components/MainPaper';
 import TableComponent from 'components/TableComponent';
+import DeleteQuestion from './DeleteQuestion';
 
 const AddQuestion = () => {
   const examId = localStorage.getItem('examId');
-  const error = useSelector((state) => state.question.error);
-  const { questionType } = useLocation().state;
+  const questionDetails = useSelector((state) => state.question.questionDetails);
+
+  const { questionType, questionId } = useLocation().state;
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
 
-  const [choices, setChoices] = useState([]);
+  const [choices, setChoices] = useState(questionId ? JSON.parse(questionDetails.choices) : []);
   const [inputValue, setInputValue] = React.useState('');
 
-  const [success, setSuccess] = useState(false);
+  // For Deleting Question
+  let [deleteModal, setDeleteModal] = useState(false);
+  let handleDeleteClose = () => setDeleteModal(false);
+  let handleDeleteOpen = () => setDeleteModal(true);
 
-  // useEffect(() => {
-  //   if (success) {
-  //     enqueueSnackbar('Question Have been created successfully!', { variant: 'success' });
-  //   }
-  // }, [success]);
+  const initialValues = questionId
+    ? {
+        exam: examId,
+        question: questionDetails.question,
+        answer: questionDetails.answer,
+        point: questionDetails.point,
+        choices: JSON.parse(questionDetails.choices),
+        type: questionDetails.type,
+        submit: null
+      }
+    : {
+        exam: examId,
+        question: '',
+        answer: questionType === 'TRUE_FALSE' ? 'True' : '',
+        point: 0,
+        choices: choices,
+        type: questionType,
+        submit: null
+      };
 
   const handleClick = () => {
     const asciiValue = 65 + choices.length;
@@ -48,7 +82,6 @@ const AddQuestion = () => {
 
   const handleRowClick = (event, id) => {
     const newChoices = choices.filter((item) => item.id !== id);
-    console.log(newChoices, id);
     setChoices(newChoices);
   };
 
@@ -67,35 +100,43 @@ const AddQuestion = () => {
 
   return (
     <>
+      <DeleteQuestion
+        questionId={questionDetails.id}
+        deleteModal={deleteModal}
+        handleDeleteClose={handleDeleteClose}
+      />
       <Formik
-        initialValues={{
-          exam: 40,
-          question: '',
-          answer: '',
-          point: 0,
-          choice: choices,
-          type: questionType.toUpperCase(),
-          submit: null
-        }}
+        initialValues={initialValues}
         validationSchema={Yup.object().shape({
           question: Yup.string().required('Question is required'),
           answer: Yup.string().required('Answer is required'),
-          point: Yup.number('Please Enter a valid Integer').integer('Must be a valid Integer').required('Point is required'),
-          choice: Yup.array()
+          point: Yup.number('Please Enter a valid Integer')
+            .integer('Must be a valid Integer')
+            .required('Point is required'),
+          choices: Yup.array()
         })}
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
           try {
-            values.type = 'TRUE_FALSE';
-            values.choice = choices;
+            values.choices = JSON.stringify(choices);
 
-            dispatch(createQuestion(values)).then((data) => {
-              if (data.type === 'question/createQuestion/fulfilled') {
-                enqueueSnackbar('Question Created Successfully', { variant: 'success' });
-              }
-              if (data.type === 'question/createQuestion/rejected') {
-                enqueueSnackbar(data.error.message, { variant: 'error' });
-              }
-            });
+            console.log(values);
+            questionId
+              ? dispatch(updateQuestion({ id: questionDetails.id, data: values })).then((data) => {
+                  if (data.type === 'question/updateQuestion/fulfilled') {
+                    enqueueSnackbar('Question Updated Successfully', { variant: 'success' });
+                  }
+                  if (data.type === 'question/updateQuestion/rejected') {
+                    enqueueSnackbar(data.error.message, { variant: 'error' });
+                  }
+                })
+              : dispatch(createQuestion(values)).then((data) => {
+                  if (data.type === 'question/createQuestion/fulfilled') {
+                    enqueueSnackbar('Question Created Successfully', { variant: 'success' });
+                  }
+                  if (data.type === 'question/createQuestion/rejected') {
+                    enqueueSnackbar(data.error.message, { variant: 'error' });
+                  }
+                });
 
             setStatus({ success: false });
             setSubmitting(false);
@@ -137,32 +178,97 @@ const AddQuestion = () => {
                 </Grid>
 
                 {/* Answer Input */}
-                <Grid item>
-                  <Stack spacing={1}>
-                    <InputLabel htmlFor="answer">Answer</InputLabel>
-                    <OutlinedInput
-                      id="answer"
-                      type="text"
-                      multiline
-                      value={values.answer}
-                      name="answer"
-                      onBlur={handleBlur}
-                      onChange={handleChange}
-                      sx={{ borderRadius: '14px' }}
-                      placeholder="Enter Your answer Here"
-                      fullWidth
-                      error={Boolean(touched.answer && errors.answer)}
-                    />
-                    {touched.answer && errors.answer && (
-                      <FormHelperText error id="standard-weight-helper-text-answer">
-                        {errors.answer}
-                      </FormHelperText>
-                    )}
-                  </Stack>
-                </Grid>
+                {questionType === 'SHORT_ANSWER' && (
+                  <Grid item>
+                    <Stack spacing={1}>
+                      <InputLabel htmlFor="answer">Answer</InputLabel>
+                      <OutlinedInput
+                        id="answer"
+                        type="text"
+                        multiline
+                        value={values.answer}
+                        name="answer"
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        sx={{ borderRadius: '14px' }}
+                        placeholder="Enter Your answer Here"
+                        fullWidth
+                        error={Boolean(touched.answer && errors.answer)}
+                      />
+                      {touched.answer && errors.answer && (
+                        <FormHelperText error id="standard-weight-helper-text-answer">
+                          {errors.answer}
+                        </FormHelperText>
+                      )}
+                    </Stack>
+                  </Grid>
+                )}
+
+                {questionType === 'CHOICE' && (
+                  <Grid item>
+                    <Stack spacing={1}>
+                      <InputLabel htmlFor="answer">Answer</InputLabel>
+                      {/* <OutlinedInput
+                        id="answer"
+                        type="text"
+                        multiline
+                        value={values.answer}
+                        name="answer"
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        sx={{ borderRadius: '14px' }}
+                        placeholder="Enter Your answer Here"
+                        fullWidth
+                        error={Boolean(touched.answer && errors.answer)}
+                      /> */}
+                      <Select
+                        id="answer"
+                        name="answer"
+                        value={values.answer}
+                        label="Age"
+                        onChange={handleChange}
+                        sx={{ borderRadius: '14px' }}
+                        error={Boolean(touched.answer && errors.answer)}
+                      >
+                        {choices.map((choice) => (
+                          <MenuItem value={choice.identifier}>{choice.identifier}</MenuItem>
+                        ))}
+                      </Select>
+                      {touched.answer && errors.answer && (
+                        <FormHelperText error id="standard-weight-helper-text-answer">
+                          {errors.answer}
+                        </FormHelperText>
+                      )}
+                    </Stack>
+                  </Grid>
+                )}
+
+                {questionType === 'TRUE_FALSE' && (
+                  <Grid item>
+                    <Stack spacing={1}>
+                      <InputLabel htmlFor="answer">Answer</InputLabel>
+
+                      <RadioGroup
+                        name="answer"
+                        id="answer"
+                        value={values.answer}
+                        onChange={handleChange}
+                        error={Boolean(touched.answer && errors.answer)}
+                      >
+                        <FormControlLabel value="True" control={<Radio />} label="True" />
+                        <FormControlLabel value="False" control={<Radio />} label="False" />
+                      </RadioGroup>
+                      {touched.answer && errors.answer && (
+                        <FormHelperText error id="standard-weight-helper-text-answer">
+                          {errors.answer}
+                        </FormHelperText>
+                      )}
+                    </Stack>
+                  </Grid>
+                )}
 
                 {/* choice selector if the question type is choice */}
-                {questionType === 'Choice' && (
+                {questionType === 'CHOICE' && (
                   <Grid item container display="flex" spacing={2} sx={{ mt: 1 }}>
                     <Grid item xs={12}>
                       <Grid item container spacing={2}>
@@ -189,7 +295,12 @@ const AddQuestion = () => {
                           </Stack>
                         </Grid>
                         <Grid item xs={3} display="flex">
-                          <Button variant="outlined" sx={{ my: 3.3, height: '43px' }} fullWidth onClick={handleClick}>
+                          <Button
+                            variant="outlined"
+                            sx={{ my: 3.3, height: '43px' }}
+                            fullWidth
+                            onClick={handleClick}
+                          >
                             Add
                           </Button>
                         </Grid>
@@ -197,7 +308,12 @@ const AddQuestion = () => {
                     </Grid>
 
                     <Grid item xs={12}>
-                      <TableComponent headCells={headCells} rows={choices} title="Choices" handleRowClick={handleRowClick} />
+                      <TableComponent
+                        headCells={headCells}
+                        rows={choices}
+                        title="Choices"
+                        handleRowClick={handleRowClick}
+                      />
                     </Grid>
                   </Grid>
                 )}
@@ -205,7 +321,10 @@ const AddQuestion = () => {
 
               {/* Question Detail */}
               <Grid item xs={12} md={4}>
-                <MainPaper component="div" sx={{ display: 'flex', overflow: 'auto', p: 4, height: '370px' }}>
+                <MainPaper
+                  component="div"
+                  sx={{ display: 'flex', overflow: 'auto', p: 4, height: '370px' }}
+                >
                   <Stack direction="column" flex={1} justifyContent="space-between">
                     <Stack direction="column" spacing={2}>
                       <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
@@ -233,20 +352,43 @@ const AddQuestion = () => {
                           {errors.point}
                         </FormHelperText>
                       )}
-                      <Stack sx={{ mb: 1 }} alignItems="center" direction="row" justifyContent="space-between">
+                      <Stack
+                        sx={{ mb: 1 }}
+                        alignItems="center"
+                        direction="row"
+                        justifyContent="space-between"
+                      >
                         <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
                           Question Type:
                         </Typography>
                         <Typography>{questionType}</Typography>
                       </Stack>
-                      <Stack sx={{ mb: 1 }} alignItems="center" direction="row" justifyContent="space-between">
+                      <Stack
+                        sx={{ mb: 1 }}
+                        alignItems="center"
+                        direction="row"
+                        justifyContent="space-between"
+                      >
                         <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
                           Exam:
                         </Typography>
                         <Typography>{examId}</Typography>
                       </Stack>
                     </Stack>
-
+                    {questionId && (
+                      <AnimateButton>
+                        <Button
+                          disableElevation
+                          fullWidth
+                          size="large"
+                          onClick={() => handleDeleteOpen()}
+                          variant="contained"
+                          color="error"
+                        >
+                          Delete Question
+                        </Button>
+                      </AnimateButton>
+                    )}
                     <AnimateButton>
                       <Button
                         disableElevation
@@ -257,7 +399,7 @@ const AddQuestion = () => {
                         variant="contained"
                         color="primary"
                       >
-                        Add Question
+                        {questionId ? 'Update Question' : 'Add Question'}
                       </Button>
                     </AnimateButton>
                   </Stack>

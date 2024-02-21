@@ -5,13 +5,14 @@ from exams.models import Exam
 
 
 class QuestionSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Question
         fields = [
             "id",
             "exam",
             "question",
-            # "choice"
+            "choices",
             "answer",
             "point",
             "type",

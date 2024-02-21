@@ -1,5 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getQuestions, createQuestionRequest } from 'api/questions';
+import {
+  getQuestionsAPI,
+  questionDetailsAPI,
+  createQuestionAPI,
+  updateQuestionAPI,
+  deleteQuestionAPI
+} from 'api/questions';
 
 const initialState = {
   questions: [],
@@ -9,29 +15,29 @@ const initialState = {
 };
 
 export const fetchQuestions = createAsyncThunk('question/fetchQuestions', async (id) => {
-  const response = await getQuestions(id);
+  const response = await getQuestionsAPI(id);
   return response;
 });
 
-// export const fetchExamDetails = createAsyncThunk('exam/ExamDetails', async (id) => {
-//   const response = await examDetails(id);
-//   return response;
-// });
+export const fetchQuestionDetails = createAsyncThunk('question/questionDetails', async (id) => {
+  const response = await questionDetailsAPI(id);
+  return response;
+});
 
 export const createQuestion = createAsyncThunk('question/createQuestion', async (data) => {
-  const response = await createQuestionRequest(data);
+  const response = await createQuestionAPI(data);
   return response;
 });
 
-// export const updateData = createAsyncThunk('exam/updateData', async (id, data) => {
-//   const response = await updateExam(id, data);
-//   return response;
-// });
+export const updateQuestion = createAsyncThunk('question/updateQuestion', async ({ id, data }) => {
+  const response = await updateQuestionAPI(id, data);
+  return response;
+});
 
-// export const deleteData = createAsyncThunk('exam/deleteData', async (id) => {
-//   await deleteExam(id);
-//   return id; // Return ID so it can be removed from the list
-// });
+export const deleteQuestion = createAsyncThunk('question/deleteQuestion', async (id) => {
+  await deleteQuestionAPI(id);
+  return id;
+});
 
 const question = createSlice({
   name: 'question',
@@ -39,7 +45,7 @@ const question = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Fetch data
+      // Fetch Question
       .addCase(fetchQuestions.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -53,70 +59,64 @@ const question = createSlice({
         state.error = action.error.message;
       })
 
-      //   // Exam Details
-      //   .addCase(fetchExamDetails.pending, (state) => {
-      //     state.loading = true;
-      //     state.error = null;
-      //   })
-      //   .addCase(fetchExamDetails.fulfilled, (state, action) => {
-      //     state.loading = false;
-      //     state.examDetails = action.payload;
-      //   })
-      //   .addCase(fetchExamDetails.rejected, (state, action) => {
-      //     state.loading = false;
-      //     state.error = action.error.message;
-      //   })
+      // Question Details
+      .addCase(fetchQuestionDetails.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchQuestionDetails.fulfilled, (state, action) => {
+        state.questionDetails = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchQuestionDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
 
-      // Create data
+      // Create Question
       .addCase(createQuestion.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(createQuestion.fulfilled, (state, action) => {
-        // Add the new data to the state
-        // state.data.push(action.payload);
+        state.questionDetails = action.payload;
         state.loading = false;
       })
       .addCase(createQuestion.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+
+      // Update Question
+      .addCase(updateQuestion.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateQuestion.fulfilled, (state, action) => {
+        state.questionDetails = action.payload;
+        state.loading = false;
+      })
+      .addCase(updateQuestion.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
+      // Delete Question
+      .addCase(deleteQuestion.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteQuestion.fulfilled, (state, action) => {
+        const index = state.questions.findIndex((item) => item.id === action.payload);
+        if (index !== -1) {
+          state.questions.splice(index, 1);
+        }
+        state.loading = false;
+      })
+      .addCase(deleteQuestion.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
       });
-
-    //   // Update data
-    //   .addCase(updateData.pending, (state) => {
-    //     state.loading = true;
-    //     state.error = null;
-    //   })
-    //   .addCase(updateData.fulfilled, (state, action) => {
-    //     // Update the existing data in the state
-    //     const index = state.data.findIndex((item) => item.id === action.payload.id);
-    //     if (index !== -1) {
-    //       state.data[index] = action.payload;
-    //     }
-    //     state.loading = false;
-    //   })
-    //   .addCase(updateData.rejected, (state, action) => {
-    //     state.loading = false;
-    //     state.error = action.error.message;
-    //   })
-
-    //   // Delete data
-    //   .addCase(deleteData.pending, (state) => {
-    //     state.loading = true;
-    //     state.error = null;
-    //   })
-    //   .addCase(deleteData.fulfilled, (state, action) => {
-    //     // Remove the deleted data from the state
-    //     const index = state.data.findIndex((item) => item.id === action.payload);
-    //     if (index !== -1) {
-    //       state.data.splice(index, 1);
-    //     }
-    //     state.loading = false;
-    //   })
-    //   .addCase(deleteData.rejected, (state, action) => {
-    //     state.loading = false;
-    //     state.error = action.error.message;
-    //   });
   }
 });
 

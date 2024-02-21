@@ -62,7 +62,8 @@ const MyExam = () => {
 
   useEffect(() => {
     dispatch(fetchExams());
-  }, [dispatch]);
+    console.log(new Date());
+  }, []);
 
   const Detailsdata = [
     {

@@ -9,7 +9,7 @@ import TableComponent from 'components/TableComponent';
 import SearchField from 'components/SearchField';
 
 // Redux Imports
-import { fetchQuestions } from 'store/reducers/question';
+import { fetchQuestions, fetchQuestionDetails } from 'store/reducers/question';
 import { fetchExamDetails } from 'store/reducers/exam';
 
 import { useSelector, useDispatch } from 'react-redux';
@@ -46,7 +46,6 @@ const ExamDetails = () => {
     } else {
       setButtonName({ name: 'Add Question', disabled: false });
     }
-    console.log(buttonName, endTime.toTimeString());
 
     dispatch(fetchQuestions(examDetails.id));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -55,6 +54,8 @@ const ExamDetails = () => {
   const chipColorSelector = (type) => {
     if (type === 'SHORT_ANSWER') {
       return 'success';
+    } else if (type === 'CHOICE') {
+      return 'warning';
     } else {
       return 'primary';
     }
@@ -82,7 +83,7 @@ const ExamDetails = () => {
 
   // Change to either Questions or Results
   const handelButtonClick = (buttonName) => {
-    if (['Choice', 'True/False', 'Short Answer'].includes(buttonName)) {
+    if (['CHOICE', 'TRUE_FALSE', 'SHORT_ANSWER'].includes(buttonName)) {
       navigate('/my-exams/exam-details/add-question', { state: { questionType: buttonName } });
     } else if (buttonName === 'Question') {
       setButtonName({ name: 'Result', disabled: false });
@@ -98,22 +99,37 @@ const ExamDetails = () => {
 
   // For every Questions
   const handleRowClick = (event, id) => {
-    // dispatch(fetchExamDetails(id));
-    // return navigate('/my-exams/exam-details');
+    dispatch(fetchQuestionDetails(id)).then((data) => {
+      if (data.type === 'question/questionDetails/fulfilled') {
+        const questionType = data.payload.type;
+        navigate('/my-exams/exam-details/add-question', {
+          state: { questionId: id, questionType: questionType }
+        });
+      }
+    });
   };
 
   return (
     <>
       <Grid container spacing={2}>
         <Grid item xs={12}>
-          <HeaderDetailsComponent examDetails={examDetails} buttonName={buttonName} handleButtonClick={handelButtonClick} />
+          <HeaderDetailsComponent
+            examDetails={examDetails}
+            buttonName={buttonName}
+            handleButtonClick={handelButtonClick}
+          />
         </Grid>
 
         <Grid item xs={12} md={8} display="block" justifyContent="center">
           {loading ? (
             <div>Loading...</div>
           ) : questions.length > 0 ? (
-            <TableComponent headCells={headCells} rows={questions} title="Questions" handleRowClick={handleRowClick} />
+            <TableComponent
+              headCells={headCells}
+              rows={questions}
+              title="Questions"
+              handleRowClick={handleRowClick}
+            />
           ) : (
             <Typography variant="h5" textAlign="center">
               Added Questions will be displayed here!
