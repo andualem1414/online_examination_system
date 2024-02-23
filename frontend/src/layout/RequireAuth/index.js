@@ -5,8 +5,6 @@ import { useSelector } from 'react-redux';
 const RequireAuth = ({ allowedTypes }) => {
   const user = useSelector((state) => state.user.userDetails);
   const location = useLocation();
-  console.log(allowedTypes, user);
-
   return allowedTypes?.includes(user?.user_type) ? (
     <Outlet />
   ) : user?.username ? (

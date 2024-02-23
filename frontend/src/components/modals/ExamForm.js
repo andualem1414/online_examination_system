@@ -26,8 +26,8 @@ import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
 
 // Custom Components
-import { createExam, updateExam } from 'store/reducers/exam';
-import DeleteExam from './DeleteExam';
+import { createExam, updateExam, deleteExam } from 'store/reducers/exam';
+import Confirmation from './Confirmation';
 
 const ExamForm = (props) => {
   const { open, handleClose, modalType, initialValues, examId } = props;
@@ -37,14 +37,37 @@ const ExamForm = (props) => {
   const navigate = useNavigate();
 
   // For Delete Modal
-  let [deleteModal, setDeleteModal] = useState(false);
-  let handleDeleteClose = () => setDeleteModal(false);
-  let handleDeleteOpen = () => setDeleteModal(true);
+  let [openConfimation, setOpenConfimation] = useState(false);
+  let handleConfimationClose = () => setOpenConfimation(false);
+  let handleConfimationOpen = () => setOpenConfimation(true);
+
+  const handleConfimationClick = () => {
+    dispatch(deleteExam(examId)).then((data) => {
+      if (data.type === 'exam/deleteExam/fulfilled') {
+        enqueueSnackbar('Exam Deleted Successfully', {
+          variant: 'success'
+        });
+        handleConfimationClose();
+        navigate('/my-exams');
+      }
+      if (data.type === 'exam/deleteExam/rejected') {
+        enqueueSnackbar(data.error.message, {
+          variant: 'error'
+        });
+      }
+    });
+  };
 
   return (
     <>
       {/* Delete Confirmation Modal */}
-      <DeleteExam examId={examId} deleteModal={deleteModal} handleDeleteClose={handleDeleteClose} />
+      <Confirmation
+        openConfimation={openConfimation}
+        handleConfimationClose={handleConfimationClose}
+        handleConfimationClick={handleConfimationClick}
+        warning={'Are you sure you want to delete this exam?'}
+        ConfirmButton={'Delete'}
+      />
 
       <Modal
         aria-labelledby="transition-modal-title"
@@ -267,7 +290,7 @@ const ExamForm = (props) => {
                             color="error"
                             sx={{ mb: 2 }}
                             onClick={() => {
-                              handleDeleteOpen();
+                              handleConfimationOpen();
                             }}
                           >
                             Delete Exam

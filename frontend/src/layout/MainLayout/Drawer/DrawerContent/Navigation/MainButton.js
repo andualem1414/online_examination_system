@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography, Button } from '@mui/material';
-import ExamForm from './modals/ExamForm';
+import ExamForm from '../../../../../components/modals/ExamForm';
+import JoinExam from '../../../../../components/modals/JoinExam';
 import * as dayjs from 'dayjs';
 
 const MainButton = ({ name, icon }) => {
@@ -18,12 +19,17 @@ const MainButton = ({ name, icon }) => {
   return (
     <Box sx={{ mb: 2, display: 'flex', justifyContent: 'center' }}>
       {/* Create Exam Modal */}
-      <ExamForm
-        open={open}
-        handleClose={handleClose}
-        initialValues={initialValues}
-        modalType="Create"
-      />
+      {name === 'Join Exam' ? (
+        <JoinExam open={open} handleClose={handleClose} />
+      ) : (
+        <ExamForm
+          open={open}
+          handleClose={handleClose}
+          initialValues={initialValues}
+          modalType={name === 'Create Exam' ? 'Create' : 'Join'}
+        />
+      )}
+
       <Button
         sx={{ borderRadius: '24px', py: 1 }}
         onClick={handleOpen}

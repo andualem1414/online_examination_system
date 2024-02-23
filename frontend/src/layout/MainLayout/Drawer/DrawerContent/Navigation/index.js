@@ -7,7 +7,8 @@ import NavGroup from './NavGroup';
 import menuItem from 'menu-items';
 
 // component import
-import MainButton from 'components/MainButton';
+import MainButton from 'layout/MainLayout/Drawer/DrawerContent/Navigation/MainButton';
+import { useSelector } from 'react-redux';
 
 // ==============================|| DRAWER CONTENT - NAVIGATION ||============================== //
 
@@ -16,9 +17,15 @@ const Navigation = () => {
     return <NavGroup key={item.id} item={item} />;
   });
 
+  const user = useSelector((state) => state.user.userDetails);
+
   return (
     <Box sx={{ pt: 2 }}>
-      <MainButton name="Create Exam" icon={<Plus />} />
+      {user.user_type === 'EXAMINER' ? (
+        <MainButton name="Create Exam" icon={<Plus />} />
+      ) : (
+        <MainButton name="Join Exam" icon={<Plus />} />
+      )}
       {navGroups}
     </Box>
   );

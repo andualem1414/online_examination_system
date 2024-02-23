@@ -2,38 +2,42 @@ import React, { useState } from 'react';
 
 // Custom components
 import MainCard from 'components/MainCard';
-import DeleteExam from './modals/DeleteExam';
-import ExamForm from './modals/ExamForm';
+import Confirmation from '../../components/modals/Confirmation';
+import ExamForm from '../../components/modals/ExamForm';
+import { useNavigate } from 'react-router-dom';
 
 // Third Party
 import { Switch, Dropdown } from 'antd';
+import { useSnackbar } from 'notistack';
 import * as dayjs from 'dayjs';
 
 // Material Ui
 import { Typography, Stack, Chip, Grid, Button, Tooltip } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
+// Redux
 import { dispatch } from 'store/index';
-import { updateExam } from 'store/reducers/exam';
-import { useSnackbar } from 'notistack';
+import { updateExam, deleteExam } from 'store/reducers/exam';
+import { useSelector } from 'react-redux';
+import { deleteExamineeExam } from 'store/reducers/examineeExam';
 
 const HeaderDetailsComponent = (props) => {
-  const { examDetails, buttonName, handleButtonClick } = props;
+  const user = useSelector((state) => state.user.userDetails);
+
+  const { enqueueSnackbar } = useSnackbar();
+  const navigate = useNavigate();
+
+  const { examDetails, examineeExamDetails, buttonName, handleButtonClick } = props;
+
   const date = new Date(examDetails.start_time);
   const [copied, setCopied] = useState(false);
-  const { enqueueSnackbar } = useSnackbar();
 
   // For Update Modal
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-
-  // For Delete Modal
-  let [deleteModal, setDeleteModal] = useState(false);
-  let handleDeleteClose = () => setDeleteModal(false);
-  let handleDeleteOpen = () => setDeleteModal(true);
 
   // Initial Values for Update Modal
   const initialValues = {
@@ -43,11 +47,69 @@ const HeaderDetailsComponent = (props) => {
     end_time: dayjs(examDetails.end_time)
   };
 
+  // Dropdown Items
+  const items = [
+    {
+      key: '1',
+      label: <Typography onClick={(e) => handleButtonClick('CHOICE')}>Choice</Typography>
+    },
+
+    {
+      key: '2',
+      label: <Typography onClick={(e) => handleButtonClick('TRUE_FALSE')}>True/False</Typography>
+    },
+
+    {
+      key: '3',
+      label: (
+        <Typography onClick={(e) => handleButtonClick('SHORT_ANSWER')}>Short Answer</Typography>
+      )
+    }
+  ];
+
+  let [openConfimation, setOpenConfimation] = useState(false);
+  let [warning, setwarning] = useState('');
+  let [confirmButton, setconfirmButton] = useState('');
+  let handleConfimationClose = () => setOpenConfimation(false);
+
+  let handleConfimationOpen = (warning, confirmButton) => {
+    setwarning(warning);
+    setconfirmButton(confirmButton);
+    setOpenConfimation(true);
+  };
+
+  // Leave Exam
+  const handleConfimationClick = () => {
+    if (confirmButton === 'Leave') {
+      dispatch(deleteExamineeExam(examineeExamDetails.id)).then((data) => {
+        if (data.type === 'examineeExam/deleteExamineeExam/fulfilled') {
+          enqueueSnackbar('Successfully left Exam', { variant: 'success' });
+          navigate('/my-exams');
+        }
+      });
+    } else {
+      dispatch(deleteExam(examDetails.id)).then((data) => {
+        if (data.type === 'exam/deleteExam/fulfilled') {
+          enqueueSnackbar('Exam Deleted Successfully', {
+            variant: 'success'
+          });
+          handleConfimationClose();
+          navigate('/my-exams');
+        }
+        if (data.type === 'exam/deleteExam/rejected') {
+          enqueueSnackbar(data.error.message, {
+            variant: 'error'
+          });
+        }
+      });
+    }
+  };
+
   // Copy code to Clipboard
   const handleCopyClick = async (textCopied) => {
     const text = textCopied.target.innerText;
     try {
-      await navigator.clipboard.writeText(text.slice(5, -1));
+      await navigator.clipboard.writeText(text.slice(6));
       setCopied(true);
       setTimeout(() => setCopied(false), 1000);
     } catch (error) {
@@ -56,43 +118,14 @@ const HeaderDetailsComponent = (props) => {
     }
   };
 
-  // Question Type selector
-  const handleDropdownButtonClick = (e, type) => {
-    handleButtonClick(type);
-  };
-
-  // Dropdown Items
-  const items = [
-    {
-      key: '1',
-      label: <Typography onClick={(e) => handleDropdownButtonClick(e, 'CHOICE')}>Choice</Typography>
-    },
-
-    {
-      key: '2',
-      label: (
-        <Typography onClick={(e) => handleDropdownButtonClick(e, 'TRUE_FALSE')}>
-          True/False
-        </Typography>
-      )
-    },
-
-    {
-      key: '3',
-      label: (
-        <Typography onClick={(e) => handleDropdownButtonClick(e, 'SHORT_ANSWER')}>
-          Short Answer
-        </Typography>
-      )
-    }
-  ];
-
   return (
     <>
-      <DeleteExam
-        examId={examDetails.id}
-        deleteModal={deleteModal}
-        handleDeleteClose={handleDeleteClose}
+      <Confirmation
+        openConfimation={openConfimation}
+        handleConfimationClose={handleConfimationClose}
+        handleConfimationClick={handleConfimationClick}
+        warning={warning}
+        ConfirmButton={confirmButton}
       />
       <ExamForm
         open={open}
@@ -119,7 +152,7 @@ const HeaderDetailsComponent = (props) => {
             {/* Exam controls */}
             <Stack direction="row" justifyContent="flex-start" spacing={{ xs: 1, sm: 2, md: 4 }}>
               {/* TODO change comparision !== */}
-              {examDetails.status === 'Scheduled' && (
+              {examDetails.status === 'Scheduled' && user.user_type === 'EXAMINER' && (
                 <Chip
                   sx={{ px: 1 }}
                   icon={<EditIcon color="secondary" fontSize="small" />}
@@ -147,7 +180,7 @@ const HeaderDetailsComponent = (props) => {
               </Tooltip>
 
               {/* TO Public switcher */}
-              {examDetails.status === 'Conducted' && (
+              {examDetails.status === 'Conducted' && user.user_type === 'EXAMINER' && (
                 <Stack
                   direction="row"
                   alignItems="center"
@@ -181,7 +214,7 @@ const HeaderDetailsComponent = (props) => {
                 </Stack>
               )}
               {/* TO Remote switcher */}
-              {examDetails.status === 'Scheduled' && (
+              {examDetails.status === 'Scheduled' && user.user_type === 'EXAMINER' && (
                 <Stack
                   direction="row"
                   alignItems="center"
@@ -216,13 +249,15 @@ const HeaderDetailsComponent = (props) => {
               )}
 
               {/* Delete Button for exam */}
-              {examDetails.status === 'Conducted' && (
+              {examDetails.status === 'Conducted' && user.user_type === 'EXAMINER' && (
                 <Chip
                   sx={{ px: 1 }}
                   color="error"
                   icon={<DeleteRoundedIcon color="error" fontSize="small" />}
                   label={<Typography>Delete</Typography>}
-                  onClick={() => handleDeleteOpen()}
+                  onClick={() =>
+                    handleConfimationOpen('Are you sure you want to delete this exam?', 'Delete')
+                  }
                   variant="outlined"
                 />
               )}
@@ -230,18 +265,24 @@ const HeaderDetailsComponent = (props) => {
           </Grid>
 
           {/* public switcher for mobile Devices */}
-          <Grid item xs={12} sx={{ display: { xs: 'block', md: 'none' } }}>
-            <Stack direction="row" alignItems="center" sx={{ display: { xs: 'flex', md: 'none' } }}>
-              <Typography variant="h5" sx={{ mr: 1 }}>
-                Public:
-              </Typography>
-              <Switch
-                checked={true}
-                onChange={() => {}}
-                inputProps={{ 'aria-label': 'controlled' }}
-              />
-            </Stack>
-          </Grid>
+          {user.user_type === 'EXAMINER' && (
+            <Grid item xs={12} sx={{ display: { xs: 'block', md: 'none' } }}>
+              <Stack
+                direction="row"
+                alignItems="center"
+                sx={{ display: { xs: 'flex', md: 'none' } }}
+              >
+                <Typography variant="h5" sx={{ mr: 1 }}>
+                  Public:
+                </Typography>
+                <Switch
+                  checked={true}
+                  onChange={() => {}}
+                  inputProps={{ 'aria-label': 'controlled' }}
+                />
+              </Stack>
+            </Grid>
+          )}
 
           {/* Time and Date shower */}
           <Grid
@@ -270,40 +311,89 @@ const HeaderDetailsComponent = (props) => {
           </Grid>
 
           {/* Interchangable Main Button */}
-          <Grid
-            item
-            xs={12}
-            md={4}
-            sx={{ pr: 6 }}
-            display="flex"
-            justifyContent={{ xs: 'flex-start', md: 'flex-end' }}
-            alignItems="center"
-          >
-            {buttonName.name === 'Add Question' ? (
-              <Dropdown menu={{ items }} placement="bottom">
+          {user.user_type === 'EXAMINER' ? (
+            <Grid
+              item
+              xs={12}
+              md={4}
+              sx={{ pr: 6 }}
+              display="flex"
+              justifyContent={{ xs: 'flex-start', md: 'flex-end' }}
+              alignItems="center"
+            >
+              {buttonName.name === 'Add Question' ? (
+                <Dropdown menu={{ items }} placement="bottom">
+                  <Button
+                    disabled={buttonName.disabled}
+                    variant="contained"
+                    color="success"
+                    startIcon={<ExpandMoreIcon />}
+                  >
+                    {buttonName.name}
+                  </Button>
+                </Dropdown>
+              ) : (
                 <Button
-                  disabled={buttonName.disabled}
                   variant="contained"
                   color="success"
-                  startIcon={<ExpandMoreIcon />}
+                  onClick={(e) => {
+                    handleButtonClick(e.target.innerText);
+                    console.log(e);
+                  }}
+                  disabled={buttonName.disabled}
                 >
                   {buttonName.name}
                 </Button>
-              </Dropdown>
-            ) : (
-              <Button
-                variant="contained"
-                color="success"
-                onClick={(e) => {
-                  handleButtonClick(e.target.innerText);
-                  console.log(e);
-                }}
-                disabled={buttonName.disabled}
-              >
-                {buttonName.name}
-              </Button>
-            )}
-          </Grid>
+              )}
+            </Grid>
+          ) : (
+            <Grid
+              item
+              xs={12}
+              md={4}
+              sx={{ pr: 6 }}
+              display="flex"
+              justifyContent={{ xs: 'flex-start', md: 'flex-end' }}
+              alignItems="center"
+            >
+              {examDetails.status === 'Conducted' ? (
+                // Show Result
+                <>
+                  <Typography variant="h4" sx={{ mr: 2 }}>
+                    Result:{' '}
+                  </Typography>
+                  <Chip
+                    color="success"
+                    label={<Typography variant="h4">9/10{examineeExamDetails.score}</Typography>}
+                  />
+                </>
+              ) : (
+                // Show Leave Exam and Start Exam
+                <Stack direction="row" spacing={2}>
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    onClick={(e) =>
+                      handleConfimationOpen('Are you sure you want to Leave this Exam?', 'Leave')
+                    }
+                  >
+                    Leave Exam
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="success"
+                    onClick={(e) => {
+                      handleButtonClick(e.target.innerText);
+                      console.log(e);
+                    }}
+                    disabled={examDetails.status === 'live' ? false : true}
+                  >
+                    Start Exam
+                  </Button>
+                </Stack>
+              )}
+            </Grid>
+          )}
         </Grid>
       </MainCard>
     </>
