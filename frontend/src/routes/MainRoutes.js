@@ -3,6 +3,7 @@ import { lazy } from 'react';
 // project import
 import Loadable from 'components/Loadable';
 import MainLayout from 'layout/MainLayout';
+import RequireAuth from 'layout/RequireAuth';
 
 // render - dashboard
 const DashboardDefault = Loadable(lazy(() => import('pages/dashboard')));
@@ -27,44 +28,54 @@ const MainRoutes = {
   element: <MainLayout />,
   children: [
     {
-      path: '/',
-      element: <DashboardDefault />
+      element: <RequireAuth allowedTypes={['EXAMINEE', 'EXAMINER']} />,
+      children: [
+        {
+          path: '/',
+          element: <DashboardDefault />
+        },
+        {
+          path: 'color',
+          element: <Color />
+        },
+        {
+          path: 'dashboard',
+          element: <DashboardDefault />
+        },
+        {
+          path: 'sample-page',
+          element: <SamplePage />
+        },
+        {
+          path: 'shadow',
+          element: <Shadow />
+        },
+        {
+          path: 'typography',
+          element: <Typography />
+        },
+        {
+          path: 'icons/ant',
+          element: <AntIcons />
+        },
+        {
+          path: 'my-exams',
+          element: <MyExams />
+        },
+        {
+          path: 'my-exams/exam-details',
+          element: <ExamDetails />
+        }
+      ]
     },
     {
-      path: 'color',
-      element: <Color />
-    },
-    {
-      path: 'dashboard',
-      element: <DashboardDefault />
-    },
-    {
-      path: 'sample-page',
-      element: <SamplePage />
-    },
-    {
-      path: 'shadow',
-      element: <Shadow />
-    },
-    {
-      path: 'typography',
-      element: <Typography />
-    },
-    {
-      path: 'icons/ant',
-      element: <AntIcons />
-    },
-    {
-      path: 'my-exams',
-      element: <MyExams />
-    },
-    {
-      path: 'my-exams/exam-details',
-      element: <ExamDetails />
-    },
-    {
-      path: 'my-exams/exam-details/add-question',
-      element: <AddQuestion />
+      element: <RequireAuth allowedTypes={['EXAMINER']} />,
+      children: [
+        {
+          path: 'my-exams/exam-details/add-question',
+          element: <AddQuestion />
+        }
+      ]
     }
   ]
 };

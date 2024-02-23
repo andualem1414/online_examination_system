@@ -64,6 +64,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = "oes.urls"
 CORS_URLS_REGEX = r"^/api/.*"
 CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]
+CORS_ALLOW_CREDENTIALS = True
 
 TEMPLATES = [
     {
@@ -151,6 +152,6 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ["Bearer"],
-    "ACCESS_TOKEN_LIFETIME": datetime.timedelta(days=1),
-    "REFRESH_TOKEN_LIFETIME": datetime.timedelta(days=2),
+    "ACCESS_TOKEN_LIFETIME": datetime.timedelta(seconds=10),
+    "REFRESH_TOKEN_LIFETIME": datetime.timedelta(seconds=15),
 }

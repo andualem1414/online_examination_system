@@ -5,7 +5,6 @@ import { Link as RouterLink } from 'react-router-dom';
 import {
   Button,
   Checkbox,
-  Divider,
   FormControlLabel,
   FormHelperText,
   Grid,
@@ -21,13 +20,19 @@ import {
 // third party
 import * as Yup from 'yup';
 import { Formik } from 'formik';
+import { useSnackbar } from 'notistack';
+
+import { useDispatch } from 'react-redux';
 
 // project import
-import FirebaseSocial from './FirebaseSocial';
 import AnimateButton from 'components/@extended/AnimateButton';
+import axios from 'api/axios';
 
 // assets
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
+import { fetchUserDetails } from 'store/reducers/user';
+
+import { useNavigate } from 'react-router-dom';
 
 // ============================|| FIREBASE - LOGIN ||============================ //
 
@@ -35,6 +40,11 @@ const AuthLogin = () => {
   const [checked, setChecked] = React.useState(false);
 
   const [showPassword, setShowPassword] = React.useState(false);
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
+
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -42,23 +52,54 @@ const AuthLogin = () => {
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
   };
-
   return (
     <>
       <Formik
         initialValues={{
           email: 'info@codedthemes.com',
-          password: '123456',
+          username: 'user3',
+          password: 'a123434!',
           submit: null
         }}
         validationSchema={Yup.object().shape({
-          email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
+          username: Yup.string().required('Username is required'),
+          email: Yup.string().email('Must be a valid email'),
           password: Yup.string().max(255).required('Password is required')
         })}
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
+          const fields = {
+            username: values.username,
+            password: values.password
+          };
+
           try {
+            const response = await axios.post(`/users/login/`, fields, {
+              headers: { 'Content-Type': 'application/json' }
+            });
+
+            localStorage.setItem('accessToken', response?.data.access);
+            localStorage.setItem('refreshToken', response?.data.refresh);
+
             setStatus({ success: false });
             setSubmitting(false);
+
+            dispatch(fetchUserDetails()).then((data) => {
+              if (data.type === 'user/userDetails/fulfilled') {
+                enqueueSnackbar(`Welcome! ${data.payload.username}`, { variant: 'success' });
+
+                const originalUrl = sessionStorage.getItem('originalUrl');
+                if (originalUrl) {
+                  // Clear the stored original URL
+                  sessionStorage.removeItem('originalUrl');
+
+                  // Redirect the user back to the original URL
+                  navigate(originalUrl, { replace: true });
+                } else {
+                  // Redirect the user to a default page, such as the home page
+                  navigate('/dashboard');
+                }
+              }
+            });
           } catch (err) {
             setStatus({ success: false });
             setErrors({ submit: err.message });
@@ -69,6 +110,7 @@ const AuthLogin = () => {
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
           <form noValidate onSubmit={handleSubmit}>
             <Grid container spacing={3}>
+              {/* Email */}
               <Grid item xs={12}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="email-login">Email Address</InputLabel>
@@ -90,7 +132,29 @@ const AuthLogin = () => {
                   )}
                 </Stack>
               </Grid>
-
+              {/* Username */}
+              <Grid item xs={12}>
+                <Stack spacing={1}>
+                  <InputLabel htmlFor="username-login">Username</InputLabel>
+                  <OutlinedInput
+                    id="username-login"
+                    type="username"
+                    value={values.username}
+                    name="username"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    placeholder="Enter username address"
+                    fullWidth
+                    error={Boolean(touched.username && errors.username)}
+                  />
+                  {touched.username && errors.username && (
+                    <FormHelperText error id="standard-weight-helper-text-username-login">
+                      {errors.username}
+                    </FormHelperText>
+                  )}
+                </Stack>
+              </Grid>
+              {/* Password */}
               <Grid item xs={12}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="password-login">Password</InputLabel>
@@ -127,7 +191,12 @@ const AuthLogin = () => {
               </Grid>
 
               <Grid item xs={12} sx={{ mt: -1 }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  spacing={2}
+                >
                   <FormControlLabel
                     control={
                       <Checkbox
@@ -154,7 +223,15 @@ const AuthLogin = () => {
 
               <Grid item xs={12}>
                 <AnimateButton>
-                  <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="primary">
+                  <Button
+                    disableElevation
+                    disabled={isSubmitting}
+                    fullWidth
+                    size="large"
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                  >
                     Login
                   </Button>
                 </AnimateButton>

@@ -24,11 +24,11 @@ const root = createRoot(container); // createRoot(container!) if you use TypeScr
 root.render(
   <StrictMode>
     <ReduxProvider store={store}>
-      {/* <PersistGate loading={null} persistor={persistedStore}> */}
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-      {/* </PersistGate> */}
+      <PersistGate loading={null} persistor={persistedStore}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </PersistGate>
     </ReduxProvider>
   </StrictMode>
 );

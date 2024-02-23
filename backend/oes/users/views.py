@@ -1,7 +1,10 @@
 from rest_framework import generics
 from .models import User
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 from .serializers import UserSerializer
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 
@@ -18,9 +21,15 @@ class UserListCreateAPIView(generics.ListCreateAPIView):
         user.save()
 
 
-class UserDetailAPIView(generics.RetrieveAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+class UserDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Get the authenticated user
+        user = request.user
+
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
 
 
 class UserDestroyAPIView(generics.DestroyAPIView):
