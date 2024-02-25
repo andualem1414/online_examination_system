@@ -388,7 +388,8 @@ const HeaderDetailsComponent = (props) => {
                   </Typography>
                   <Stack direction="column" sx={{ mr: 6 }}>
                     <Chip
-                      color="primary"
+                      color="success"
+                      variant="light"
                       label={<Typography variant="h5">9/10{examineeExamDetails.score}</Typography>}
                     />
                   </Stack>

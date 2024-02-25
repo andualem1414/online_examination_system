@@ -39,8 +39,7 @@ const ExamDetails = () => {
   const examineesForSpecificExams = useSelector(
     (state) => state.examineeExam.examineesForSpecificExams
   );
-  // const examineeAnswers = useSelector((state) => state.examineeAnswer.examineeAnswers);
-  const [examineeAnswersList, setExamineeAnswersList] = useState([]);
+  const examineeAnswers = useSelector((state) => state.examineeAnswer.examineeAnswers);
 
   const startTime = new Date(examDetails.start_time);
   const endTime = new Date(examDetails.end_time);
@@ -77,29 +76,11 @@ const ExamDetails = () => {
       dispatch(fetchQuestions(examDetails.id));
     }
     if (user.user_type === 'EXAMINEE') {
-      dispatch(fetchExamineeAnswers(examineeExamDetails.exam?.id)).then((data) => {
-        if (data.type === 'examineeAnswer/ExamineeAnswers/fulfilled') {
-          let list = data.payload.map((answer) => {
-            let question = { ...answer.question };
-            question['result'] = answer.result;
-            return question;
-          });
-
-          setExamineeAnswersList(list);
-        }
-      });
+      dispatch(fetchExamineeAnswers(examineeExamDetails.exam?.id));
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, examDetails, examineeExamDetails]);
-
-  const ResultChipColorSelector = (number) => {
-    if (number === 0) {
-      return 'error';
-    } else {
-      return 'primary';
-    }
-  };
 
   const chipColorSelector = (type) => {
     if (type === 'SHORT_ANSWER') {
@@ -121,7 +102,7 @@ const ExamDetails = () => {
 
   const scoreChipColorSelector = (type) => {
     if (type === 0) {
-      return 'success';
+      return 'error';
     } else {
       return 'primary';
     }
@@ -147,15 +128,32 @@ const ExamDetails = () => {
     }
   ];
 
-  if (user.user_type === 'EXAMINEE') {
-    headCells.push({
+  const headCellsForExamineeAnswer = [
+    {
+      id: 'question.question',
+      numeric: false,
+      label: 'Question'
+    },
+    {
+      id: 'question.type',
+      numeric: false,
+      label: 'Type',
+      chip: true,
+      chipColor: chipColorSelector
+    },
+    {
+      id: 'question.point',
+      numeric: true,
+      label: 'Point'
+    },
+    {
       id: 'result',
       numeric: true,
       label: 'Result',
       chip: true,
-      chipColor: ResultChipColorSelector
-    });
-  }
+      chipColor: scoreChipColorSelector
+    }
+  ];
 
   const headCellsForExaminees = [
     {
@@ -225,7 +223,7 @@ const ExamDetails = () => {
       });
     } else {
       navigate('/my-exams/exam-details/question-details', {
-        state: { examineeAnswer: id }
+        state: { examineeAnswerId: id }
       });
     }
   };
@@ -280,12 +278,12 @@ const ExamDetails = () => {
           <Grid item xs={12} md={8} display="block" justifyContent="center">
             {loading ? (
               <div>Loading...</div>
-            ) : examineeAnswersList.length > 0 &&
+            ) : examineeAnswers.length > 0 &&
               examineeExamDetails?.id &&
               examineeExamDetails.exam.status === 'Conducted' ? (
               <TableComponent
-                headCells={headCells}
-                rows={examineeAnswersList}
+                headCells={headCellsForExamineeAnswer}
+                rows={examineeAnswers}
                 title="Answers"
                 handleRowClick={handleRowClick}
               />
