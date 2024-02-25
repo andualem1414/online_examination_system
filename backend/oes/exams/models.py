@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils import timezone
+import datetime
 
 from users.models import User
 
@@ -24,8 +26,18 @@ class Exam(models.Model):
     def duration(self):
         try:
             return self.end_time - self.start_time
+
         except:
             return None
+
+    @property
+    def status(self):
+        if self.end_time < timezone.localtime():
+            return "Conducted"
+        if self.start_time < timezone.localtime():
+            return "Live"
+        else:
+            return "Scheduled"
 
     def __str__(self):
         return self.title

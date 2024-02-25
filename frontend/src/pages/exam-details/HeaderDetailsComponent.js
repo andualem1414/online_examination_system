@@ -16,6 +16,7 @@ import { Typography, Stack, Chip, Grid, Button, Tooltip } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 
 // Redux
 import { dispatch } from 'store/index';
@@ -195,7 +196,6 @@ const HeaderDetailsComponent = (props) => {
                       dispatch(
                         updateExam({ id: examDetails.id, data: { public: !examDetails.public } })
                       ).then((data) => {
-                        console.log(data);
                         if (data.type === 'exam/updateExam/fulfilled') {
                           if (data.payload.public === true) {
                             enqueueSnackbar('Question is Now PUBLIC', { variant: 'info' });
@@ -229,7 +229,6 @@ const HeaderDetailsComponent = (props) => {
                       dispatch(
                         updateExam({ id: examDetails.id, data: { remote: !examDetails.remote } })
                       ).then((data) => {
-                        console.log(data);
                         if (data.type === 'exam/updateExam/fulfilled') {
                           if (data.payload.remote === true) {
                             enqueueSnackbar('Question is Now REMOTE', { variant: 'info' });
@@ -257,6 +256,20 @@ const HeaderDetailsComponent = (props) => {
                   label={<Typography>Delete</Typography>}
                   onClick={() =>
                     handleConfimationOpen('Are you sure you want to delete this exam?', 'Delete')
+                  }
+                  variant="outlined"
+                />
+              )}
+
+              {/* Leave Exam chip */}
+              {examDetails.status === 'Conducted' && user.user_type === 'EXAMINEE' && (
+                <Chip
+                  sx={{ px: 1 }}
+                  color="error"
+                  icon={<ExitToAppIcon color="error" fontSize="small" />}
+                  label={<Typography>Leave</Typography>}
+                  onClick={() =>
+                    handleConfimationOpen('Are you sure you want to Leave this Exam?', 'Leave')
                   }
                   variant="outlined"
                 />
@@ -322,23 +335,34 @@ const HeaderDetailsComponent = (props) => {
               alignItems="center"
             >
               {buttonName.name === 'Add Question' ? (
-                <Dropdown menu={{ items }} placement="bottom">
+                <Stack direction="row" spacing={2}>
                   <Button
-                    disabled={buttonName.disabled}
-                    variant="contained"
-                    color="success"
-                    startIcon={<ExpandMoreIcon />}
+                    variant="outlined"
+                    color="secondary"
+                    onClick={(e) => {
+                      handleButtonClick('examinees');
+                    }}
                   >
-                    {buttonName.name}
+                    Joined Examinees
                   </Button>
-                </Dropdown>
+                  <Dropdown menu={{ items }} placement="bottom">
+                    <Button
+                      disabled={buttonName.disabled}
+                      variant="contained"
+                      color="success"
+                      startIcon={<ExpandMoreIcon />}
+                    >
+                      {buttonName.name}
+                    </Button>
+                  </Dropdown>
+                </Stack>
               ) : (
                 <Button
                   variant="contained"
-                  color="success"
+                  color={buttonName.name === 'Results' ? 'warning' : 'success'}
+                  sx={{ width: '110px' }}
                   onClick={(e) => {
                     handleButtonClick(e.target.innerText);
-                    console.log(e);
                   }}
                   disabled={buttonName.disabled}
                 >
@@ -358,15 +382,17 @@ const HeaderDetailsComponent = (props) => {
             >
               {examDetails.status === 'Conducted' ? (
                 // Show Result
-                <>
-                  <Typography variant="h4" sx={{ mr: 2 }}>
-                    Result:{' '}
+                <Stack direction="row">
+                  <Typography variant="h5" sx={{ mr: 5.4 }}>
+                    Result:
                   </Typography>
-                  <Chip
-                    color="success"
-                    label={<Typography variant="h4">9/10{examineeExamDetails.score}</Typography>}
-                  />
-                </>
+                  <Stack direction="column" sx={{ mr: 6 }}>
+                    <Chip
+                      color="primary"
+                      label={<Typography variant="h5">9/10{examineeExamDetails.score}</Typography>}
+                    />
+                  </Stack>
+                </Stack>
               ) : (
                 // Show Leave Exam and Start Exam
                 <Stack direction="row" spacing={2}>
@@ -384,9 +410,8 @@ const HeaderDetailsComponent = (props) => {
                     color="success"
                     onClick={(e) => {
                       handleButtonClick(e.target.innerText);
-                      console.log(e);
                     }}
-                    disabled={examDetails.status === 'live' ? false : true}
+                    disabled={examDetails.status === 'Live' ? false : true}
                   >
                     Start Exam
                   </Button>

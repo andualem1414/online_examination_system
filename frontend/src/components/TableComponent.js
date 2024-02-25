@@ -40,7 +40,9 @@ function descendingComparator(a, b, orderBy) {
 }
 
 function getComparator(order, orderBy) {
-  return order === 'desc' ? (a, b) => descendingComparator(a, b, orderBy) : (a, b) => -descendingComparator(a, b, orderBy);
+  return order === 'desc'
+    ? (a, b) => descendingComparator(a, b, orderBy)
+    : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
 function EnhancedTableToolbar(props) {
@@ -80,7 +82,10 @@ function EnhancedTableHead(props) {
             key={headCell.id}
             align={headCell.numeric ? 'right' : 'left'}
             sortDirection={orderBy === headCell.id ? order : false}
-            sx={{ pl: { xs: 1, sm: index === 0 ? 3 : 1 }, pr: { xs: 1, sm: index === headCells.length - 1 ? 3 : 1 } }}
+            sx={{
+              pl: { xs: 1, sm: index === 0 ? 3 : 1 },
+              pr: { xs: 1, sm: index === headCells.length - 1 ? 3 : 1 }
+            }}
           >
             <TableSortLabel
               active={orderBy === headCell.id}
@@ -130,7 +135,10 @@ export default function EnhancedTable(props) {
   };
 
   const visibleRows = React.useMemo(
-    () => rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).sort(getComparator(order, orderBy)),
+    () =>
+      rows
+        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+        .sort(getComparator(order, orderBy)),
     [order, orderBy, page, rows, rowsPerPage]
   );
 
@@ -140,7 +148,12 @@ export default function EnhancedTable(props) {
       <Divider />
       <TableContainer>
         <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size="small">
-          <EnhancedTableHead order={order} orderBy={orderBy} onRequestSort={handleRequestSort} headCells={headCells} />
+          <EnhancedTableHead
+            order={order}
+            orderBy={orderBy}
+            onRequestSort={handleRequestSort}
+            headCells={headCells}
+          />
           <TableBody>
             {visibleRows.map((row, index) => {
               return (
@@ -154,16 +167,36 @@ export default function EnhancedTable(props) {
                 >
                   {headCells.map((cell, index) => {
                     let name = cell.id;
+                    let item = row;
+
+                    let nestedName = name.split('.');
+
+                    for (let loc of nestedName) {
+                      item = item[loc];
+                    }
+
                     return (
                       // For each column
                       <TableCell
-                        sx={{ pl: { xs: 1, sm: index === 0 ? 3 : 1 }, pr: { xs: 1, sm: index === headCells.length - 1 ? 3 : 1 } }}
+                        sx={{
+                          pl: { xs: 1, sm: index === 0 ? 3 : 1 },
+                          pr: { xs: 1, sm: index === headCells.length - 1 ? 3 : 1 }
+                        }}
                         align={cell.numeric ? 'right' : 'left'}
                         component="th"
                         scope="row"
                         padding="none"
                       >
-                        {cell?.chip ? <Chip size="small" variant="light" label={row[name]} color={cell.chipColor(row[name])} /> : row[name]}
+                        {cell?.chip ? (
+                          <Chip
+                            size="small"
+                            variant="light"
+                            label={item}
+                            color={cell.chipColor(item)}
+                          />
+                        ) : (
+                          item
+                        )}
                       </TableCell>
                     );
                   })}

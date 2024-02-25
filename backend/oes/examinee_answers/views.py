@@ -40,7 +40,9 @@ class ExamineeAnswerListCreateAPIView(HavePermissionMixin, generics.ListCreateAP
         # User ML algorithm here to calculate the result
         result = calculate_result(question, answer)
 
-        if ExamineeAnswer.objects.filter(question=question):
+        if ExamineeAnswer.objects.filter(
+            question=question, examinee=self.request.user
+        ).exists():
             raise serializers.ValidationError({"message": "Answer already exists"})
 
         serializer.save(examinee=self.request.user, exam=exam, result=result)

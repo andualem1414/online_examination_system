@@ -133,7 +133,6 @@ const ExamForm = (props) => {
                         }
                       })
                     : dispatch(updateExam({ id: examId, data: values })).then((data) => {
-                        console.log(data);
                         if (data.type === 'exam/updateExam/fulfilled') {
                           enqueueSnackbar('Exam Updated Successfully', {
                             variant: 'success'
@@ -230,7 +229,6 @@ const ExamForm = (props) => {
                               defaultValue={values.start_time}
                               onChange={(date, dateString) => {
                                 setFieldValue('start_time', dateString);
-                                console.log(values.start_time);
                               }}
                               getPopupContainer={(triggerNode) => triggerNode.parentNode}
                               showTime
@@ -253,7 +251,6 @@ const ExamForm = (props) => {
                               defaultValue={values.end_time}
                               onChange={(date, dateString) => {
                                 setFieldValue('end_time', dateString);
-                                console.log(values.end_time);
                               }}
                               getPopupContainer={(triggerNode) => triggerNode.parentNode}
                               showTime

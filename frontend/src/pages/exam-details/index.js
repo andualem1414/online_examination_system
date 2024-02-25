@@ -11,8 +11,11 @@ import SearchField from 'components/SearchField';
 
 // Redux Imports
 import { fetchQuestions, fetchQuestionDetails } from 'store/reducers/question';
-import { fetchExamDetails } from 'store/reducers/exam';
-import { fetchExamineeExamDetails } from 'store/reducers/examineeExam';
+import exam, { fetchExamDetails } from 'store/reducers/exam';
+import {
+  fetchExamineeExamDetails,
+  fetchExamineesForSpecificExams
+} from 'store/reducers/examineeExam';
 import { fetchExamineeAnswers } from 'store/reducers/examineeAnswer';
 import { useSelector, useDispatch } from 'react-redux';
 
@@ -33,6 +36,9 @@ const ExamDetails = () => {
 
   // Examinee
   const examineeExamDetails = useSelector((state) => state.examineeExam.examineeExamDetails);
+  const examineesForSpecificExams = useSelector(
+    (state) => state.examineeExam.examineesForSpecificExams
+  );
   // const examineeAnswers = useSelector((state) => state.examineeAnswer.examineeAnswers);
   const [examineeAnswersList, setExamineeAnswersList] = useState([]);
 
@@ -71,7 +77,7 @@ const ExamDetails = () => {
       dispatch(fetchQuestions(examDetails.id));
     }
     if (user.user_type === 'EXAMINEE') {
-      dispatch(fetchExamineeAnswers(examineeExamDetails.exam.id)).then((data) => {
+      dispatch(fetchExamineeAnswers(examineeExamDetails.exam?.id)).then((data) => {
         if (data.type === 'examineeAnswer/ExamineeAnswers/fulfilled') {
           let list = data.payload.map((answer) => {
             let question = { ...answer.question };
@@ -87,11 +93,35 @@ const ExamDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, examDetails, examineeExamDetails]);
 
+  const ResultChipColorSelector = (number) => {
+    if (number === 0) {
+      return 'error';
+    } else {
+      return 'primary';
+    }
+  };
+
   const chipColorSelector = (type) => {
     if (type === 'SHORT_ANSWER') {
       return 'success';
     } else if (type === 'CHOICE') {
       return 'warning';
+    } else {
+      return 'primary';
+    }
+  };
+
+  const flagsChipColorSelector = (type) => {
+    if (type === 0) {
+      return 'success';
+    } else {
+      return 'primary';
+    }
+  };
+
+  const scoreChipColorSelector = (type) => {
+    if (type === 0) {
+      return 'success';
     } else {
       return 'primary';
     }
@@ -106,7 +136,7 @@ const ExamDetails = () => {
     {
       id: 'type',
       numeric: false,
-      label: 'Status',
+      label: 'Type',
       chip: true,
       chipColor: chipColorSelector
     },
@@ -114,29 +144,73 @@ const ExamDetails = () => {
       id: 'point',
       numeric: true,
       label: 'Point'
-    },
-    user.user_type === 'EXAMINEE' && {
+    }
+  ];
+
+  if (user.user_type === 'EXAMINEE') {
+    headCells.push({
       id: 'result',
       numeric: true,
-      label: 'Result'
+      label: 'Result',
+      chip: true,
+      chipColor: ResultChipColorSelector
+    });
+  }
+
+  const headCellsForExaminees = [
+    {
+      id: 'examinee.username',
+      numeric: false,
+      label: 'Student'
+    },
+    {
+      id: 'flags',
+      numeric: false,
+      label: 'Flags',
+      chip: true,
+      chipColor: flagsChipColorSelector
+    },
+    {
+      id: 'score',
+      numeric: true,
+      label: 'Scores',
+      chip: true,
+      chipColor: scoreChipColorSelector
+    },
+
+    {
+      id: 'total_time',
+      numeric: true,
+      label: 'Total Time'
     }
   ];
 
   // Change to either Questions or Results
   const handelButtonClick = (buttonName) => {
     if (['CHOICE', 'TRUE_FALSE', 'SHORT_ANSWER'].includes(buttonName)) {
+      // Add Question based on the Type of Question
       navigate('/my-exams/exam-details/add-question', { state: { questionType: buttonName } });
-    } else if (buttonName === 'Question') {
-      setButtonName({ name: 'Result', disabled: false });
+    } else if (buttonName === 'Questions') {
+      if (startTime.getTime() < currentTime.getTime()) {
+        setButtonName({ name: 'Results', disabled: true });
+
+        // If exam is Conducted
+        if (endTime.getTime() < currentTime.getTime()) {
+          setButtonName({ name: 'Results', disabled: false });
+        }
+      } else {
+        setButtonName({ name: 'Add Question', disabled: false });
+      }
     } else {
-      setButtonName({ name: 'Question', disabled: false });
+      dispatch(fetchExamineesForSpecificExams(examId)).then((data) => {
+        console.log(data);
+      });
+      setButtonName({ name: 'Questions', disabled: false });
     }
   };
 
   // Handle Search form
-  const handleSearchOnChange = (e) => {
-    console.log(e);
-  };
+  const handleSearchOnChange = (e) => {};
 
   // For every Questions
   const handleRowClick = (event, id) => {
@@ -150,7 +224,9 @@ const ExamDetails = () => {
         }
       });
     } else {
-      // TODO
+      navigate('/my-exams/exam-details/question-details', {
+        state: { examineeAnswer: id }
+      });
     }
   };
 
@@ -159,15 +235,14 @@ const ExamDetails = () => {
       <Grid container spacing={2}>
         {/* Header Details */}
         <Grid item xs={12}>
-          {examineeExamDetails?.exam ||
-            (examDetails?.id && (
-              <HeaderDetailsComponent
-                examDetails={user.user_type === 'EXAMINER' ? examDetails : examineeExamDetails.exam}
-                examineeExamDetails={examineeExamDetails}
-                buttonName={user.user_type === 'EXAMINER' && buttonName}
-                handleButtonClick={handelButtonClick}
-              />
-            ))}
+          {(examineeExamDetails?.exam || examDetails?.id) && (
+            <HeaderDetailsComponent
+              examDetails={user.user_type === 'EXAMINER' ? examDetails : examineeExamDetails.exam}
+              examineeExamDetails={examineeExamDetails}
+              buttonName={user.user_type === 'EXAMINER' && buttonName}
+              handleButtonClick={handelButtonClick}
+            />
+          )}
         </Grid>
 
         {/* Question List */}
@@ -175,6 +250,19 @@ const ExamDetails = () => {
           <Grid item xs={12} md={8} display="block" justifyContent="center">
             {loading ? (
               <div>Loading...</div>
+            ) : buttonName.name === 'Questions' ? (
+              examineesForSpecificExams.length > 0 ? (
+                <TableComponent
+                  headCells={headCellsForExaminees}
+                  rows={examineesForSpecificExams}
+                  title="Examinees"
+                  handleRowClick={handleRowClick}
+                />
+              ) : (
+                <Typography variant="h5" textAlign="center">
+                  Examinees Joined your exam will be listed here!
+                </Typography>
+              )
             ) : questions.length > 0 ? (
               <TableComponent
                 headCells={headCells}
@@ -192,20 +280,22 @@ const ExamDetails = () => {
           <Grid item xs={12} md={8} display="block" justifyContent="center">
             {loading ? (
               <div>Loading...</div>
-            ) : examineeAnswersList.length > 0 ? (
+            ) : examineeAnswersList.length > 0 &&
+              examineeExamDetails?.id &&
+              examineeExamDetails.exam.status === 'Conducted' ? (
               <TableComponent
                 headCells={headCells}
                 rows={examineeAnswersList}
                 title="Answers"
                 handleRowClick={handleRowClick}
               />
-            ) : examineeExamDetails.exam.status === 'Conducted' ? (
+            ) : examineeExamDetails?.id && examineeExamDetails.exam.status === 'Conducted' ? (
               <Typography variant="h5" textAlign="center">
                 No Answers Available for this Exam
               </Typography>
             ) : (
               <Typography variant="h5" textAlign="center">
-                Result will be avilable after Exam
+                Results will be avilable after Exam
               </Typography>
             )}
           </Grid>

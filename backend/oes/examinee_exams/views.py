@@ -1,6 +1,7 @@
 from rest_framework import generics, serializers, status
 from rest_framework.response import Response
 
+
 from exams.models import Exam
 from users.mixins import HavePermissionMixin
 from examinee_answers.models import ExamineeAnswer, Flag
@@ -26,9 +27,15 @@ class ExamineeExamListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIV
 
         if Exam.objects.filter(exam_code=exam_code).exists():
             exam = Exam.objects.get(exam_code=exam_code)
+
             already_joined = ExamineeExam.objects.filter(
                 exam=exam, examinee=self.request.user
             )
+
+            if exam.status != "Scheduled":
+                raise serializers.ValidationError(
+                    {"detail": "You can't Join after the Exam starts"}
+                )
 
             if already_joined:
                 raise serializers.ValidationError({"detail": "Already joined"})

@@ -57,6 +57,7 @@ axiosPrivate.interceptors.response.use(
         return axiosPrivate(originalRequest);
       } catch (refreshError) {
         // Redirect to login page and save the current path
+
         sessionStorage.setItem('originalUrl', window.location.pathname);
         window.location.href = '/login';
       }

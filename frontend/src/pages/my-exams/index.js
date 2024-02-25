@@ -21,7 +21,6 @@ const MyExam = () => {
   const user = useSelector((state) => state.user.userDetails);
   const exams = useSelector((state) => state.exam.exams);
   const examineeExams = useSelector((state) => state.examineeExam.examineeExams);
-  const [examineeExamsList, setExamineeExamsList] = useState([]);
   const loading = useSelector((state) => state.exam.loading);
 
   // const error = useSelector((state) => state.exam.error);
@@ -100,9 +99,7 @@ const MyExam = () => {
     }
   ];
 
-  const handleSearchOnChange = (e) => {
-    console.log(e);
-  };
+  const handleSearchOnChange = (e) => {};
 
   // for every exams
   const handleRowClick = (event, id) => {
@@ -125,7 +122,7 @@ const MyExam = () => {
       <Grid item xs={12} md={8} display="block" justifyContent="center">
         {loading ? (
           <div>Loading...</div>
-        ) : exams.length > 0 || examineeExamsList.length > 0 ? (
+        ) : exams.length > 0 || examineeExams.length > 0 ? (
           <TableComponent
             headCells={headCells}
             rows={

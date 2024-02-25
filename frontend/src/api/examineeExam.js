@@ -9,6 +9,15 @@ export const getExamineeExamsAPI = async () => {
   }
 };
 
+export const getExamineesForSpecificExamsAPI = async (id) => {
+  try {
+    const response = await axiosPrivate.get(`examinee-exams/examinees?exam-id=${id}`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch Exams', error);
+  }
+};
+
 export const examineeExamDetailsAPI = async (id) => {
   try {
     const response = await axiosPrivate.get(`/examinee-exams/${id}/`);
@@ -23,7 +32,11 @@ export const createExamineeExamAPI = async (data) => {
     const response = await axiosPrivate.post(`/examinee-exams/`, data);
     return response.data;
   } catch (error) {
-    throw new Error('Failed to Join Exam', error);
+    if (error.response.data.detail) {
+      throw new Error(error.response.data.detail);
+    } else {
+      throw new Error('Failed to Join Exam');
+    }
   }
 };
 

@@ -20,7 +20,7 @@ class ExamineeAnswer(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.question.question
+        return self.answer
 
 
 class Flag(models.Model):

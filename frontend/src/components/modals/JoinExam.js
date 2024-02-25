@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 // Material UI
 import {
@@ -30,6 +30,7 @@ import { createExamineeExam } from 'store/reducers/examineeExam';
 const JoinExam = (props) => {
   const { open, handleClose } = props;
   const { enqueueSnackbar } = useSnackbar();
+  const error = useSelector((state) => state.examineeExam.error);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -90,7 +91,7 @@ const JoinExam = (props) => {
                     navigate('/my-exams/exam-details');
                   }
                   if (data.type === 'examineeExam/createExamineeExam/rejected') {
-                    enqueueSnackbar('Failed to Join Exam, Exam Not found', {
+                    enqueueSnackbar(`${data.error.message}`, {
                       variant: 'error'
                     });
                   }

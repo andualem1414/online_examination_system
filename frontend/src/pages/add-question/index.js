@@ -77,7 +77,6 @@ const AddQuestion = () => {
       choice: inputValue
     };
     setChoices([...choices, data]);
-    console.log(choices);
   };
 
   const handleRowClick = (event, id) => {
@@ -119,7 +118,6 @@ const AddQuestion = () => {
           try {
             values.choices = JSON.stringify(choices);
 
-            console.log(values);
             questionId
               ? dispatch(updateQuestion({ id: questionDetails.id, data: values })).then((data) => {
                   if (data.type === 'question/updateQuestion/fulfilled') {

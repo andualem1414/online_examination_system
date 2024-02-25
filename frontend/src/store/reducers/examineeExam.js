@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import {
   getExamineeExamsAPI,
+  getExamineesForSpecificExamsAPI,
   examineeExamDetailsAPI,
   createExamineeExamAPI,
   updateExamineeExamAPI,
@@ -9,6 +10,7 @@ import {
 
 const initialState = {
   examineeExams: [],
+  examineesForSpecificExams: [],
   examineeExamDetails: {},
   loading: false,
   error: null
@@ -18,6 +20,13 @@ export const fetchExamineeExams = createAsyncThunk('examineeExam/ExamineeExams',
   const response = await getExamineeExamsAPI();
   return response;
 });
+export const fetchExamineesForSpecificExams = createAsyncThunk(
+  'examineeExam/ExamineesForSpecificExams',
+  async (id) => {
+    const response = await getExamineesForSpecificExamsAPI(id);
+    return response;
+  }
+);
 
 export const fetchExamineeExamDetails = createAsyncThunk(
   'examineeExam/ExamineeExamDetails',
@@ -67,6 +76,19 @@ const examineeExam = createSlice({
         state.loading = false;
       })
       .addCase(fetchExamineeExams.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
+      .addCase(fetchExamineesForSpecificExams.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchExamineesForSpecificExams.fulfilled, (state, action) => {
+        state.examineesForSpecificExams = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchExamineesForSpecificExams.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
