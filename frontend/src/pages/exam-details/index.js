@@ -8,6 +8,7 @@ import { Grid, Typography } from '@mui/material';
 import HeaderDetailsComponent from 'pages/exam-details/HeaderDetailsComponent';
 import TableComponent from 'components/TableComponent';
 import SearchField from 'components/SearchField';
+import DetailsComponent from 'components/DetailsComponent';
 
 // Redux Imports
 import { fetchQuestions, fetchQuestionDetails } from 'store/reducers/question';
@@ -18,6 +19,7 @@ import {
 } from 'store/reducers/examineeExam';
 import { fetchExamineeAnswers } from 'store/reducers/examineeAnswer';
 import { useSelector, useDispatch } from 'react-redux';
+import { secondsToHMS } from 'utils/utils';
 
 const ExamDetails = () => {
   const dispatch = useDispatch();
@@ -163,7 +165,7 @@ const ExamDetails = () => {
     },
     {
       id: 'flags',
-      numeric: false,
+      numeric: true,
       label: 'Flags',
       chip: true,
       chipColor: flagsChipColorSelector
@@ -213,20 +215,61 @@ const ExamDetails = () => {
   // For every Questions
   const handleRowClick = (event, id) => {
     if (user.user_type === 'EXAMINER') {
-      dispatch(fetchQuestionDetails(id)).then((data) => {
-        if (data.type === 'question/questionDetails/fulfilled') {
-          const questionType = data.payload.type;
-          navigate('/my-exams/exam-details/add-question', {
-            state: { questionId: id, questionType: questionType }
-          });
-        }
-      });
+      if (buttonName.name === 'Questions') {
+        localStorage.setItem('examineeAnswerId', id);
+        navigate('/my-exams/exam-details/examinee-result');
+      } else {
+        dispatch(fetchQuestionDetails(id)).then((data) => {
+          if (data.type === 'question/questionDetails/fulfilled') {
+            const questionType = data.payload.type;
+            navigate('/my-exams/exam-details/add-question', {
+              state: { questionId: id, questionType: questionType }
+            });
+          }
+        });
+      }
     } else {
-      navigate('/my-exams/exam-details/question-details', {
-        state: { examineeAnswerId: id }
-      });
+      localStorage.setItem('examineeAnswerId', id);
+      navigate('/my-exams/exam-details/question-details');
     }
   };
+
+  const Detailsdata = [
+    {
+      title: 'Exam Details',
+      descriptions: [
+        {
+          name: 'Duration',
+          value:
+            user.user_type === 'EXAMINER'
+              ? secondsToHMS(examDetails.duration)
+              : secondsToHMS(examineeExamDetails?.exam?.duration)
+        },
+        {
+          name: 'End Time',
+          value:
+            user.user_type === 'EXAMINER'
+              ? endTime.toLocaleTimeString()
+              : new Date(examineeExamDetails?.exam?.end_time).toLocaleTimeString()
+        },
+        {
+          name: 'Number of Questions',
+          value: user.user_type === 'EXAMINER' ? questions.length : examineeAnswers.length
+        }
+      ]
+    }
+  ];
+  if (user.user_type === 'EXAMINER') {
+    Detailsdata.push({
+      title: 'Examinee Details',
+      descriptions: [
+        {
+          name: 'Number of Joined Examinees ',
+          value: examineesForSpecificExams.length
+        }
+      ]
+    });
+  }
 
   return (
     <>
@@ -293,7 +336,7 @@ const ExamDetails = () => {
               </Typography>
             ) : (
               <Typography variant="h5" textAlign="center">
-                Results will be avilable after Exam
+                Question Results will be avilable after Exam
               </Typography>
             )}
           </Grid>
@@ -303,6 +346,9 @@ const ExamDetails = () => {
         <Grid item xs={12} md={4} container spacing={2} direction="column">
           <Grid item sx={{ display: { xs: 'none', md: 'block' } }}>
             <SearchField handleOnChange={handleSearchOnChange} />
+          </Grid>
+          <Grid item>
+            <DetailsComponent data={Detailsdata} />
           </Grid>
         </Grid>
       </Grid>

@@ -21,6 +21,7 @@ const MyExams = Loadable(lazy(() => import('pages/my-exams')));
 const ExamDetails = Loadable(lazy(() => import('pages/exam-details')));
 const AddQuestion = Loadable(lazy(() => import('pages/add-question')));
 const QuestionDetails = Loadable(lazy(() => import('pages/question-details')));
+const ExamineeResult = Loadable(lazy(() => import('pages/examinee-result')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -70,6 +71,10 @@ const MainRoutes = {
         {
           path: 'my-exams/exam-details/question-details',
           element: <QuestionDetails />
+        },
+        {
+          path: 'my-exams/exam-details/examinee-result/question-details',
+          element: <QuestionDetails />
         }
       ]
     },
@@ -79,6 +84,10 @@ const MainRoutes = {
         {
           path: 'my-exams/exam-details/add-question',
           element: <AddQuestion />
+        },
+        {
+          path: 'my-exams/exam-details/examinee-result',
+          element: <ExamineeResult />
         }
       ]
     }

@@ -119,6 +119,32 @@ const HeaderDetailsComponent = (props) => {
     }
   };
 
+  const Detailsdata = [
+    {
+      title: 'Exam Details',
+      descriptions: [
+        {
+          name: 'Number of exams',
+          value: 20
+        },
+        {
+          name: 'Pass Mark',
+          value: 10
+        }
+      ]
+    },
+
+    {
+      title: 'Examinee Details',
+      descriptions: [
+        {
+          name: 'Number of Examinee',
+          value: 20
+        }
+      ]
+    }
+  ];
+
   return (
     <>
       <Confirmation
@@ -380,7 +406,7 @@ const HeaderDetailsComponent = (props) => {
               justifyContent={{ xs: 'flex-start', md: 'flex-end' }}
               alignItems="center"
             >
-              {examDetails.status === 'Conducted' ? (
+              {examDetails.status === 'Conducted' || examineeExamDetails.taken ? (
                 // Show Result
                 <Stack direction="row">
                   <Typography variant="h5" sx={{ mr: 5.4 }}>

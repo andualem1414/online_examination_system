@@ -48,11 +48,16 @@ class ExamineeExamListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIV
 class ExamineeExamDetailAPIView(HavePermissionMixin, generics.RetrieveAPIView):
     queryset = ExamineeExam.objects.all()
     serializer_class = ExamineeExamSerializer
+    lookup = "pk"
 
     def get_queryset(self):
         qs = super().get_queryset()
         user = self.request.user
-        return qs.filter(examinee=user)
+        if user.user_type == "EXAMINEE":
+
+            return qs.filter(examinee=user)
+
+        return qs
 
 
 class ExamineeExamUpdateAPIView(HavePermissionMixin, generics.UpdateAPIView):
@@ -73,14 +78,21 @@ class ExamineeExamUpdateAPIView(HavePermissionMixin, generics.UpdateAPIView):
         return [score, flags]
 
     def perform_update(self, serializer):
-        exam = serializer.instance.exam
+        instance = serializer.instance
+        exam = instance.exam
+
+        if instance.taken:
+            raise serializers.ValidationError({"detail": "Already Submitted"})
 
         total_time = serializer.validated_data.pop("current_time")
+
         score, flags = self.calculate_score(self.request.user, exam)
 
         serializer.validated_data["score"] = score
         serializer.validated_data["total_time"] = total_time
         serializer.validated_data["flags"] = flags
+
+        serializer.validated_data["taken"] = True
 
         return super().perform_update(serializer)
 

@@ -11,6 +11,7 @@ import {
 const initialState = {
   examineeAnswers: [],
   examineeAnswerDetails: {},
+  answersForSpecificExaminee: [],
   loading: false,
   error: null
 };
@@ -88,7 +89,7 @@ const examineeAnswer = createSlice({
         state.error = null;
       })
       .addCase(fetchSpecificExamineeAnswers.fulfilled, (state, action) => {
-        state.examineeAnswers = action.payload;
+        state.answersForSpecificExaminee = action.payload;
         state.loading = false;
       })
       .addCase(fetchSpecificExamineeAnswers.rejected, (state, action) => {

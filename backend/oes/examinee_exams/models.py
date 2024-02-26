@@ -11,8 +11,10 @@ class ExamineeExam(models.Model):
 
     score = models.IntegerField(blank=True, null=True)
     total_time = models.TimeField(blank=True, null=True)
+
     joined_date = models.DateTimeField(auto_now_add=True)
     flags = models.IntegerField(blank=True, null=True)
+    taken = models.BooleanField(default=False)
 
     updated_at = models.DateTimeField(auto_now=True)
 

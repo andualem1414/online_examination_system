@@ -187,15 +187,19 @@ export default function EnhancedTable(props) {
                         scope="row"
                         padding="none"
                       >
-                        {cell?.chip ? (
-                          <Chip
-                            size="small"
-                            variant="light"
-                            label={item}
-                            color={cell.chipColor(item)}
-                          />
+                        {item || item === 0 ? (
+                          cell?.chip ? (
+                            <Chip
+                              size="small"
+                              variant="light"
+                              label={item}
+                              color={cell.chipColor(item)}
+                            />
+                          ) : (
+                            item
+                          )
                         ) : (
-                          item
+                          '-'
                         )}
                       </TableCell>
                     );

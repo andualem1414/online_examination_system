@@ -22,6 +22,7 @@ class ExamineeExamSerializer(serializers.ModelSerializer):
             "joined_date",
             "flags",
             "updated_at",
+            "taken",
         ]
 
 

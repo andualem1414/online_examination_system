@@ -11,7 +11,7 @@ import MainPaper from 'components/MainPaper';
 
 const QuestionDetails = () => {
   const dispatch = useDispatch();
-  const { examineeAnswerId } = useLocation().state;
+  const examineeAnswerId = localStorage.getItem('examineeAnswerId');
 
   const examineeAnswerDetails = useSelector((state) => state.examineeAnswer.examineeAnswerDetails);
   const flags = useSelector((state) => state.flag.flags);
@@ -30,16 +30,18 @@ const QuestionDetails = () => {
             <Typography variant="subtitle3">Question</Typography>
             <MainPaper sx={{ p: 3, mt: 1 }}>
               <Typography variant="h5">{examineeAnswerDetails?.question?.question}</Typography>
-              <Stack direction="column" sx={{ ml: 4 }}>
-                {JSON.parse(examineeAnswerDetails?.question?.choices).map((choice) => {
-                  return (
-                    <Stack sx={{ mt: 2 }} direction="row" spacing={2}>
-                      <Typography variant="h5">{choice?.identifier}</Typography>
-                      <Typography variant="subtitle">{choice?.choice}</Typography>
-                    </Stack>
-                  );
-                })}
-              </Stack>
+              {examineeAnswerDetails?.question?.choices && (
+                <Stack direction="column" sx={{ ml: 4 }}>
+                  {JSON.parse(examineeAnswerDetails?.question?.choices).map((choice) => {
+                    return (
+                      <Stack sx={{ mt: 2 }} direction="row" spacing={2}>
+                        <Typography variant="h5">{choice?.identifier}</Typography>
+                        <Typography variant="subtitle">{choice?.choice}</Typography>
+                      </Stack>
+                    );
+                  })}
+                </Stack>
+              )}
             </MainPaper>
           </Grid>
           <Grid item xs={12}>
