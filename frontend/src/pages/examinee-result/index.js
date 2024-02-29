@@ -27,10 +27,12 @@ const ExamineeResult = () => {
   useEffect(() => {
     dispatch(fetchExamineeExamDetails(examineeExamId)).then((data) => {
       if (data.type === 'examineeExam/ExamineeExamDetails/fulfilled') {
+        console.log(data, examineeExamId);
+
         dispatch(
           fetchSpecificExamineeAnswers({
-            examId: examineeExamDetails?.exam?.id,
-            userId: examineeExamDetails?.examinee?.id
+            examId: data?.payload?.exam?.id,
+            userId: data?.payload?.examinee?.id
           })
         );
       }
@@ -97,12 +99,18 @@ const ExamineeResult = () => {
       </Grid>
       <Grid item xs={12} md={8}>
         {console.log(answersForSpecificExaminee)}
-        <TableComponent
-          headCells={headCells}
-          rows={answersForSpecificExaminee}
-          title="Question"
-          handleRowClick={handleRowClick}
-        />
+        {answersForSpecificExaminee.length > 0 ? (
+          <TableComponent
+            headCells={headCells}
+            rows={answersForSpecificExaminee}
+            title="Question"
+            handleRowClick={handleRowClick}
+          />
+        ) : (
+          <Typography variant="h5" textAlign="center">
+            Question List will be avilable after exam
+          </Typography>
+        )}
       </Grid>
       <Grid item xs={12} md={4}>
         <Grid item sx={{ display: { xs: 'none', md: 'block' } }}>

@@ -81,6 +81,11 @@ class ExamineeExamUpdateAPIView(HavePermissionMixin, generics.UpdateAPIView):
         instance = serializer.instance
         exam = instance.exam
 
+        if instance.examinee != self.request.user:
+            raise serializers.ValidationError(
+                {"detail": "Not Authorized to perform this action"}
+            )
+
         if instance.taken:
             raise serializers.ValidationError({"detail": "Already Submitted"})
 

@@ -79,21 +79,19 @@ const MyExam = () => {
       descriptions: [
         {
           name: 'Number of exams',
-          value: 20
+          value: exams.length
         },
         {
-          name: 'Pass Mark',
-          value: 10
-        }
-      ]
-    },
-
-    {
-      title: 'Examinee Details',
-      descriptions: [
+          name: 'Conducted',
+          value: exams.filter((exam) => exam.status === 'Conducted').length
+        },
         {
-          name: 'Number of Examinee',
-          value: 20
+          name: 'Scheduled',
+          value: exams.filter((exam) => exam.status === 'Scheduled').length
+        },
+        {
+          name: 'Live',
+          value: exams.filter((exam) => exam.status === 'Live').length
         }
       ]
     }

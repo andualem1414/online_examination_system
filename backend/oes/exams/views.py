@@ -1,7 +1,9 @@
 import random, string
-from rest_framework import generics
+from rest_framework import generics, serializers
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from django.utils import timezone
+
 
 from users.mixins import HavePermissionMixin
 from .models import Exam, Payment
@@ -56,6 +58,19 @@ class ExamUpdateAPIView(HavePermissionMixin, generics.UpdateAPIView):
         user = self.request.user
 
         return qs.filter(created_by=user)
+
+    def perform_update(self, serializer):
+        instance = serializer.instance
+
+        if (
+            instance.start_time < timezone.localtime()
+            and instance.end_time > timezone.localtime()
+        ):
+            raise serializers.ValidationError(
+                {"details": "You can't edit while the exam is live"}
+            )
+
+        return super().perform_update(serializer)
 
 
 class ExamDestroyAPIView(HavePermissionMixin, generics.DestroyAPIView):
