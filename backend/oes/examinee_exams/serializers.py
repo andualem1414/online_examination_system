@@ -27,8 +27,8 @@ class ExamineeExamSerializer(serializers.ModelSerializer):
 
 
 class ExamineeExamUpdateSerializer(serializers.ModelSerializer):
-    current_time = serializers.TimeField(write_only=True)
+    total_time = serializers.TimeField(write_only=True)
 
     class Meta:
         model = ExamineeExam
-        fields = ["id", "current_time"]
+        fields = ["id", "total_time"]

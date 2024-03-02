@@ -6,10 +6,12 @@ import MinimalLayout from 'layout/MinimalLayout';
 
 import Missing from 'pages/missing';
 import Unauthorized from 'pages/unauthorized';
+import RequireAuth from 'layout/RequireAuth';
 
 // render - login
 const AuthLogin = Loadable(lazy(() => import('pages/authentication/Login')));
 const AuthRegister = Loadable(lazy(() => import('pages/authentication/Register')));
+const TakeExam = Loadable(lazy(() => import('pages/take-exam')));
 
 // ==============================|| AUTH ROUTING ||============================== //
 
@@ -32,6 +34,15 @@ const LoginRoutes = {
     {
       path: '*',
       element: <Missing />
+    },
+    {
+      element: <RequireAuth allowedTypes={['EXAMINEE']} />,
+      children: [
+        {
+          path: 'my-exams/exam-details/take-exam',
+          element: <TakeExam />
+        }
+      ]
     }
   ]
 };

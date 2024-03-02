@@ -1,5 +1,6 @@
 from rest_framework import generics, serializers, status
 from rest_framework.response import Response
+from datetime import datetime
 
 
 from exams.models import Exam
@@ -89,7 +90,7 @@ class ExamineeExamUpdateAPIView(HavePermissionMixin, generics.UpdateAPIView):
         if instance.taken:
             raise serializers.ValidationError({"detail": "Already Submitted"})
 
-        total_time = serializer.validated_data.pop("current_time")
+        total_time = serializer.validated_data.pop("total_time")
 
         score, flags = self.calculate_score(self.request.user, exam)
 
@@ -97,7 +98,7 @@ class ExamineeExamUpdateAPIView(HavePermissionMixin, generics.UpdateAPIView):
         serializer.validated_data["total_time"] = total_time
         serializer.validated_data["flags"] = flags
 
-        serializer.validated_data["taken"] = True
+        # serializer.validated_data["taken"] = True
 
         return super().perform_update(serializer)
 

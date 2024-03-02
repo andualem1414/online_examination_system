@@ -145,6 +145,11 @@ const HeaderDetailsComponent = (props) => {
     }
   ];
 
+  const handleStartExam = () => {
+    localStorage.setItem('examineeExamId', examineeExamDetails?.id);
+    localStorage.setItem('remainingTime', examineeExamDetails?.exam?.duration);
+    navigate('/my-exams/exam-details/take-exam');
+  };
   return (
     <>
       <Confirmation
@@ -436,7 +441,7 @@ const HeaderDetailsComponent = (props) => {
                     variant="contained"
                     color="success"
                     onClick={(e) => {
-                      handleButtonClick(e.target.innerText);
+                      handleStartExam();
                     }}
                     disabled={examDetails.status === 'Live' ? false : true}
                   >

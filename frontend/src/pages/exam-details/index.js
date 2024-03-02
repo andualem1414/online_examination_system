@@ -259,6 +259,7 @@ const ExamDetails = () => {
       ]
     }
   ];
+
   if (user.user_type === 'EXAMINER') {
     Detailsdata.push({
       title: 'Examinee Details',

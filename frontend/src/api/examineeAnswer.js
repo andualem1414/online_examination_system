@@ -34,7 +34,7 @@ export const createExamineeAnswerAPI = async (data) => {
     const response = await axiosPrivate.post(`examinee-answers/`, data);
     return response.data;
   } catch (error) {
-    throw new Error('Failed to Submit your answer', error);
+    throw new Error(error.response.data['id']);
   }
 };
 
