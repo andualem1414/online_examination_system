@@ -13,6 +13,7 @@ from .serializers import (
     ExamineeAnswerDetailSerializer,
     FlagSerializer,
 )
+from rest_framework.parsers import MultiPartParser, FormParser
 
 # Create your views here.
 
@@ -124,6 +125,7 @@ class ExamineeAnswerListAnswersCreateAPIView(HavePermissionMixin, generics.ListA
 class FlagListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIView):
     queryset = Flag.objects.all()
     serializer_class = FlagSerializer
+    parser_classes = (MultiPartParser, FormParser)
 
     def get_queryset(self):
         qs = super().get_queryset()

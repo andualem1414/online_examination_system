@@ -20,9 +20,9 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
-  CardContent
+  TextField
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
+
 import { useTheme } from '@mui/material/styles';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
@@ -35,10 +35,10 @@ import { fetchQuestions } from 'store/reducers/question';
 // Custom components
 import MinimalLogo from 'components/Logo/MinimalLogo';
 import MainPaper from 'components/MainPaper';
-import { shuffle } from 'utils/utils';
+import { msToTime, shuffle } from 'utils/utils';
 import { createExamineeAnswer, updateExamineeAnswer } from 'store/reducers/examineeAnswer';
 import Countdown from 'react-countdown';
-import MainCard from 'components/MainCard';
+import { createFlag } from 'store/reducers/flag';
 
 const drawerWidth = 70;
 
@@ -58,6 +58,26 @@ const TakeExam = () => {
 
   const dispatch = useDispatch();
   const theme = useTheme();
+
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null);
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    setSelectedImage(file);
+    console.log(selectedImage);
+    setImageUrl(URL.createObjectURL(file)); // Generate a preview URL
+  };
+
+  const addFlag = (id) => {
+    const formData = new FormData();
+    formData.append('type', 'FACE_LOST'); // Add other data if needed
+    formData.append('image', selectedImage);
+
+    dispatch(createFlag({ id: 89, data: formData })).then((data) => {
+      console.log(data);
+    });
+  };
 
   useEffect(() => {
     dispatch(fetchExamineeExamDetails(examineeExamId)).then((data) => {
@@ -96,7 +116,7 @@ const TakeExam = () => {
         );
       }
     }
-
+    console.log(answers);
     if (type === 'next') {
       answers[currentQuestionIndex + 1]
         ? setCurrentAnswer(answers[currentQuestionIndex + 1].answer)
@@ -113,26 +133,22 @@ const TakeExam = () => {
   };
 
   const handleFinishExam = () => {
-    const totalTime = dayjs() - dayjs(examineeExamDetails?.exam?.start_time);
-    const currentTime = new Date(totalTime).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false
-    });
-    console.log(currentTime);
+    const totalTime = msToTime(dayjs() - dayjs(examineeExamDetails?.exam?.start_time));
+
+    console.log(totalTime, dayjs() - dayjs(examineeExamDetails?.exam?.start_time));
 
     dispatch(
       updateExamineeExam({
         id: examineeExamId,
-        data: { total_time: currentTime }
+        data: { total_time: totalTime }
       })
     );
 
-    // enqueueSnackbar('Exam Successfully Conducted');
-    // localStorage.setItem('examineeExamId', examineeExamId);
-    // navigate('/my-exams/exam-details');
+    enqueueSnackbar('Exam Successfully Conducted', { variant: 'success' });
+    localStorage.setItem('examineeExamId', examineeExamId);
+    navigate('/my-exams/exam-details');
   };
+
   const handleTimerEnd = (e) => {
     console.log(e);
   };
@@ -373,6 +389,21 @@ const TakeExam = () => {
                 </Button>
               )}
             </Grid>
+
+            {/* <Grid item xs={12}>
+              <TextField
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                fullWidth
+                variant="outlined"
+                helperText="Select an image"
+              />
+
+              <Button variant="outlined" onClick={(event) => {}} sx={{ mr: 2 }}>
+                Submit
+              </Button>
+            </Grid> */}
           </Grid>
         </Box>
       </Box>

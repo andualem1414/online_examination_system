@@ -10,24 +10,25 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('exams', '0001_initial'),
+        ('examinee_answers', '0002_initial'),
+        ('questions', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='exam',
-            name='created_by',
+            model_name='examineeanswer',
+            name='examinee',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
         ),
         migrations.AddField(
-            model_name='payment',
-            name='exam',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='exams.exam'),
+            model_name='examineeanswer',
+            name='question',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='questions.question'),
         ),
         migrations.AddField(
-            model_name='payment',
-            name='examiner',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL),
+            model_name='flag',
+            name='examinee_answer',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='examinee_answers.examineeanswer'),
         ),
     ]

@@ -30,6 +30,8 @@ class Flag(models.Model):
     )
 
     type = models.CharField(max_length=50, choices=FLAG_TYPE_CHOICES)
+    image = models.ImageField(upload_to="uploads/", blank=True)
+
     examinee_answer = models.ForeignKey(ExamineeAnswer, on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)

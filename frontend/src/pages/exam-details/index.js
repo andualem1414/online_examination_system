@@ -324,14 +324,14 @@ const ExamDetails = () => {
               <div>Loading...</div>
             ) : examineeAnswers.length > 0 &&
               examineeExamDetails?.id &&
-              examineeExamDetails.exam.status === 'Conducted' ? (
+              examineeExamDetails?.exam?.status === 'Conducted' ? (
               <TableComponent
                 headCells={headCellsForExamineeAnswer}
                 rows={examineeAnswers}
                 title="Answers"
                 handleRowClick={handleRowClick}
               />
-            ) : examineeExamDetails?.id && examineeExamDetails.exam.status === 'Conducted' ? (
+            ) : examineeExamDetails?.id && examineeExamDetails?.exam?.status === 'Conducted' ? (
               <Typography variant="h5" textAlign="center">
                 No Answers Available for this Exam
               </Typography>

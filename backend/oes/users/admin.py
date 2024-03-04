@@ -8,12 +8,12 @@ from django.contrib.auth.admin import UserAdmin
 from .models import User
 
 
-class CustomUserAdmin(UserAdmin):
-    model = User
-    fieldsets = (
-        *UserAdmin.fieldsets,
-        ("User type", {"fields": ["user_type"]}),
-    )
+# class CustomUserAdmin(UserAdmin):
+#     model = User
+#     fieldsets = (
+#         *UserAdmin.fieldsets,
+#         ("User type", {"fields": ["user_type"]}),
+#     )
 
 
-admin.site.register(User, CustomUserAdmin)
+admin.site.register(User)

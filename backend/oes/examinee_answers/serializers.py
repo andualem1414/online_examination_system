@@ -36,4 +36,4 @@ class FlagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Flag
-        fields = ["id", "examinee_answer", "type"]
+        fields = ["id", "examinee_answer", "type", "image"]
