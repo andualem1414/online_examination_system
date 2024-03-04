@@ -24,7 +24,7 @@ class UserCreateAPIView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         password = serializer.validated_data.pop("password")
-        type = serializer.validated_data.pop("user_type")
+        type = serializer.validated_data["user_type"]
 
         user = serializer.save()
         user.set_password(password)

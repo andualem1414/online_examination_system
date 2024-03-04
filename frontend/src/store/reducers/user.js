@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { userDetailsAPI } from 'api/users';
+import { createUserAPI, userDetailsAPI } from 'api/users';
 
 const initialState = {
   userDetails: {},
@@ -9,6 +9,11 @@ const initialState = {
 
 export const fetchUserDetails = createAsyncThunk('user/userDetails', async () => {
   const response = await userDetailsAPI();
+  return response;
+});
+
+export const createUser = createAsyncThunk('user/createUser', async (data) => {
+  const response = await createUserAPI(data);
   return response;
 });
 
@@ -28,6 +33,18 @@ const user = createSlice({
         state.loading = false;
       })
       .addCase(fetchUserDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(createUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createUser.fulfilled, (state, action) => {
+        state.userDetails = action.payload;
+        state.loading = false;
+      })
+      .addCase(createUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

@@ -78,7 +78,7 @@ const ExamineeResult = () => {
         <MainPaper sx={{ p: 4 }}>
           <Grid item container xs={12}>
             <Grid item xs={10}>
-              {examineeExamDetails?.examinee?.username}
+              {examineeExamDetails?.examinee?.full_name}
             </Grid>
             <Grid item xs={2}>
               <Stack direction="row">

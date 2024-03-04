@@ -7,7 +7,7 @@ const RequireAuth = ({ allowedTypes }) => {
   const location = useLocation();
   return allowedTypes?.includes(user?.user_type) ? (
     <Outlet />
-  ) : user?.username ? (
+  ) : user?.email ? (
     <Navigate to="/unauthorized" state={{ from: location }} replace />
   ) : (
     <Navigate to="/login" state={{ from: location }} replace />

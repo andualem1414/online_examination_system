@@ -30,6 +30,7 @@ import { useNavigate } from 'react-router-dom';
 // assets
 import avatar1 from 'assets/images/users/avatar-1.png';
 import { LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
+import { useSelector } from 'react-redux';
 
 // tab panel wrapper
 function TabPanel({ children, value, index, ...other }) {
@@ -64,6 +65,7 @@ function a11yProps(index) {
 const Profile = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const user = useSelector((state) => state.user.userDetails);
 
   const handleLogout = async () => {
     // Clear the persisted store
@@ -113,7 +115,7 @@ const Profile = () => {
       >
         <Stack direction="row" spacing={2} alignItems="center" sx={{ p: 0.5 }}>
           <Avatar alt="profile user" src={avatar1} sx={{ width: 32, height: 32 }} />
-          <Typography variant="subtitle1">John Doe</Typography>
+          <Typography variant="subtitle1">{user.full_name}</Typography>
         </Stack>
       </ButtonBase>
       <Popper

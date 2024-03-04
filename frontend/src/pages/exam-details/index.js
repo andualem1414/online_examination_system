@@ -159,7 +159,7 @@ const ExamDetails = () => {
 
   const headCellsForExaminees = [
     {
-      id: 'examinee.username',
+      id: 'examinee.full_name',
       numeric: false,
       label: 'Student'
     },

@@ -56,24 +56,17 @@ const AuthLogin = () => {
     <>
       <Formik
         initialValues={{
-          email: 'info@codedthemes.com',
-          username: 'user3',
+          email: 'andualem1@gmail.com',
           password: 'a123434!',
           submit: null
         }}
         validationSchema={Yup.object().shape({
-          username: Yup.string().required('Username is required'),
           email: Yup.string().email('Must be a valid email'),
           password: Yup.string().max(255).required('Password is required')
         })}
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
-          const fields = {
-            username: values.username,
-            password: values.password
-          };
-
           try {
-            const response = await axios.post(`/users/login/`, fields, {
+            const response = await axios.post(`/users/login/`, values, {
               headers: { 'Content-Type': 'application/json' }
             });
 
@@ -85,7 +78,7 @@ const AuthLogin = () => {
 
             dispatch(fetchUserDetails()).then((data) => {
               if (data.type === 'user/userDetails/fulfilled') {
-                enqueueSnackbar(`Welcome! ${data.payload.username}`, { variant: 'success' });
+                enqueueSnackbar(`Welcome! ${data.payload.first_name}`, { variant: 'success' });
 
                 const originalUrl = sessionStorage.getItem('originalUrl');
                 if (originalUrl) {
@@ -132,28 +125,7 @@ const AuthLogin = () => {
                   )}
                 </Stack>
               </Grid>
-              {/* Username */}
-              <Grid item xs={12}>
-                <Stack spacing={1}>
-                  <InputLabel htmlFor="username-login">Username</InputLabel>
-                  <OutlinedInput
-                    id="username-login"
-                    type="username"
-                    value={values.username}
-                    name="username"
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    placeholder="Enter username address"
-                    fullWidth
-                    error={Boolean(touched.username && errors.username)}
-                  />
-                  {touched.username && errors.username && (
-                    <FormHelperText error id="standard-weight-helper-text-username-login">
-                      {errors.username}
-                    </FormHelperText>
-                  )}
-                </Stack>
-              </Grid>
+
               {/* Password */}
               <Grid item xs={12}>
                 <Stack spacing={1}>
@@ -190,7 +162,7 @@ const AuthLogin = () => {
                 </Stack>
               </Grid>
 
-              <Grid item xs={12} sx={{ mt: -1 }}>
+              {/* <Grid item xs={12} sx={{ mt: -1 }}>
                 <Stack
                   direction="row"
                   justifyContent="space-between"
@@ -213,6 +185,17 @@ const AuthLogin = () => {
                     Forgot Password?
                   </Link>
                 </Stack>
+              </Grid> */}
+              <Grid item>
+                <Typography
+                  component={RouterLink}
+                  to="/register"
+                  variant="body1"
+                  sx={{ textDecoration: 'none' }}
+                  color="primary"
+                >
+                  Don't have an account?
+                </Typography>
               </Grid>
 
               {errors.submit && (

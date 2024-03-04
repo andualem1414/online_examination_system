@@ -209,7 +209,7 @@ const TakeExam = () => {
               {examineeExamDetails?.exam?.title}
             </Typography>
             <Typography variant="h5" component="div">
-              {examineeExamDetails?.examinee?.username}
+              {examineeExamDetails?.examinee?.full_name}
             </Typography>
           </Toolbar>
         </AppBar>
