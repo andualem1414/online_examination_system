@@ -12,7 +12,11 @@ export const userDetailsAPI = async () => {
 
 export const createUserAPI = async (data) => {
   try {
-    const response = await axios.post(`/users/create/`, data);
+    const response = await axios.post(`/users/create/`, data, {
+      headers: {
+        'Content-Type': 'multipart/form-data' // Required for file uploads
+      }
+    });
     return response.data;
   } catch (error) {
     throw new Error('Failed to create User', error);

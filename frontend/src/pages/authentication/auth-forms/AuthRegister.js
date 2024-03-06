@@ -44,6 +44,8 @@ const AuthRegister = (props) => {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
 
+  const [selectedImage, setSelectedImage] = useState(null);
+
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -57,15 +59,33 @@ const AuthRegister = (props) => {
     setLevel(strengthColor(temp));
   };
 
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [imageUrl, setImageUrl] = useState(null);
+  const handleCreateUser = (values, setErrors) => {
+    const formData = new FormData();
 
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    setSelectedImage(file);
-    console.log(selectedImage);
-    setImageUrl(URL.createObjectURL(file)); // Generate a preview URL
+    for (const data in values) {
+      formData.append(data, values[data]);
+    }
+
+    dispatch(createUser(formData)).then((data) => {
+      console.log(data);
+      if (data.type === 'user/createUser/fulfilled') {
+        enqueueSnackbar(`Successfull created ${user_type} account, Login to continue...`, {
+          variant: 'success'
+        });
+      } else {
+        setErrors({ email: 'email already exists' });
+      }
+
+      console.log(data);
+    });
   };
+
+  // const handleImageChange = (setFieldValue) => {
+  //   // const file = event.target.files[0];
+  //   // setSelectedImage(file);
+  //   // setFieldValue('profile_picture', selectedImage);
+  //   // setImageUrl(URL.createObjectURL(file)); // Generate a preview URL
+  // };
 
   useEffect(() => {
     changePassword('');
@@ -80,6 +100,7 @@ const AuthRegister = (props) => {
           last_name: 'mamo',
           user_type: user_type,
           password: 'a123434!',
+          profile_picture: null,
           submit: null
         }}
         validationSchema={Yup.object().shape({
@@ -92,17 +113,17 @@ const AuthRegister = (props) => {
           console.log(values);
 
           try {
-            dispatch(createUser(values)).then((data) => {
-              if (data.type === 'user/createUser/fulfilled') {
-                enqueueSnackbar(`Successfull created ${user_type} account, Login to continue...`, {
-                  variant: 'success'
-                });
+            if (user_type === 'EXAMINEE') {
+              if (selectedImage === null) {
+                setErrors({ profile_picture: 'Please insert image' });
               } else {
-                setErrors({ email: 'email already exists' });
+                handleCreateUser(values, setErrors);
               }
+            } else {
+              delete values.profile_picture;
+              handleCreateUser(values, setErrors);
+            }
 
-              console.log(data);
-            });
             setStatus({ success: false });
             setSubmitting(false);
           } catch (err) {
@@ -113,22 +134,44 @@ const AuthRegister = (props) => {
           }
         }}
       >
-        {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
+        {({
+          errors,
+          handleBlur,
+          handleChange,
+          handleSubmit,
+          isSubmitting,
+          touched,
+          values,
+          setFieldValue
+        }) => (
           <form noValidate onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               {user_type === 'EXAMINEE' && (
                 <Grid item xs={12}>
-                  <InputLabel htmlFor="profile_image">Profile Image*</InputLabel>
+                  <InputLabel htmlFor="profile_picture">Profile Image*</InputLabel>
 
                   <TextField
                     type="file"
-                    id="profile_image"
+                    id="profile_picture"
                     accept="image/*"
-                    onChange={handleImageChange}
+                    onChange={async (event) => {
+                      const file = event.target.files[0];
+                      setSelectedImage(file);
+                      setFieldValue('profile_picture', selectedImage, true);
+
+                      console.log(event);
+                    }}
                     fullWidth
                     variant="outlined"
                     sx={{ mt: 1 }}
+                    error={Boolean(touched.profile_picture && errors.profile_picture)}
                   />
+
+                  {touched.profile_picture && errors.profile_picture && (
+                    <FormHelperText error id="helper-text-profile_picture-signup">
+                      {errors.profile_picture}
+                    </FormHelperText>
+                  )}
                 </Grid>
               )}
               <Grid item xs={12} md={6}>
@@ -152,6 +195,7 @@ const AuthRegister = (props) => {
                   )}
                 </Stack>
               </Grid>
+
               <Grid item xs={12} md={6}>
                 <Stack spacing={1}>
                   <InputLabel htmlFor="last_name">Last Name*</InputLabel>

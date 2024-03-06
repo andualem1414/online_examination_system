@@ -114,7 +114,15 @@ const Profile = () => {
         onClick={handleToggle}
       >
         <Stack direction="row" spacing={2} alignItems="center" sx={{ p: 0.5 }}>
-          <Avatar alt="profile user" src={avatar1} sx={{ width: 32, height: 32 }} />
+          {user.profile_picture ? (
+            <Avatar
+              alt="profile user"
+              src={process.env.REACT_APP_DATABASE_URL + user.profile_picture}
+              sx={{ width: 32, height: 32 }}
+            />
+          ) : (
+            <Avatar alt="profile user" sx={{ width: 32, height: 32 }} />
+          )}
           <Typography variant="subtitle1">{user.full_name}</Typography>
         </Stack>
       </ButtonBase>
