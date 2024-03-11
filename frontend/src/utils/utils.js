@@ -2,7 +2,7 @@ export const secondsToHMS = (seconds) => {
   var hours = Math.floor(seconds / 3600) > 0 ? Math.floor(seconds / 3600) + ' hours ' : '';
   var minutes =
     Math.floor((seconds % 3600) / 60) > 0 ? Math.floor((seconds % 3600) / 60) + ' minutes ' : '';
-  var remainingSeconds = seconds % 60;
+  var remainingSeconds = Math.floor(seconds % 60);
 
   return hours + minutes + remainingSeconds + ' seconds';
 };
@@ -31,4 +31,13 @@ export const msToTime = (duration) => {
   const seconds = date.getUTCSeconds().toString().padStart(2, '0');
 
   return `${hours}:${minutes}:${seconds}`;
+};
+
+export const filterData = (dataList, searchValue, field) => {
+  let newDataList =
+    searchValue.length > 0
+      ? dataList.filter((data) => data[field]?.toLowerCase()?.includes(searchValue))
+      : dataList;
+
+  return newDataList;
 };

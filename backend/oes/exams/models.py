@@ -23,14 +23,6 @@ class Exam(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     @property
-    def duration(self):
-        try:
-            return self.end_time - self.start_time
-
-        except:
-            return None
-
-    @property
     def status(self):
         if self.end_time < timezone.localtime():
             return "Conducted"
@@ -38,6 +30,16 @@ class Exam(models.Model):
             return "Live"
         else:
             return "Scheduled"
+
+    @property
+    def duration(self):
+        try:
+            if self.status == "Live":
+                return self.end_time - timezone.now()
+            return self.end_time - self.start_time
+
+        except:
+            return None
 
     def __str__(self):
         return self.title

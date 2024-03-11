@@ -154,12 +154,10 @@ const AuthRegister = (props) => {
                     type="file"
                     id="profile_picture"
                     accept="image/*"
-                    onChange={async (event) => {
+                    onChange={(event) => {
                       const file = event.target.files[0];
                       setSelectedImage(file);
-                      setFieldValue('profile_picture', selectedImage, true);
-
-                      console.log(event);
+                      setFieldValue('profile_picture', file, true);
                     }}
                     fullWidth
                     variant="outlined"

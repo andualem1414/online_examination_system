@@ -13,6 +13,7 @@ import { Grid, Typography } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchExams } from 'store/reducers/exam';
 import { fetchExamineeExams } from 'store/reducers/examineeExam';
+import { filterData } from 'utils/utils';
 
 const MyExam = () => {
   const dispatch = useDispatch();
@@ -22,6 +23,7 @@ const MyExam = () => {
   const exams = useSelector((state) => state.exam.exams);
   const examineeExams = useSelector((state) => state.examineeExam.examineeExams);
   const loading = useSelector((state) => state.exam.loading);
+  let [searchValue, setSearchValue] = useState('');
 
   // const error = useSelector((state) => state.exam.error);
 
@@ -97,7 +99,9 @@ const MyExam = () => {
     }
   ];
 
-  const handleSearchOnChange = (e) => {};
+  const handleSearchOnChange = (e) => {
+    setSearchValue(e.target.value);
+  };
 
   // for every exams
   const handleRowClick = (event, id) => {
@@ -126,7 +130,7 @@ const MyExam = () => {
             rows={
               user.user_type === 'EXAMINEE'
                 ? examineeExams.map((examineeExam) => examineeExam.exam)
-                : exams
+                : filterData(exams, searchValue, 'title')
             }
             title="Exams"
             handleRowClick={handleRowClick}

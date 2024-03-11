@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 // Material Ui
-import { Grid, Stack, Typography, Chip } from '@mui/material';
+import { Grid, Stack, Typography, Chip, Avatar } from '@mui/material';
 import MainPaper from 'components/MainPaper';
 import { fetchExamineeExamDetails } from 'store/reducers/examineeExam';
 import { fetchSpecificExamineeAnswers } from 'store/reducers/examineeAnswer';
@@ -75,14 +75,28 @@ const ExamineeResult = () => {
   return (
     <Grid container spacing={2}>
       <Grid item xs={12}>
-        <MainPaper sx={{ p: 4 }}>
+        <MainPaper sx={{ p: 3 }}>
           <Grid item container xs={12}>
-            <Grid item xs={10}>
-              {examineeExamDetails?.examinee?.full_name}
+            <Grid item xs={10} sx={{ px: 1 }}>
+              <Stack direction="row" display="flex" alignItems="center" spacing={2}>
+                {examineeExamDetails?.examinee?.profile_picture ? (
+                  <Avatar
+                    alt="profile user"
+                    src={
+                      process.env.REACT_APP_DATABASE_URL +
+                      examineeExamDetails?.examinee?.profile_picture
+                    }
+                    sx={{ width: 62, height: 62 }}
+                  />
+                ) : (
+                  <Avatar alt="profile user" sx={{ width: 62, height: 62 }} />
+                )}
+                <Typography variant="h5">{examineeExamDetails?.examinee?.full_name}</Typography>
+              </Stack>
             </Grid>
-            <Grid item xs={2}>
-              <Stack direction="row">
-                <Typography variant="h5" sx={{ mr: 5.4 }}>
+            <Grid item xs={2} display="flex" alignItems="center">
+              <Stack direction="row" display="flex" alignItems="center">
+                <Typography variant="h5" sx={{ mr: 2 }}>
                   Result:
                 </Typography>
                 <Stack direction="column" sx={{ mr: 6 }}>

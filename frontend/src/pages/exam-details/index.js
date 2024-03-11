@@ -19,7 +19,7 @@ import {
 } from 'store/reducers/examineeExam';
 import { fetchExamineeAnswers } from 'store/reducers/examineeAnswer';
 import { useSelector, useDispatch } from 'react-redux';
-import { secondsToHMS } from 'utils/utils';
+import { filterData, secondsToHMS } from 'utils/utils';
 
 const ExamDetails = () => {
   const dispatch = useDispatch();
@@ -48,6 +48,7 @@ const ExamDetails = () => {
   const [currentTime] = useState(new Date());
 
   const [buttonName, setButtonName] = useState({ name: 'Add Question', disabled: false });
+  let [searchValue, setSearchValue] = useState('');
 
   // Fetch exams and Examinee Exam
   useEffect(() => {
@@ -210,7 +211,10 @@ const ExamDetails = () => {
   };
 
   // Handle Search form
-  const handleSearchOnChange = (e) => {};
+  const handleSearchOnChange = (e) => {
+    setSearchValue(e.target.value);
+    console.log(e.target.value);
+  };
 
   // For every Questions
   const handleRowClick = (event, id) => {
@@ -239,7 +243,7 @@ const ExamDetails = () => {
       title: 'Exam Details',
       descriptions: [
         {
-          name: 'Duration',
+          name: examDetails.status === 'Live' ? 'Remaining Time' : 'Duration',
           value:
             user.user_type === 'EXAMINER'
               ? secondsToHMS(examDetails.duration)
@@ -296,7 +300,7 @@ const ExamDetails = () => {
               examineesForSpecificExams.length > 0 ? (
                 <TableComponent
                   headCells={headCellsForExaminees}
-                  rows={examineesForSpecificExams}
+                  rows={filterData(examineesForSpecificExams, searchValue, 'full_name')}
                   title="Examinees"
                   handleRowClick={handleRowClick}
                 />
@@ -308,7 +312,7 @@ const ExamDetails = () => {
             ) : questions.length > 0 ? (
               <TableComponent
                 headCells={headCells}
-                rows={questions}
+                rows={filterData(questions, searchValue, 'question')}
                 title="Questions"
                 handleRowClick={handleRowClick}
               />
@@ -346,7 +350,7 @@ const ExamDetails = () => {
         {/* Search and Detail */}
         <Grid item xs={12} md={4} container spacing={2} direction="column">
           <Grid item sx={{ display: { xs: 'none', md: 'block' } }}>
-            <SearchField handleOnChange={handleSearchOnChange} />
+            <SearchField handleSearchOnChange={handleSearchOnChange} />
           </Grid>
           <Grid item>
             <DetailsComponent data={Detailsdata} />
