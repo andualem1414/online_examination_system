@@ -8,8 +8,8 @@ const initialState = {
   error: null
 };
 
-export const fetchFlags = createAsyncThunk('flag/fetchFlags', async () => {
-  const response = await getFlagsAPI();
+export const fetchFlags = createAsyncThunk('flag/fetchFlags', async (id) => {
+  const response = await getFlagsAPI(id);
   return response;
 });
 

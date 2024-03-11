@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import {
   getExamsAPI,
+  getPublicExamsAPI,
   examDetailsAPI,
   createExamAPI,
   updateExamAPI,
@@ -16,6 +17,10 @@ const initialState = {
 
 export const fetchExams = createAsyncThunk('exam/fetchExams', async () => {
   const response = await getExamsAPI();
+  return response;
+});
+export const fetchPublicExams = createAsyncThunk('exam/fetchPublicExams', async () => {
+  const response = await getPublicExamsAPI();
   return response;
 });
 
@@ -55,6 +60,19 @@ const exam = createSlice({
         state.loading = false;
       })
       .addCase(fetchExams.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      // Fetch Public Exam
+      .addCase(fetchPublicExams.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchPublicExams.fulfilled, (state, action) => {
+        state.exams = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchPublicExams.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })

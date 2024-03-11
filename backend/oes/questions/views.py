@@ -45,19 +45,22 @@ class QuestionListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIView)
                 )
 
             # Check If the Examiner is the creator of the exam
-            if (
-                self.request.user.user_type == "EXAMINER"
-                and exam.created_by != self.request.user
-            ):
-                raise serializers.ValidationError(
-                    {"message": "You don't have access to this exam"}
-                )
+            if not exam.public:
+                if (
+                    self.request.user.user_type == "EXAMINER"
+                    and exam.created_by != self.request.user
+                ):
+                    raise serializers.ValidationError(
+                        {"message": "You don't have access to this exam"}
+                    )
 
-            if (
-                self.request.user.user_type == "EXAMINEE"
-                and timezone.localtime() < exam.start_time
-            ):
-                raise serializers.ValidationError({"message": "Exam Haven't Started"})
+                if (
+                    self.request.user.user_type == "EXAMINEE"
+                    and timezone.localtime() < exam.start_time
+                ):
+                    raise serializers.ValidationError(
+                        {"message": "Exam Haven't Started"}
+                    )
 
             return qs.filter(exam=exam)
         return qs

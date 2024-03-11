@@ -35,17 +35,20 @@ class ExamListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIView):
         serializer.save(created_by=self.request.user, exam_code=exam_code)
 
 
-class ExamDetailAPIView(HavePermissionMixin, generics.RetrieveAPIView):
+class PublicExamListAPIView(HavePermissionMixin, generics.ListAPIView):
     queryset = Exam.objects.all()
     serializer_class = ExamSerializer
 
     def get_queryset(self):
         qs = super().get_queryset()
 
-        if self.request.user.user_type == "EXAMINER":
-            return qs.filter(created_by=self.request.user)
+        return qs.filter(public=True)
 
-        return qs
+
+class ExamDetailAPIView(HavePermissionMixin, generics.RetrieveAPIView):
+    queryset = Exam.objects.all()
+    serializer_class = ExamSerializer
+    lookup = "pk"
 
 
 class ExamUpdateAPIView(HavePermissionMixin, generics.UpdateAPIView):

@@ -32,7 +32,7 @@ const HeaderDetailsComponent = (props) => {
 
   const { examDetails, examineeExamDetails, buttonName, handleButtonClick } = props;
 
-  const date = new Date(examDetails.start_time);
+  const date = new Date(examDetails?.start_time);
   const [copied, setCopied] = useState(false);
 
   // For Update Modal
@@ -42,10 +42,10 @@ const HeaderDetailsComponent = (props) => {
 
   // Initial Values for Update Modal
   const initialValues = {
-    title: examDetails.title,
-    description: examDetails.description,
-    start_time: dayjs(examDetails.start_time),
-    end_time: dayjs(examDetails.end_time)
+    title: examDetails?.title,
+    description: examDetails?.description,
+    start_time: dayjs(examDetails?.start_time),
+    end_time: dayjs(examDetails?.end_time)
   };
 
   // Dropdown Items

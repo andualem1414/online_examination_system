@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path("", views.ExamListCreateAPIView.as_view()),
+    path("public-exams/", views.PublicExamListAPIView.as_view()),
     path("<int:pk>/", views.ExamDetailAPIView.as_view(), name="exam-detail"),
     path("<int:pk>/delete/", views.ExamDestroyAPIView.as_view()),
     path("<int:pk>/update/", views.ExamUpdateAPIView.as_view()),

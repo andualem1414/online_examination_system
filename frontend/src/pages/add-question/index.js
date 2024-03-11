@@ -31,10 +31,12 @@ import AnimateButton from 'components/@extended/AnimateButton';
 import MainPaper from 'components/MainPaper';
 import TableComponent from 'components/TableComponent';
 import DeleteQuestion from './DeleteQuestion';
+import { fetchExamDetails } from 'store/reducers/exam';
 
 const AddQuestion = () => {
   const examId = localStorage.getItem('examId');
   const questionDetails = useSelector((state) => state.question.questionDetails);
+  const examDetails = useSelector((state) => state.exam.examDetails);
 
   const { questionType, questionId } = useLocation().state;
   const dispatch = useDispatch();
@@ -67,6 +69,10 @@ const AddQuestion = () => {
         type: questionType,
         submit: null
       };
+
+  useEffect(() => {
+    dispatch(fetchExamDetails(examId));
+  }, []);
 
   const handleClick = () => {
     const asciiValue = 65 + choices.length;
@@ -370,10 +376,10 @@ const AddQuestion = () => {
                         <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
                           Exam:
                         </Typography>
-                        <Typography>{examId}</Typography>
+                        <Typography>{examDetails.title}</Typography>
                       </Stack>
                     </Stack>
-                    {questionId && (
+                    {questionId && examDetails?.status !== 'Conducted' && (
                       <AnimateButton>
                         <Button
                           disableElevation
@@ -387,19 +393,21 @@ const AddQuestion = () => {
                         </Button>
                       </AnimateButton>
                     )}
-                    <AnimateButton>
-                      <Button
-                        disableElevation
-                        disabled={isSubmitting}
-                        fullWidth
-                        size="large"
-                        type="submit"
-                        variant="contained"
-                        color="primary"
-                      >
-                        {questionId ? 'Update Question' : 'Add Question'}
-                      </Button>
-                    </AnimateButton>
+                    {examDetails?.status !== 'Conducted' && (
+                      <AnimateButton>
+                        <Button
+                          disableElevation
+                          disabled={isSubmitting}
+                          fullWidth
+                          size="large"
+                          type="submit"
+                          variant="contained"
+                          color="primary"
+                        >
+                          {questionId ? 'Update Question' : 'Add Question'}
+                        </Button>
+                      </AnimateButton>
+                    )}
                   </Stack>
                 </MainPaper>
               </Grid>

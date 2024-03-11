@@ -14,6 +14,7 @@ const NavGroup = ({ item }) => {
   const { drawerOpen } = menu;
 
   const navCollapse = item.children?.map((menuItem) => {
+    if (menuItem.id === 'dashboard') return;
     return <NavItem key={menuItem.id} item={menuItem} level={1} />;
   });
 

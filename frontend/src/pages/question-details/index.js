@@ -17,10 +17,12 @@ const QuestionDetails = () => {
   const flags = useSelector((state) => state.flag.flags);
 
   useEffect(() => {
-    dispatch(fetchExamineeAnswerDetails(examineeAnswerId)).then((data) => {
-      if (data.type === 'flag/fetchFlags/fulfilled') dispatch(fetchFlags(examineeAnswerDetails.id));
-    });
+    dispatch(fetchExamineeAnswerDetails(examineeAnswerId));
   }, []);
+  useEffect(() => {
+    console.log(examineeAnswerDetails.id);
+    dispatch(fetchFlags(examineeAnswerDetails.id));
+  }, [examineeAnswerDetails]);
 
   return (
     <>

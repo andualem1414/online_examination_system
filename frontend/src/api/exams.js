@@ -9,6 +9,15 @@ export const getExamsAPI = async () => {
   }
 };
 
+export const getPublicExamsAPI = async () => {
+  try {
+    const response = await axiosPrivate.get(`exams/public-exams/`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch Public Exams', error);
+  }
+};
+
 export const examDetailsAPI = async (id) => {
   try {
     const response = await axiosPrivate.get(`/exams/${id}/`);

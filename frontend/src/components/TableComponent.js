@@ -1,5 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import * as dayjs from 'dayjs';
 
 // Mui components
 import {
@@ -192,9 +193,11 @@ export default function EnhancedTable(props) {
                             <Chip
                               size="small"
                               variant="light"
-                              label={item}
+                              label={cell?.date ? new Date(item).toLocaleString() : item}
                               color={cell.chipColor(item)}
                             />
+                          ) : cell?.date ? (
+                            new Date(item).toLocaleString()
                           ) : (
                             item
                           )

@@ -89,7 +89,7 @@ const AuthLogin = () => {
                   navigate(originalUrl, { replace: true });
                 } else {
                   // Redirect the user to a default page, such as the home page
-                  navigate('/dashboard');
+                  navigate('/my-exams');
                 }
               }
             });
