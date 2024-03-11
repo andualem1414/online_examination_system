@@ -35,7 +35,16 @@ class ExamSerializer(serializers.ModelSerializer):
 
 class PaymentSerializer(serializers.ModelSerializer):
     examiner = UserSerializer(read_only=True)
+    exam = ExamSerializer(read_only=True)
 
     class Meta:
         model = Payment
-        fields = ["id", "payment_code", "exam", "examiner", "amount", "payment_method"]
+        fields = [
+            "id",
+            "payment_code",
+            "exam",
+            "examiner",
+            "amount",
+            "payment_method",
+            "created_at",
+        ]

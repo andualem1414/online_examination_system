@@ -9,6 +9,7 @@ import user from './user';
 import flag from './flag';
 import examineeExam from './examineeExam';
 import examineeAnswer from './examineeAnswer';
+import payment from './payments';
 
 // ==============================|| COMBINE REDUCERS ||============================== //
 
@@ -19,7 +20,8 @@ const reducers = combineReducers({
   question,
   examineeAnswer,
   examineeExam,
-  flag
+  flag,
+  payment
 });
 
 export default reducers;
