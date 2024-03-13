@@ -376,13 +376,8 @@ const HeaderDetailsComponent = (props) => {
                   >
                     Joined Examinees
                   </Button>
-                  <Dropdown menu={{ items }} placement="bottom">
-                    <Button
-                      disabled={buttonName.disabled}
-                      variant="contained"
-                      color="success"
-                      startIcon={<ExpandMoreIcon />}
-                    >
+                  <Dropdown disabled={buttonName.disabled} menu={{ items }} placement="bottom">
+                    <Button variant="contained" color="success" startIcon={<ExpandMoreIcon />}>
                       {buttonName.name}
                     </Button>
                   </Dropdown>

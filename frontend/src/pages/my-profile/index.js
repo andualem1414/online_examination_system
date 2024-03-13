@@ -83,6 +83,13 @@ const MyProfile = () => {
       sx: { bgcolor: index === value && 'primary.lighter' }
     };
   };
+  const chipColorSelector = (amount) => {
+    if (amount > 100) {
+      return 'warning';
+    } else {
+      return 'primary';
+    }
+  };
 
   const headCells = [
     {
@@ -99,7 +106,9 @@ const MyProfile = () => {
     {
       id: 'amount',
       numeric: true,
-      label: 'Status'
+      label: 'Amount',
+      chip: true,
+      chipColor: chipColorSelector
     }
   ];
   const handleRowClick = () => {};

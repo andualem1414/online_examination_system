@@ -25,6 +25,7 @@ class ExamSerializer(serializers.ModelSerializer):
             "remote",
             "public",
             "start_time",
+            "max_examinees",
             "end_time",
             "updated_at",
             "created_at",
@@ -36,6 +37,8 @@ class ExamSerializer(serializers.ModelSerializer):
 class PaymentSerializer(serializers.ModelSerializer):
     examiner = UserSerializer(read_only=True)
     exam = ExamSerializer(read_only=True)
+    amount = serializers.IntegerField(read_only=True)
+    exam_id = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = Payment
@@ -43,6 +46,7 @@ class PaymentSerializer(serializers.ModelSerializer):
             "id",
             "payment_code",
             "exam",
+            "exam_id",
             "examiner",
             "amount",
             "payment_method",

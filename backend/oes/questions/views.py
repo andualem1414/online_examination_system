@@ -70,13 +70,6 @@ class QuestionDetailAPIView(HavePermissionMixin, generics.RetrieveAPIView):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
 
-    # check if you have created the question
-    def get_queryset(self):
-        qs = super().get_queryset()
-        user = self.request.user
-
-        return qs.filter(created_by=user)
-
 
 class QuestionUpdateAPIView(HavePermissionMixin, generics.UpdateAPIView):
     queryset = Question.objects.all()

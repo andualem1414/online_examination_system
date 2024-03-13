@@ -36,18 +36,23 @@ import { fetchQuestions } from 'store/reducers/question';
 import MinimalLogo from 'components/Logo/MinimalLogo';
 import MainPaper from 'components/MainPaper';
 import { msToTime, shuffle } from 'utils/utils';
-import { createExamineeAnswer, updateExamineeAnswer } from 'store/reducers/examineeAnswer';
+import {
+  createExamineeAnswer,
+  fetchExamineeAnswers,
+  updateExamineeAnswer
+} from 'store/reducers/examineeAnswer';
 import Countdown from 'react-countdown';
 import { createFlag } from 'store/reducers/flag';
 
 const drawerWidth = 70;
-
+let answers = {};
 const TakeExam = () => {
   const remainingTime = localStorage.getItem('remainingTime');
 
   const examineeExamDetails = useSelector((state) => state.examineeExam.examineeExamDetails);
   const examineeExamId = localStorage.getItem('examineeExamId');
-  let [answers, setAnswers] = useState({});
+  const prev_answers = useSelector((state) => state.examineeAnswer.examineeAnswers);
+
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -65,7 +70,7 @@ const TakeExam = () => {
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     setSelectedImage(file);
-    console.log(selectedImage);
+
     setImageUrl(URL.createObjectURL(file)); // Generate a preview URL
   };
 
@@ -74,9 +79,7 @@ const TakeExam = () => {
     formData.append('type', 'FACE_LOST'); // Add other data if needed
     formData.append('image', selectedImage);
 
-    dispatch(createFlag({ id: 89, data: formData })).then((data) => {
-      console.log(data);
-    });
+    dispatch(createFlag({ id: 89, data: formData })).then((data) => {});
   };
 
   useEffect(() => {
@@ -84,13 +87,31 @@ const TakeExam = () => {
       dispatch(fetchQuestions(data?.payload?.exam?.id)).then((data) => {
         setQuestions(shuffle(data?.payload));
       });
+      dispatch(fetchExamineeAnswers(data?.payload?.exam?.id));
     });
-    console.log('hello');
   }, []);
+
+  useEffect(() => {
+    console.log(answers);
+
+    answers = {};
+    questions.forEach((question, i) => {
+      console.log(questions);
+      prev_answers.forEach((answer, j) => {
+        if (answer.question.id === question.id) {
+          console.log(answer, i, questions);
+          answers[i] = { id: answer.id, answer: answer.answer };
+        }
+      });
+    });
+
+    console.log(answers);
+    setCurrentAnswer(answers[0]?.answer || '');
+  }, [questions]);
 
   const handleNavigate = (type) => {
     const question = questions[currentQuestionIndex];
-
+    console.log(answers);
     const allreadyAnswered = answers[currentQuestionIndex];
 
     if (allreadyAnswered) {
@@ -110,6 +131,7 @@ const TakeExam = () => {
               answers[currentQuestionIndex] = { id: data.payload.id, answer: currentAnswer };
             } else {
               let id = parseInt(data.error.message);
+
               answers[currentQuestionIndex] = { id: id, answer: currentAnswer };
             }
           }
@@ -134,8 +156,6 @@ const TakeExam = () => {
 
   const handleFinishExam = () => {
     const totalTime = msToTime(dayjs() - dayjs(examineeExamDetails?.exam?.start_time));
-
-    console.log(totalTime, dayjs() - dayjs(examineeExamDetails?.exam?.start_time));
 
     dispatch(
       updateExamineeExam({

@@ -76,14 +76,14 @@ const ExamDetails = () => {
 
     // For Fetching Questions or Examinee Answers
     if (user.user_type === 'EXAMINER') {
-      dispatch(fetchQuestions(examDetails.id));
+      dispatch(fetchQuestions(examDetails?.id));
     }
     if (user.user_type === 'EXAMINEE') {
       dispatch(fetchExamineeAnswers(examineeExamDetails.exam?.id));
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, examDetails, examineeExamDetails]);
+  }, [examDetails, examineeExamDetails]);
 
   const chipColorSelector = (type) => {
     if (type === 'SHORT_ANSWER') {
@@ -281,7 +281,8 @@ const ExamDetails = () => {
       <Grid container spacing={2}>
         {/* Header Details */}
         <Grid item xs={12}>
-          {(examineeExamDetails?.exam || examDetails?.id) && (
+          {((user.user_type === 'EXAMINEE' && examineeExamDetails?.exam) ||
+            (user.user_type === 'EXAMINER' && examDetails?.id)) && (
             <HeaderDetailsComponent
               examDetails={user.user_type === 'EXAMINER' ? examDetails : examineeExamDetails.exam}
               examineeExamDetails={examineeExamDetails}

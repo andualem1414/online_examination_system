@@ -78,14 +78,12 @@ const ExamineeResult = () => {
         <MainPaper sx={{ p: 3 }}>
           <Grid item container xs={12}>
             <Grid item xs={10} sx={{ px: 1 }}>
+              {console.log(examineeExamDetails?.examinee?.profile_picture)}
               <Stack direction="row" display="flex" alignItems="center" spacing={2}>
                 {examineeExamDetails?.examinee?.profile_picture ? (
                   <Avatar
                     alt="profile user"
-                    src={
-                      process.env.REACT_APP_DATABASE_URL +
-                      examineeExamDetails?.examinee?.profile_picture
-                    }
+                    src={examineeExamDetails?.examinee?.profile_picture}
                     sx={{ width: 62, height: 62 }}
                   />
                 ) : (

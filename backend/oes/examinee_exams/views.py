@@ -28,7 +28,8 @@ class ExamineeExamListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIV
 
         if Exam.objects.filter(exam_code=exam_code).exists():
             exam = Exam.objects.get(exam_code=exam_code)
-
+            number_of_examiees = ExamineeExam.objects.filter(exam=exam).count()
+            print(number_of_examiees)
             already_joined = ExamineeExam.objects.filter(
                 exam=exam, examinee=self.request.user
             )
@@ -37,6 +38,9 @@ class ExamineeExamListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIV
                 raise serializers.ValidationError(
                     {"detail": "You can't Join after the Exam starts"}
                 )
+
+            if number_of_examiees >= exam.max_examinees:
+                raise serializers.ValidationError({"detail": "Exam room is full"})
 
             if already_joined:
                 raise serializers.ValidationError({"detail": "Already joined"})
@@ -98,7 +102,7 @@ class ExamineeExamUpdateAPIView(HavePermissionMixin, generics.UpdateAPIView):
         serializer.validated_data["total_time"] = total_time
         serializer.validated_data["flags"] = flags
 
-        # serializer.validated_data["taken"] = True
+        serializer.validated_data["taken"] = True
 
         return super().perform_update(serializer)
 

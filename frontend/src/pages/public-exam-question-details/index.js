@@ -20,7 +20,7 @@ const PublicExamQuestionDetails = () => {
   useEffect(() => {
     dispatch(fetchQuestionDetails(questionId));
   }, []);
-  const handleClickShowPassword = () => setShowAnswer((show) => !show);
+  const handleClickShowAnswer = () => setShowAnswer((show) => !show);
 
   return (
     <Grid container spacing={2}>
@@ -59,7 +59,7 @@ const PublicExamQuestionDetails = () => {
               )}
               <IconButton
                 aria-label="toggle password visibility"
-                onClick={handleClickShowPassword}
+                onClick={handleClickShowAnswer}
                 edge="end"
               >
                 {showAnswer ? <VisibilityOff /> : <Visibility />}

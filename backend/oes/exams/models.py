@@ -21,6 +21,7 @@ class Exam(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    max_examinees = models.IntegerField(blank=True, null=True)
 
     @property
     def status(self):
@@ -50,7 +51,7 @@ class Payment(models.Model):
     examiner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     exam = models.ForeignKey(Exam, on_delete=models.SET_NULL, null=True)
 
-    amount = models.IntegerField()
+    amount = models.IntegerField(blank=True, null=True)
     payment_method = models.CharField(max_length=50)
 
     created_at = models.DateTimeField(auto_now_add=True)

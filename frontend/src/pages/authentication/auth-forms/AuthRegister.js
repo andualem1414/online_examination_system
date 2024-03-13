@@ -95,9 +95,9 @@ const AuthRegister = (props) => {
     <>
       <Formik
         initialValues={{
-          email: 'andualem4@gmail.com',
-          first_name: 'andualem',
-          last_name: 'mamo',
+          email: 'user1@gmail.com',
+          first_name: 'User',
+          last_name: 'One',
           user_type: user_type,
           password: 'a123434!',
           profile_picture: null,

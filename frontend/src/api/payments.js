@@ -8,3 +8,21 @@ export const getPaymentsAPI = async (id) => {
     throw new Error('Failed to fetch payments', error);
   }
 };
+
+export const getPaymentCodeAPI = async () => {
+  try {
+    const response = await axiosPrivate.get(`exams/payments/code`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch code', error);
+  }
+};
+
+export const createPaymentAPI = async (data) => {
+  try {
+    const response = await axiosPrivate.post(`exams/payments/`, data);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to create Payment', error);
+  }
+};

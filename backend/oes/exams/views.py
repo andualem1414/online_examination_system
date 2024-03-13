@@ -101,11 +101,18 @@ class PaymentListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIView):
         return super().get_queryset()
 
     def perform_create(self, serializer):
-        exam = serializer.validated_data["exam"]
+
+        exam = Exam.objects.get(pk=serializer.validated_data["exam_id"])
+        amount = 0
+        if exam.max_examinees < 50:
+            amount = 100
+        else:
+            amount = 150
 
         serializer.save(
             examiner=self.request.user,
             exam=exam,
+            amount=amount,
         )
 
 

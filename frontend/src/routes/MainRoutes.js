@@ -28,6 +28,9 @@ const PublicExamQuestionDetails = Loadable(
   lazy(() => import('pages/public-exam-question-details'))
 );
 const MyProfile = Loadable(lazy(() => import('pages/my-profile')));
+const RecentActions = Loadable(lazy(() => import('pages/recent-actions')));
+const ExamSchedules = Loadable(lazy(() => import('pages/exam-schedules')));
+const Rules = Loadable(lazy(() => import('pages/rules')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -97,6 +100,18 @@ const MainRoutes = {
         {
           path: 'my-profile',
           element: <MyProfile />
+        },
+        {
+          path: 'exam-schedules',
+          element: <ExamSchedules />
+        },
+        {
+          path: 'rules',
+          element: <Rules />
+        },
+        {
+          path: 'recent-actions',
+          element: <RecentActions />
         }
       ]
     },

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { axiosPrivate } from 'api/axios';
 
 // Material UI
 import {
@@ -13,10 +14,14 @@ import {
   Grid,
   InputLabel,
   OutlinedInput,
-  Stack
+  Stack,
+  Slider,
+  Chip,
+  Box
 } from '@mui/material';
 import AnimateButton from 'components/@extended/AnimateButton';
 import MainPaper from '../MainPaper';
+import IconButton from '@mui/material/IconButton';
 
 // Third party
 import * as Yup from 'yup';
@@ -28,10 +33,25 @@ import { useNavigate } from 'react-router-dom';
 // Custom Components
 import { createExam, updateExam, deleteExam } from 'store/reducers/exam';
 import Confirmation from './Confirmation';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import { createPayment, fetchPaymentCode } from 'store/reducers/payments';
+
+const getPaymentCodeAPI = async () => {
+  try {
+    const response = await axiosPrivate.get(`exams/payments/code`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch code', error);
+  }
+};
 
 const ExamForm = (props) => {
   const { open, handleClose, modalType, initialValues, examId } = props;
   const { enqueueSnackbar } = useSnackbar();
+
+  const [paid, setPaid] = useState(false);
+  const [maxExaminees, setMaxExaminees] = useState(0);
+  const [paymentCode, setPaymentCode] = useState('');
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -120,10 +140,16 @@ const ExamForm = (props) => {
                   if (new Date(values.start_time) > new Date(values.end_time)) {
                     throw new Error('Start Time must be less than End Time');
                   }
-
+                  values.max_examinees = maxExaminees;
                   modalType === 'Create'
                     ? dispatch(createExam(values)).then((data) => {
                         if (data.type === 'exam/createExam/fulfilled') {
+                          let paymentDetails = {
+                            exam_id: data?.payload?.id,
+                            payment_code: paymentCode,
+                            payment_method: 'telebirr'
+                          };
+                          dispatch(createPayment(paymentDetails));
                           enqueueSnackbar('Exam Created Successfully', {
                             variant: 'success'
                           });
@@ -278,37 +304,125 @@ const ExamForm = (props) => {
                     >
                       {/* Delete Button */}
                       {modalType === 'Update' && (
-                        <AnimateButton>
-                          <Button
-                            disableElevation
-                            fullWidth
-                            size="large"
-                            variant="contained"
-                            color="error"
-                            sx={{ mb: 2 }}
-                            onClick={() => {
-                              handleConfimationOpen();
-                            }}
-                          >
-                            Delete Exam
-                          </Button>
-                        </AnimateButton>
+                        <>
+                          <AnimateButton>
+                            <Button
+                              disableElevation
+                              fullWidth
+                              size="large"
+                              variant="contained"
+                              color="error"
+                              sx={{ mb: 2 }}
+                              onClick={() => {
+                                handleConfimationOpen();
+                              }}
+                            >
+                              Delete Exam
+                            </Button>
+                          </AnimateButton>
+                          <AnimateButton>
+                            <Button
+                              disableElevation
+                              disabled={isSubmitting}
+                              fullWidth
+                              size="large"
+                              type="submit"
+                              variant="contained"
+                              color="primary"
+                            >
+                              Update Exam
+                            </Button>
+                          </AnimateButton>
+                        </>
                       )}
+                      {modalType === 'Create' && (
+                        <Stack sx={{ mb: 2 }} spacing={2}>
+                          <Stack sx={{ mb: 4 }} spacing={2}>
+                            <Stack direction="row" spacing={2}>
+                              <Stack spacing={2}>
+                                <Typography variant="h5" htmlFor="point">
+                                  Max Examinees:
+                                </Typography>
+                                <OutlinedInput
+                                  id="point"
+                                  type="number"
+                                  value={maxExaminees}
+                                  name="point"
+                                  onBlur={handleBlur}
+                                  onChange={(e, value) => {
+                                    setMaxExaminees(e.target.value);
+                                  }}
+                                  sx={{ width: '100px', borderRadius: 4 }}
+                                  error={Boolean(touched.point && errors.point)}
+                                />
+                              </Stack>
+                              <Stack spacing={2}>
+                                <Typography variant="h5" htmlFor="point">
+                                  Code:
+                                </Typography>
+                                <OutlinedInput
+                                  id="point"
+                                  type="text"
+                                  value={paymentCode}
+                                  name="point"
+                                  onBlur={handleBlur}
+                                  onChange={handleChange}
+                                  sx={{ width: '130px', borderRadius: 4 }}
+                                  error={Boolean(touched.point && errors.point)}
+                                />
+                              </Stack>
+                            </Stack>
 
+                            <Stack direction="row">
+                              {paid ? (
+                                <Chip label="Paid" color="success" />
+                              ) : (
+                                <Chip label="Not Paid" color="error" />
+                              )}
+                              <IconButton
+                                aria-label="delete"
+                                onClick={() => {
+                                  setPaid(true);
+                                }}
+                              >
+                                <RefreshIcon />
+                              </IconButton>
+                            </Stack>
+                          </Stack>
+
+                          <AnimateButton>
+                            <Button
+                              disableElevation
+                              disabled={isSubmitting}
+                              fullWidth
+                              size="large"
+                              onClick={() => {
+                                getPaymentCodeAPI().then((response) => {
+                                  setPaymentCode(response.code);
+                                });
+                              }}
+                              variant="outlined"
+                              color="primary"
+                            >
+                              Generate Code
+                            </Button>
+                          </AnimateButton>
+                          <AnimateButton>
+                            <Button
+                              disableElevation
+                              disabled={isSubmitting || !paid}
+                              fullWidth
+                              size="large"
+                              type="submit"
+                              variant="contained"
+                              color="primary"
+                            >
+                              Create Exam
+                            </Button>
+                          </AnimateButton>
+                        </Stack>
+                      )}
                       {/* Create or Update Button */}
-                      <AnimateButton>
-                        <Button
-                          disableElevation
-                          disabled={isSubmitting}
-                          fullWidth
-                          size="large"
-                          type="submit"
-                          variant="contained"
-                          color="primary"
-                        >
-                          {modalType} Exam
-                        </Button>
-                      </AnimateButton>
                     </Grid>
 
                     {errors.submit && (
