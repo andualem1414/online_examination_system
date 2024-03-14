@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -5,10 +6,10 @@ import { useNavigate } from 'react-router-dom';
 import { Grid, Typography } from '@mui/material';
 
 // custom Components
-
 import TableComponent from 'components/TableComponent';
 import SearchField from 'components/SearchField';
 import DetailsComponent from 'components/DetailsComponent';
+import MainCard from 'components/MainCard';
 
 // Redux Imports
 import { fetchQuestions } from 'store/reducers/question';
@@ -16,7 +17,6 @@ import { fetchExamDetails } from 'store/reducers/exam';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { filterData, secondsToHMS } from 'utils/utils';
-import MainCard from 'components/MainCard';
 
 const PublicExamDetails = () => {
   const dispatch = useDispatch();
@@ -108,6 +108,8 @@ const PublicExamDetails = () => {
                 {examDetails.title}
               </Typography>
             </Grid>
+
+            {/* Created At */}
             <Grid
               item
               xs={12}
@@ -122,15 +124,16 @@ const PublicExamDetails = () => {
               <Typography> {new Date(examDetails.created_at).toLocaleString()}</Typography>
             </Grid>
 
-            {/* Exam description for small screen */}
+            {/* Exam description*/}
             <Grid item xs={10}>
               <Typography>{examDetails.description}</Typography>
             </Grid>
           </Grid>
         </MainCard>
       </Grid>
+
+      {/* Questions List */}
       <Grid item xs={12} md={8} display="block" justifyContent="center">
-        {console.log(questions)}
         {questions.length > 0 ? (
           <TableComponent
             headCells={headCells}
@@ -144,6 +147,8 @@ const PublicExamDetails = () => {
           </Typography>
         )}
       </Grid>
+
+      {/* Search and Details Card */}
       <Grid item xs={12} md={4} container spacing={2} direction="column">
         <Grid item sx={{ display: { xs: 'none', md: 'block' } }}>
           <SearchField handleSearchOnChange={handleSearchOnChange} />

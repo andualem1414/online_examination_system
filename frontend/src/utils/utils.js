@@ -1,3 +1,4 @@
+// Conver second to Hours Minutes and Seconds
 export const secondsToHMS = (seconds) => {
   var hours = Math.floor(seconds / 3600) > 0 ? Math.floor(seconds / 3600) + ' hours ' : '';
   var minutes =
@@ -7,6 +8,7 @@ export const secondsToHMS = (seconds) => {
   return hours + minutes + remainingSeconds + ' seconds';
 };
 
+// Shuffle an array
 export const shuffle = (prevarray) => {
   let array = [...prevarray];
   let currentIndex = array.length,
@@ -24,6 +26,7 @@ export const shuffle = (prevarray) => {
   return array;
 };
 
+// Convert milliseconds to readable time
 export const msToTime = (duration) => {
   const date = new Date(duration);
   const hours = date.getUTCHours().toString().padStart(2, '0');
@@ -33,6 +36,7 @@ export const msToTime = (duration) => {
   return `${hours}:${minutes}:${seconds}`;
 };
 
+// Filter data based on search parameters
 export const filterData = (dataList, searchValue, field) => {
   let newDataList =
     searchValue.length > 0
@@ -40,4 +44,15 @@ export const filterData = (dataList, searchValue, field) => {
       : dataList;
 
   return newDataList;
+};
+
+// filter data that is older than a week
+export const olderThanWeek = (date) => {
+  const today = new Date().getTime();
+  const checkDate = new Date(date).getTime();
+
+  const timeDifference = today - checkDate;
+  const oneWeekInMilliseconds = 7 * 24 * 60 * 60 * 1000;
+
+  return timeDifference < oneWeekInMilliseconds;
 };

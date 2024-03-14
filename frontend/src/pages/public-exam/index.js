@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { React, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -11,29 +12,27 @@ import SearchField from 'components/SearchField';
 // Redux import
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchPublicExams } from 'store/reducers/exam';
-import { filterData } from 'utils/utils';
+import { filterData, olderThanWeek } from 'utils/utils';
 
 const PublicExam = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  let [searchValue, setSearchValue] = useState('');
+
   const exams = useSelector((state) => state.exam.exams);
   const loading = useSelector((state) => state.exam.loading);
 
-  let [searchValue, setSearchValue] = useState('');
-
-  const chipColorSelector = (status) => {
-    return 'primary';
+  const chipColorSelector = (date) => {
+    if (olderThanWeek(date)) {
+      return 'success';
+    } else {
+      return 'primary';
+    }
   };
+
   useEffect(() => {
     dispatch(fetchPublicExams());
   }, []);
-  /*
-  headCells should contain the following
-  id: name of the cell
-  numeric: type of the cell if it is numeric
-  chip if it is a chip
-  chip color for the changing the chip color
-  */
 
   const headCells = [
     {
@@ -55,6 +54,7 @@ const PublicExam = () => {
       chipColor: chipColorSelector
     }
   ];
+
   const Detailsdata = [
     {
       title: 'Exam Details',
@@ -65,7 +65,7 @@ const PublicExam = () => {
         },
         {
           name: 'New',
-          value: exams.length / 2
+          value: exams.filter((exam) => olderThanWeek(exam.created_at)).length
         },
         {
           name: 'This Year',
@@ -78,6 +78,7 @@ const PublicExam = () => {
   const handleSearchOnChange = (e) => {
     setSearchValue(e.target.value);
   };
+
   const handleRowClick = (event, id) => {
     localStorage.setItem('examId', id);
 
@@ -86,10 +87,12 @@ const PublicExam = () => {
 
   return (
     <Grid container spacing={2}>
+      {/* Search for mobile device */}
       <Grid item xs={12} sx={{ display: { xs: 'block', md: 'none' } }}>
         <SearchField handleOnChange />
       </Grid>
-      {console.log(exams)}
+
+      {/* Table component */}
       <Grid item xs={12} md={8} display="block" justifyContent="center">
         {loading ? (
           <div>Loading...</div>
@@ -102,15 +105,17 @@ const PublicExam = () => {
           />
         ) : (
           <Typography variant="h5" textAlign="center">
-            There are no Public exams Yet!
+            There are no public exams yet!
           </Typography>
         )}
       </Grid>
 
+      {/* Search and Details card */}
       <Grid item xs={12} md={4} container spacing={2} direction="column">
         <Grid item sx={{ display: { xs: 'none', md: 'block' } }}>
           <SearchField handleSearchOnChange={handleSearchOnChange} />
         </Grid>
+
         <Grid item>
           <DetailsComponent data={Detailsdata} />
         </Grid>

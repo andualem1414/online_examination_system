@@ -1,14 +1,18 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect } from 'react';
 
 // redux Imports
 import { useDispatch, useSelector } from 'react-redux';
-// Material Ui
-import { Typography, Grid, Divider, Stack, Chip, IconButton } from '@mui/material';
-import MainPaper from 'components/MainPaper';
 import { fetchQuestionDetails } from 'store/reducers/question';
 
+// Material Ui
+import { Typography, Grid, Stack, IconButton } from '@mui/material';
+import MainPaper from 'components/MainPaper';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+
+// custom components
+import DetailsComponent from 'components/DetailsComponent';
 
 const PublicExamQuestionDetails = () => {
   const dispatch = useDispatch();
@@ -17,14 +21,38 @@ const PublicExamQuestionDetails = () => {
   const questionDetails = useSelector((state) => state.question.questionDetails);
   const [showAnswer, setShowAnswer] = React.useState(false);
 
+  const Detailsdata = [
+    {
+      title: 'Question Details',
+      descriptions: [
+        {
+          name: 'Point',
+          value: questionDetails.point
+        },
+
+        {
+          name: 'Type',
+          value: questionDetails.type
+        },
+        {
+          name: 'Exam',
+          value: questionDetails.exam
+        }
+      ]
+    }
+  ];
+
   useEffect(() => {
     dispatch(fetchQuestionDetails(questionId));
   }, []);
+
   const handleClickShowAnswer = () => setShowAnswer((show) => !show);
 
   return (
     <Grid container spacing={2}>
+      {/* Question and Answer */}
       <Grid item container xs={12} md={8} spacing={2}>
+        {/* Question */}
         <Grid item xs={12}>
           <Typography variant="subtitle3">Question</Typography>
           <MainPaper sx={{ p: 3, mt: 1 }}>
@@ -43,6 +71,8 @@ const PublicExamQuestionDetails = () => {
             )}
           </MainPaper>
         </Grid>
+
+        {/* Correct Answer */}
         <Grid item xs={12}>
           <Typography variant="subtitle3">Correct Answer</Typography>
           <MainPaper sx={{ p: 3, mt: 1 }}>
@@ -68,36 +98,10 @@ const PublicExamQuestionDetails = () => {
           </MainPaper>
         </Grid>
       </Grid>
-      <Grid item xs={12} md={4}>
-        <MainPaper sx={{ p: 3, mt: 3.7 }}>
-          <Typography variant="h4">Question Details</Typography>
-          <Divider sx={{ my: 2 }} />
-          <Grid container sx={{ ml: 2 }}>
-            <Grid item container direction="column" xs={6} spacing={3}>
-              <Grid item>
-                <Typography variant="h5">Points </Typography>
-              </Grid>
-              <Grid item>
-                <Typography variant="h5">Type </Typography>
-              </Grid>
-              <Grid item>
-                <Typography variant="h5">Exam </Typography>
-              </Grid>
-            </Grid>
-            <Grid item container direction="column" xs={6} spacing={2}>
-              <Grid item>
-                <Chip label={questionDetails.point} variant="light" color="primary" />
-              </Grid>
 
-              <Grid item>
-                <Chip label={questionDetails.type} variant="light" color="primary" />
-              </Grid>
-              <Grid item>
-                <Chip label={questionDetails.exam} variant="light" color="primary" />
-              </Grid>
-            </Grid>
-          </Grid>
-        </MainPaper>
+      {/* Detail component */}
+      <Grid item xs={12} md={4}>
+        <DetailsComponent data={Detailsdata} />
       </Grid>
     </Grid>
   );
