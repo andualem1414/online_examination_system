@@ -128,7 +128,7 @@ const MyProfile = () => {
               <Avatar alt="profile user" sx={{ mt: 2, width: 100, height: 100 }} />
             )}
             <Typography variant="h5">{userDetails.full_name}</Typography>
-            <Typography variant="h5">{userDetails.discription}</Typography>
+            <Typography variant="subtitle3">{userDetails.description}</Typography>
             <Tabs
               variant="fullWidth"
               value={value}
@@ -158,7 +158,7 @@ const MyProfile = () => {
                 first_name: userDetails?.first_name,
                 last_name: userDetails?.last_name,
 
-                discription: userDetails?.discription,
+                description: userDetails?.description,
                 submit: null
               }}
               validationSchema={Yup.object().shape({
@@ -168,7 +168,7 @@ const MyProfile = () => {
                   .email('Must be a valid email')
                   .max(255)
                   .required('Email is required'),
-                discription: Yup.string().max(255)
+                description: Yup.string().max(255)
               })}
               onSubmit={(values, { setErrors, setStatus, setSubmitting }) => {
                 console.log(values);
@@ -290,23 +290,23 @@ const MyProfile = () => {
 
                     <Grid item xs={12}>
                       <Stack spacing={1}>
-                        <InputLabel htmlFor="discription">Discription</InputLabel>
+                        <InputLabel htmlFor="description">Description</InputLabel>
                         <OutlinedInput
-                          id="discription"
+                          id="description"
                           type="text"
                           multiline
-                          value={values.discription}
-                          name="discription"
+                          value={values.description}
+                          name="description"
                           onBlur={handleBlur}
                           onChange={handleChange}
                           sx={{ borderRadius: '14px' }}
                           placeholder="Discribe Your self"
                           fullWidth
-                          error={Boolean(touched.discription && errors.discription)}
+                          error={Boolean(touched.description && errors.description)}
                         />
-                        {touched.discription && errors.discription && (
-                          <FormHelperText error id="standard-weight-helper-text-discription">
-                            {errors.discription}
+                        {touched.description && errors.description && (
+                          <FormHelperText error id="standard-weight-helper-text-description">
+                            {errors.description}
                           </FormHelperText>
                         )}
                       </Stack>
@@ -353,7 +353,7 @@ const MyProfile = () => {
             <TableComponent
               headCells={headCells}
               rows={payments}
-              title="Exams"
+              title="Payments"
               handleRowClick={handleRowClick}
             />
           </CustomTabPanel>

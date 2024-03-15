@@ -36,7 +36,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)
     profile_picture = models.ImageField(upload_to="profiles/", blank=True)
-    discription = models.CharField(max_length=300, blank=True)
+    description = models.CharField(max_length=300, blank=True)
 
     # image = models.ImageField()
     USERNAME_FIELD = "email"

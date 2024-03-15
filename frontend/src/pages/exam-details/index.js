@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Material UI
-import { Grid, Typography } from '@mui/material';
+import { Grid, Typography, Button } from '@mui/material';
 
 // custom Components
 import HeaderDetailsComponent from 'pages/exam-details/HeaderDetailsComponent';
@@ -11,15 +11,18 @@ import SearchField from 'components/SearchField';
 import DetailsComponent from 'components/DetailsComponent';
 
 // Redux Imports
-import { fetchQuestions, fetchQuestionDetails } from 'store/reducers/question';
-import exam, { fetchExamDetails } from 'store/reducers/exam';
+import { useSelector, useDispatch } from 'react-redux';
+import question, { fetchQuestions, fetchQuestionDetails } from 'store/reducers/question';
+import { fetchExamDetails } from 'store/reducers/exam';
 import {
   fetchExamineeExamDetails,
   fetchExamineesForSpecificExams
 } from 'store/reducers/examineeExam';
 import { fetchExamineeAnswers } from 'store/reducers/examineeAnswer';
-import { useSelector, useDispatch } from 'react-redux';
+
 import { filterData, secondsToHMS } from 'utils/utils';
+import { generateWordDocument } from 'utils/wordCreator';
+import { excelCreator } from 'utils/excelCreator';
 
 const ExamDetails = () => {
   const dispatch = useDispatch();
@@ -238,6 +241,13 @@ const ExamDetails = () => {
     }
   };
 
+  const download = (event) => {
+    generateWordDocument(event, questions, examDetails);
+  };
+  const examineeListDownload = (event) => {
+    excelCreator(event, examineesForSpecificExams);
+  };
+
   const Detailsdata = [
     {
       title: 'Exam Details',
@@ -277,88 +287,88 @@ const ExamDetails = () => {
   }
 
   return (
-    <>
-      <Grid container spacing={2}>
-        {/* Header Details */}
-        <Grid item xs={12}>
-          {((user.user_type === 'EXAMINEE' && examineeExamDetails?.exam) ||
-            (user.user_type === 'EXAMINER' && examDetails?.id)) && (
-            <HeaderDetailsComponent
-              examDetails={user.user_type === 'EXAMINER' ? examDetails : examineeExamDetails.exam}
-              examineeExamDetails={examineeExamDetails}
-              buttonName={user.user_type === 'EXAMINER' && buttonName}
-              handleButtonClick={handelButtonClick}
+    <Grid container spacing={2}>
+      {/* Header Details */}
+      <Grid item xs={12}>
+        {((user.user_type === 'EXAMINEE' && examineeExamDetails?.exam) ||
+          (user.user_type === 'EXAMINER' && examDetails?.id)) && (
+          <HeaderDetailsComponent
+            examDetails={user.user_type === 'EXAMINER' ? examDetails : examineeExamDetails.exam}
+            examineeExamDetails={examineeExamDetails}
+            buttonName={user.user_type === 'EXAMINER' && buttonName}
+            handleButtonClick={handelButtonClick}
+          />
+        )}
+      </Grid>
+
+      {/* Question List */}
+      {user.user_type === 'EXAMINER' ? (
+        <Grid item xs={12} md={8} display="block" justifyContent="center">
+          {loading ? (
+            <div>Loading...</div>
+          ) : buttonName.name === 'Questions' ? (
+            examineesForSpecificExams.length > 0 ? (
+              <TableComponent
+                headCells={headCellsForExaminees}
+                rows={filterData(examineesForSpecificExams, searchValue, 'full_name')}
+                title="Examinees"
+                handleRowClick={handleRowClick}
+                download={examineeListDownload}
+              />
+            ) : (
+              <Typography variant="h5" textAlign="center">
+                Examinees joined your exam will be listed here!
+              </Typography>
+            )
+          ) : questions.length > 0 ? (
+            <TableComponent
+              headCells={headCells}
+              rows={filterData(questions, searchValue, 'question')}
+              title="Questions"
+              handleRowClick={handleRowClick}
+              download={user.user_type === 'EXAMINER' && download}
             />
+          ) : (
+            <Typography variant="h5" textAlign="center">
+              Added Questions will be displayed here!
+            </Typography>
           )}
         </Grid>
+      ) : (
+        <Grid item xs={12} md={8} display="block" justifyContent="center">
+          {loading ? (
+            <div>Loading...</div>
+          ) : examineeAnswers.length > 0 &&
+            examineeExamDetails?.id &&
+            examineeExamDetails?.exam?.status === 'Conducted' ? (
+            <TableComponent
+              headCells={headCellsForExamineeAnswer}
+              rows={examineeAnswers}
+              title="Answers"
+              handleRowClick={handleRowClick}
+            />
+          ) : examineeExamDetails?.id && examineeExamDetails?.exam?.status === 'Conducted' ? (
+            <Typography variant="h5" textAlign="center">
+              No Answers available for this Exam
+            </Typography>
+          ) : (
+            <Typography variant="h5" textAlign="center">
+              Question Results will be avilable after Exam
+            </Typography>
+          )}
+        </Grid>
+      )}
 
-        {/* Question List */}
-        {user.user_type === 'EXAMINER' ? (
-          <Grid item xs={12} md={8} display="block" justifyContent="center">
-            {loading ? (
-              <div>Loading...</div>
-            ) : buttonName.name === 'Questions' ? (
-              examineesForSpecificExams.length > 0 ? (
-                <TableComponent
-                  headCells={headCellsForExaminees}
-                  rows={filterData(examineesForSpecificExams, searchValue, 'full_name')}
-                  title="Examinees"
-                  handleRowClick={handleRowClick}
-                />
-              ) : (
-                <Typography variant="h5" textAlign="center">
-                  Examinees Joined your exam will be listed here!
-                </Typography>
-              )
-            ) : questions.length > 0 ? (
-              <TableComponent
-                headCells={headCells}
-                rows={filterData(questions, searchValue, 'question')}
-                title="Questions"
-                handleRowClick={handleRowClick}
-              />
-            ) : (
-              <Typography variant="h5" textAlign="center">
-                Added Questions will be displayed here!
-              </Typography>
-            )}
-          </Grid>
-        ) : (
-          <Grid item xs={12} md={8} display="block" justifyContent="center">
-            {loading ? (
-              <div>Loading...</div>
-            ) : examineeAnswers.length > 0 &&
-              examineeExamDetails?.id &&
-              examineeExamDetails?.exam?.status === 'Conducted' ? (
-              <TableComponent
-                headCells={headCellsForExamineeAnswer}
-                rows={examineeAnswers}
-                title="Answers"
-                handleRowClick={handleRowClick}
-              />
-            ) : examineeExamDetails?.id && examineeExamDetails?.exam?.status === 'Conducted' ? (
-              <Typography variant="h5" textAlign="center">
-                No Answers Available for this Exam
-              </Typography>
-            ) : (
-              <Typography variant="h5" textAlign="center">
-                Question Results will be avilable after Exam
-              </Typography>
-            )}
-          </Grid>
-        )}
-
-        {/* Search and Detail */}
-        <Grid item xs={12} md={4} container spacing={2} direction="column">
-          <Grid item sx={{ display: { xs: 'none', md: 'block' } }}>
-            <SearchField handleSearchOnChange={handleSearchOnChange} />
-          </Grid>
-          <Grid item>
-            <DetailsComponent data={Detailsdata} />
-          </Grid>
+      {/* Search and Detail */}
+      <Grid item xs={12} md={4} container spacing={2} direction="column">
+        <Grid item sx={{ display: { xs: 'none', md: 'block' } }}>
+          <SearchField handleSearchOnChange={handleSearchOnChange} />
+        </Grid>
+        <Grid item>
+          <DetailsComponent data={Detailsdata} />
         </Grid>
       </Grid>
-    </>
+    </Grid>
   );
 };
 

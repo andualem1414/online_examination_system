@@ -24,7 +24,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 import { useSnackbar } from 'notistack';
-import { fetchQuestionDetails, updateQuestion } from 'store/reducers/question';
+import { updateQuestion } from 'store/reducers/question';
 
 // Custon Components
 import AnimateButton from 'components/@extended/AnimateButton';

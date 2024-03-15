@@ -25,8 +25,6 @@ const MyExam = () => {
   const loading = useSelector((state) => state.exam.loading);
   let [searchValue, setSearchValue] = useState('');
 
-  // const error = useSelector((state) => state.exam.error);
-
   const chipColorSelector = (status) => {
     if (status === 'Conducted') {
       return 'success';
@@ -36,14 +34,6 @@ const MyExam = () => {
       return 'primary';
     }
   };
-
-  /*
-  headCells should contain the following
-  id: name of the cell
-  numeric: type of the cell if it is numeric
-  chip if it is a chip
-  chip color for the changing the chip color
-  */
 
   const headCells = [
     {
@@ -117,10 +107,11 @@ const MyExam = () => {
 
   return (
     <Grid container spacing={2}>
+      {/* Search for mobile devices */}
       <Grid item xs={12} sx={{ display: { xs: 'block', md: 'none' } }}>
         <SearchField handleOnChange />
       </Grid>
-
+      {/* Exam List */}
       <Grid item xs={12} md={8} display="block" justifyContent="center">
         {loading ? (
           <div>Loading...</div>
@@ -145,7 +136,7 @@ const MyExam = () => {
           </Typography>
         )}
       </Grid>
-
+      {/* Exam Details */}
       <Grid item xs={12} md={4} container spacing={2} direction="column">
         <Grid item sx={{ display: { xs: 'none', md: 'block' } }}>
           <SearchField handleSearchOnChange={handleSearchOnChange} />

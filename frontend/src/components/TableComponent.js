@@ -47,7 +47,7 @@ function getComparator(order, orderBy) {
 }
 
 function EnhancedTableToolbar(props) {
-  const { title } = props;
+  const { title, download } = props;
   return (
     <Toolbar
       sx={{
@@ -59,11 +59,13 @@ function EnhancedTableToolbar(props) {
         {title}
       </Typography>
 
-      <Tooltip title="Filter list">
-        <IconButton color="primary">
-          <DownloadRoundedIcon />
-        </IconButton>
-      </Tooltip>
+      {download && (
+        <Tooltip title="Download">
+          <IconButton color="primary" onClick={download}>
+            <DownloadRoundedIcon />
+          </IconButton>
+        </Tooltip>
+      )}
     </Toolbar>
   );
 }
@@ -110,7 +112,7 @@ EnhancedTableHead.propTypes = {
 };
 
 export default function EnhancedTable(props) {
-  const { headCells, rows, title, handleRowClick } = props;
+  const { headCells, rows, title, handleRowClick, download } = props;
 
   // const dispatch = useDispatch();
 
@@ -145,7 +147,7 @@ export default function EnhancedTable(props) {
 
   return (
     <MainPaper sx={{ width: '100%', mb: 2 }}>
-      <EnhancedTableToolbar title={title} />
+      <EnhancedTableToolbar title={title} download={download} />
       <Divider />
       <TableContainer>
         <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size="small">

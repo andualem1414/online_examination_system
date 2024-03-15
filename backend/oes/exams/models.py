@@ -49,7 +49,7 @@ class Exam(models.Model):
 class Payment(models.Model):
     payment_code = models.CharField(max_length=40)
     examiner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    exam = models.ForeignKey(Exam, on_delete=models.SET_NULL, null=True)
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
 
     amount = models.IntegerField(blank=True, null=True)
     payment_method = models.CharField(max_length=50)

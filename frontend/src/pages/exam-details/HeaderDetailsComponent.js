@@ -119,32 +119,6 @@ const HeaderDetailsComponent = (props) => {
     }
   };
 
-  const Detailsdata = [
-    {
-      title: 'Exam Details',
-      descriptions: [
-        {
-          name: 'Number of exams',
-          value: 20
-        },
-        {
-          name: 'Pass Mark',
-          value: 10
-        }
-      ]
-    },
-
-    {
-      title: 'Examinee Details',
-      descriptions: [
-        {
-          name: 'Number of Examinee',
-          value: 20
-        }
-      ]
-    }
-  ];
-
   const handleStartExam = () => {
     localStorage.setItem('examineeExamId', examineeExamDetails?.id);
     localStorage.setItem('remainingTime', examineeExamDetails?.exam?.duration);
@@ -349,7 +323,7 @@ const HeaderDetailsComponent = (props) => {
             </Stack>
           </Grid>
 
-          {/* Exam Discription */}
+          {/* Exam Description */}
           <Grid item xs={8} sx={{ display: { xs: 'none', md: 'block' } }}>
             <Typography>{examDetails.description}</Typography>
           </Grid>
