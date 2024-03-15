@@ -22,3 +22,12 @@ export const createUserAPI = async (data) => {
     throw new Error('Failed to create User', error);
   }
 };
+
+export const updateUserAPI = async (id, data) => {
+  try {
+    const response = await axiosPrivate.patch(`users/${id}/update/`, data);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to update User', error);
+  }
+};

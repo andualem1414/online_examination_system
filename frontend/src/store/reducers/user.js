@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { createUserAPI, userDetailsAPI } from 'api/users';
+import { createUserAPI, updateUserAPI, userDetailsAPI } from 'api/users';
 
 const initialState = {
   userDetails: {},
@@ -14,6 +14,11 @@ export const fetchUserDetails = createAsyncThunk('user/userDetails', async () =>
 
 export const createUser = createAsyncThunk('user/createUser', async (data) => {
   const response = await createUserAPI(data);
+  return response;
+});
+
+export const updateUser = createAsyncThunk('user/updateUser', async ({ id, data }) => {
+  const response = await updateUserAPI(id, data);
   return response;
 });
 
@@ -36,6 +41,7 @@ const user = createSlice({
         state.loading = false;
         state.error = action.error.message;
       })
+      // Create User
       .addCase(createUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -45,6 +51,19 @@ const user = createSlice({
         state.loading = false;
       })
       .addCase(createUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      // Update User
+      .addCase(updateUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.userDetails = action.payload;
+        state.loading = false;
+      })
+      .addCase(updateUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

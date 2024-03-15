@@ -54,3 +54,9 @@ class UserUpdateAPIView(generics.UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     lookup = "pk"
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        user = self.request.user
+
+        return qs.filter(pk=user.id)

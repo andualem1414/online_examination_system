@@ -19,7 +19,7 @@ export const excelCreator = (event, examineeAnswers) => {
 
   //   increase the width of the column
   let wscols = [];
-  excelHeader.map((arr) => {
+  excelHeader.forEach((arr) => {
     wscols.push({ wch: arr.length + 10 });
   });
   worksheet['!cols'] = wscols;

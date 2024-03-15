@@ -9,6 +9,7 @@ from . import views
 urlpatterns = [
     path("list/", views.UserListAPIView.as_view()),
     path("create/", views.UserCreateAPIView.as_view()),
+    path("<int:pk>/update/", views.UserUpdateAPIView.as_view()),
     path("login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("token/verify/", TokenVerifyView.as_view(), name="token_verify"),

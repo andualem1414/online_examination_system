@@ -2,6 +2,7 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 
 import { useSelector } from 'react-redux';
+import { useSnackbar } from 'notistack';
 
 import {
   Box,
@@ -34,6 +35,7 @@ import TableComponent from 'components/TableComponent';
 import PropTypes from 'prop-types';
 import { dispatch } from 'store/index';
 import { fetchPayments } from 'store/reducers/payments';
+import { updateUser } from 'store/reducers/user';
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -61,7 +63,7 @@ const MyProfile = () => {
   const userDetails = useSelector((state) => state.user.userDetails);
   console.log(userDetails);
   const payments = useSelector((state) => state.payment.payments);
-
+  const { enqueueSnackbar } = useSnackbar();
   const [value, setValue] = useState(0);
 
   const handleChange = (event, newValue) => {
@@ -116,8 +118,8 @@ const MyProfile = () => {
   return (
     <Grid container spacing={2}>
       <Grid item xs={4}>
-        <MainPaper sx={{ p: 2 }}>
-          <Stack direction="column" display="flex" alignItems="center" spacing={2}>
+        <MainPaper sx={{ p: 2, height: '432px' }}>
+          <Stack direction="column" display="flex" alignItems="center" spacing={2} sx={{ mb: 6 }}>
             {userDetails?.profile_picture ? (
               <Avatar
                 alt="profile user"
@@ -129,24 +131,24 @@ const MyProfile = () => {
             )}
             <Typography variant="h5">{userDetails.full_name}</Typography>
             <Typography variant="subtitle3">{userDetails.description}</Typography>
-            <Tabs
-              variant="fullWidth"
-              value={value}
-              onChange={handleChange}
-              aria-label="basic tabs example"
-              orientation="vertical"
-              sx={{
-                width: '100%',
-
-                borderRight: 1,
-                borderColor: 'divider'
-              }}
-            >
-              <Tab label="Personal Information" {...a11yProps(0)} />
-              {userDetails.user_type === 'EXAMINER' && <Tab label="Payments" {...a11yProps(1)} />}
-              <Tab label="Change Password" {...a11yProps(2)} />
-            </Tabs>
           </Stack>
+
+          <Tabs
+            variant="fullWidth"
+            value={value}
+            onChange={handleChange}
+            aria-label="basic tabs example"
+            orientation="vertical"
+            sx={{
+              width: '100%',
+              borderRight: 1,
+              borderColor: 'divider'
+            }}
+          >
+            <Tab label="Personal Information" {...a11yProps(0)} />
+            {userDetails.user_type === 'EXAMINER' && <Tab label="Payments" {...a11yProps(1)} />}
+            <Tab label="Change Password" {...a11yProps(2)} />
+          </Tabs>
         </MainPaper>
       </Grid>
       <Grid item xs={8}>
@@ -174,6 +176,13 @@ const MyProfile = () => {
                 console.log(values);
 
                 try {
+                  dispatch(updateUser({ id: userDetails.id, data: values })).then((data) => {
+                    console.log(data);
+                    if (data.type === 'user/updateUser/fulfilled') {
+                      enqueueSnackbar('Details Updated successfully', { variant: 'success' });
+                    }
+                  });
+
                   setStatus({ success: false });
                   setSubmitting(false);
                 } catch (err) {
@@ -265,13 +274,14 @@ const MyProfile = () => {
                 </Stack>
               </Grid> */}
                     <Grid item xs={12}>
-                      <Stack spacing={1}>
+                      <Stack spacing={1} width="50%">
                         <InputLabel htmlFor="email">Email Address*</InputLabel>
                         <OutlinedInput
                           fullWidth
                           error={Boolean(touched.email && errors.email)}
                           id="email"
                           type="email"
+                          disabled={true}
                           value={values.email}
                           name="email"
                           onBlur={handleBlur}

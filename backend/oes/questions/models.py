@@ -17,7 +17,7 @@ class Question(models.Model):
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     question = models.TextField()
-    # choices
+  
     choices = models.JSONField(null=True, blank=True)
     answer = models.TextField()
     point = models.IntegerField()
