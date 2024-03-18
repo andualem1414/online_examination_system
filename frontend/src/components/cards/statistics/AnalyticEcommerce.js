@@ -27,7 +27,7 @@ const AnalyticEcommerce = ({ color, title, count, percentage, isLoss, extra }) =
           <Grid item>
             <Chip
               variant="combined"
-              color={color}
+              color={isLoss ? 'warning' : 'success'}
               icon={
                 <>
                   {!isLoss && <RiseOutlined style={{ fontSize: '0.75rem', color: 'inherit' }} />}
@@ -44,11 +44,7 @@ const AnalyticEcommerce = ({ color, title, count, percentage, isLoss, extra }) =
     </Stack>
     <Box sx={{ pt: 2.25 }}>
       <Typography variant="caption" color="textSecondary">
-        You made an extra{' '}
-        <Typography component="span" variant="caption" sx={{ color: `${color || 'primary'}.main` }}>
-          {extra}
-        </Typography>{' '}
-        this year
+        {extra}
       </Typography>
     </Box>
   </MainCard>

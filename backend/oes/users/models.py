@@ -38,6 +38,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     profile_picture = models.ImageField(upload_to="profiles/", blank=True)
     description = models.CharField(max_length=300, blank=True)
 
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
     # image = models.ImageField()
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

@@ -18,6 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
             "full_name",
             "profile_picture",
             "description",
+            "created_at",
         ]
 
     def get_full_name(self, obj):

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 // material-ui
 import {
@@ -33,6 +33,10 @@ import avatar1 from 'assets/images/users/avatar-1.png';
 import avatar2 from 'assets/images/users/avatar-2.png';
 import avatar3 from 'assets/images/users/avatar-3.png';
 import avatar4 from 'assets/images/users/avatar-4.png';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAllExams } from 'store/reducers/exam';
+import { fetchAllPayments } from 'store/reducers/payments';
+import { fetchAllUsers } from 'store/reducers/user';
 
 // avatar style
 const avatarSX = {
@@ -73,21 +77,117 @@ const DashboardDefault = () => {
   const [value, setValue] = useState('today');
   const [slot, setSlot] = useState('week');
 
+  const dispatch = useDispatch();
+
+  const users = useSelector((state) => state.user.users);
+  const exams = useSelector((state) => state.exam.exams);
+  const payments = useSelector((state) => state.payment.payments);
+
+  const differenceInDays = (date) => {
+    const currentDate = new Date();
+    const currentDateInMilliseconds = currentDate.getTime();
+    const dateToCheckInMilliseconds = new Date(date).getTime();
+    const differenceInDays = parseInt(
+      (currentDateInMilliseconds - dateToCheckInMilliseconds) / (1000 * 60 * 60 * 24)
+    );
+
+    return differenceInDays;
+  };
+
+  const percentageThisWeek = (items) => {
+    const lastWeek = items.filter(
+      (item) => differenceInDays(item.created_at) > 7 && differenceInDays(item.created_at) < 14
+    ).length;
+    const currentWeek = items.filter((item) => differenceInDays(item.created_at) <= 7).length;
+    const percentage =
+      lastWeek === 0 ? currentWeek - lastWeek : (currentWeek - lastWeek) / lastWeek;
+
+    return percentage * 100;
+  };
+
+  useEffect(() => {
+    dispatch(fetchAllExams());
+    dispatch(fetchAllPayments());
+    dispatch(fetchAllUsers());
+  }, []);
+
+  console.log(
+    exams.filter((exam) => {
+      console.log(differenceInDays(exam.created_at));
+    })
+  );
+
+  const examsWeekData = [
+    exams.filter((exam) => differenceInDays(exam.created_at) === 1).length,
+    exams.filter((exam) => differenceInDays(exam.created_at) === 2).length,
+    exams.filter((exam) => differenceInDays(exam.created_at) === 3).length,
+    exams.filter((exam) => differenceInDays(exam.created_at) === 4).length,
+    exams.filter((exam) => differenceInDays(exam.created_at) === 5).length,
+    exams.filter((exam) => differenceInDays(exam.created_at) === 6).length,
+    exams.filter((exam) => differenceInDays(exam.created_at) === 7).length
+  ];
+
+  const twoWeeks = [
+    {
+      name: 'Page Views',
+      data: [
+        exams.filter((exam) => differenceInDays(exam.created_at) === 1).length,
+        exams.filter((exam) => differenceInDays(exam.created_at) === 2).length,
+        exams.filter((exam) => differenceInDays(exam.created_at) === 3).length,
+        exams.filter((exam) => differenceInDays(exam.created_at) === 4).length,
+        exams.filter((exam) => differenceInDays(exam.created_at) === 5).length,
+        exams.filter((exam) => differenceInDays(exam.created_at) === 6).length,
+        exams.filter((exam) => differenceInDays(exam.created_at) === 7).length
+      ]
+    },
+    {
+      name: 'Sessions',
+      data: [
+        exams.filter((exam) => differenceInDays(exam.created_at) === 8).length,
+        exams.filter((exam) => differenceInDays(exam.created_at) === 9).length,
+        exams.filter((exam) => differenceInDays(exam.created_at) === 10).length,
+        exams.filter((exam) => differenceInDays(exam.created_at) === 11).length,
+        exams.filter((exam) => differenceInDays(exam.created_at) === 12).length,
+        exams.filter((exam) => differenceInDays(exam.created_at) === 13).length,
+        exams.filter((exam) => differenceInDays(exam.created_at) === 14).length
+      ]
+    }
+  ];
+  console.log(examsWeekData);
   return (
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
       {/* row 1 */}
 
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-        <AnalyticEcommerce title="Total Page Views" count="4,42,236" percentage={59.3} extra="35,000" />
+      <Grid item xs={12} sm={6} md={4}>
+        <AnalyticEcommerce
+          title="Total Exam Created"
+          count={exams.length}
+          percentage={percentageThisWeek(exams)}
+          isLoss={percentageThisWeek(exams) > 0 ? false : true}
+          extra={`There are ${
+            exams.filter((exam) => differenceInDays(exam.created_at) <= 7).length
+          } exams added this week`}
+        />
       </Grid>
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-        <AnalyticEcommerce title="Total Users" count="78,250" percentage={70.5} extra="8,900" />
+      <Grid item xs={12} sm={6} md={4}>
+        <AnalyticEcommerce
+          title="Total Users Joined"
+          count={users.length}
+          percentage={percentageThisWeek(users)}
+          isLoss={percentageThisWeek(users) > 0 ? false : true}
+          extra={`There are ${
+            users.filter((user) => differenceInDays(user.created_at) <= 7).length
+          } users added this week`}
+        />
       </Grid>
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-        <AnalyticEcommerce title="Total Order" count="18,800" percentage={27.4} isLoss color="warning" extra="1,943" />
-      </Grid>
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-        <AnalyticEcommerce title="Total Sales" count="$35,078" percentage={27.4} isLoss color="warning" extra="$20,395" />
+      <Grid item xs={12} sm={6} md={4}>
+        <AnalyticEcommerce
+          title="Total Payments made"
+          count={payments.length}
+          percentage={percentageThisWeek(payments)}
+          isLoss={percentageThisWeek(payments) > 0 ? false : true}
+          extra="1,943"
+        />
       </Grid>
 
       <Grid item md={8} sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} />
@@ -96,39 +196,19 @@ const DashboardDefault = () => {
       <Grid item xs={12} md={7} lg={8}>
         <Grid container alignItems="center" justifyContent="space-between">
           <Grid item>
-            <Typography variant="h5">Unique Visitor</Typography>
-          </Grid>
-          <Grid item>
-            <Stack direction="row" alignItems="center" spacing={0}>
-              <Button
-                size="small"
-                onClick={() => setSlot('month')}
-                color={slot === 'month' ? 'primary' : 'secondary'}
-                variant={slot === 'month' ? 'outlined' : 'text'}
-              >
-                Month
-              </Button>
-              <Button
-                size="small"
-                onClick={() => setSlot('week')}
-                color={slot === 'week' ? 'primary' : 'secondary'}
-                variant={slot === 'week' ? 'outlined' : 'text'}
-              >
-                Week
-              </Button>
-            </Stack>
+            <Typography variant="h5">Compared with the past week</Typography>
           </Grid>
         </Grid>
         <MainCard content={false} sx={{ mt: 1.5 }}>
           <Box sx={{ pt: 1, pr: 2 }}>
-            <IncomeAreaChart slot={slot} />
+            <IncomeAreaChart twoWeeks={twoWeeks} slot={slot} />
           </Box>
         </MainCard>
       </Grid>
       <Grid item xs={12} md={5} lg={4}>
         <Grid container alignItems="center" justifyContent="space-between">
           <Grid item>
-            <Typography variant="h5">Income Overview</Typography>
+            <Typography variant="h5">Exams overview</Typography>
           </Grid>
           <Grid item />
         </Grid>
@@ -138,15 +218,15 @@ const DashboardDefault = () => {
               <Typography variant="h6" color="textSecondary">
                 This Week Statistics
               </Typography>
-              <Typography variant="h3">$7,650</Typography>
+              <Typography variant="h3">{exams.length}</Typography>
             </Stack>
           </Box>
-          <MonthlyBarChart />
+          <MonthlyBarChart examsWeekData={examsWeekData} />
         </MainCard>
       </Grid>
 
       {/* row 3 */}
-      <Grid item xs={12} md={7} lg={8}>
+      {/* <Grid item xs={12} md={7} lg={8}>
         <Grid container alignItems="center" justifyContent="space-between">
           <Grid item>
             <Typography variant="h5">Recent Orders</Typography>
@@ -181,10 +261,10 @@ const DashboardDefault = () => {
           </List>
           <ReportAreaChart />
         </MainCard>
-      </Grid>
+      </Grid> */}
 
       {/* row 4 */}
-      <Grid item xs={12} md={7} lg={8}>
+      {/* <Grid item xs={12} md={7} lg={8}>
         <Grid container alignItems="center" justifyContent="space-between">
           <Grid item>
             <Typography variant="h5">Sales Report</Typography>
@@ -247,7 +327,10 @@ const DashboardDefault = () => {
                   <GiftOutlined />
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText primary={<Typography variant="subtitle1">Order #002434</Typography>} secondary="Today, 2:00 AM" />
+              <ListItemText
+                primary={<Typography variant="subtitle1">Order #002434</Typography>}
+                secondary="Today, 2:00 AM"
+              />
               <ListItemSecondaryAction>
                 <Stack alignItems="flex-end">
                   <Typography variant="subtitle1" noWrap>
@@ -270,7 +353,10 @@ const DashboardDefault = () => {
                   <MessageOutlined />
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText primary={<Typography variant="subtitle1">Order #984947</Typography>} secondary="5 August, 1:45 PM" />
+              <ListItemText
+                primary={<Typography variant="subtitle1">Order #984947</Typography>}
+                secondary="5 August, 1:45 PM"
+              />
               <ListItemSecondaryAction>
                 <Stack alignItems="flex-end">
                   <Typography variant="subtitle1" noWrap>
@@ -293,7 +379,10 @@ const DashboardDefault = () => {
                   <SettingOutlined />
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText primary={<Typography variant="subtitle1">Order #988784</Typography>} secondary="7 hours ago" />
+              <ListItemText
+                primary={<Typography variant="subtitle1">Order #988784</Typography>}
+                secondary="7 hours ago"
+              />
               <ListItemSecondaryAction>
                 <Stack alignItems="flex-end">
                   <Typography variant="subtitle1" noWrap>
@@ -334,7 +423,7 @@ const DashboardDefault = () => {
             </Button>
           </Stack>
         </MainCard>
-      </Grid>
+      </Grid> */}
     </Grid>
   );
 };

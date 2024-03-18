@@ -2,6 +2,7 @@
 import { Box, Chip, Typography } from '@mui/material';
 import { Plus } from 'react-huge-icons/solid';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import StorageRoundedIcon from '@mui/icons-material/StorageRounded';
 
 // project import
 import NavGroup from './NavGroup';
@@ -33,9 +34,10 @@ const Navigation = () => {
         {user.user_type === 'ADMIN' && (
           <Chip
             sx={{ px: 2, py: 2.5 }}
-            label={<Typography variant="h5">Admin Panel</Typography>}
+            label={<Typography variant="h5">DB Panel</Typography>}
             color="error"
-            icon={<AdminPanelSettingsIcon />}
+            onClick={() => (window.location.href = process.env.REACT_APP_DATABASE_URL + '/admin')}
+            icon={<StorageRoundedIcon />}
           />
         )}
       </Box>

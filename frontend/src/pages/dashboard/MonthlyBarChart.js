@@ -43,7 +43,8 @@ const barChartOptions = {
 
 // ==============================|| MONTHLY BAR CHART ||============================== //
 
-const MonthlyBarChart = () => {
+const MonthlyBarChart = (props) => {
+  const { examsWeekData } = props;
   const theme = useTheme();
 
   const { primary, secondary } = theme.palette.text;
@@ -51,7 +52,7 @@ const MonthlyBarChart = () => {
 
   const [series] = useState([
     {
-      data: [80, 95, 70, 42, 65, 55, 78]
+      data: examsWeekData
     }
   ]);
 
