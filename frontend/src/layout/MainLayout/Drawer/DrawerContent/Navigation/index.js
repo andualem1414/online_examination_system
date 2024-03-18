@@ -1,10 +1,12 @@
 // material-ui
-import { Box } from '@mui/material';
+import { Box, Chip, Typography } from '@mui/material';
 import { Plus } from 'react-huge-icons/solid';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
 // project import
 import NavGroup from './NavGroup';
 import menuItem from 'menu-items';
+import adminItems from 'menu-items/admin-items';
 
 // component import
 import MainButton from 'layout/MainLayout/Drawer/DrawerContent/Navigation/MainButton';
@@ -17,16 +19,28 @@ const Navigation = () => {
     return <NavGroup key={item.id} item={item} />;
   });
 
+  const adminNavGroups = adminItems.items.map((item) => {
+    return <NavGroup key={item.id} item={item} />;
+  });
+
   const user = useSelector((state) => state.user.userDetails);
 
   return (
     <Box sx={{ pt: 2 }}>
-      {user.user_type === 'EXAMINER' ? (
-        <MainButton name="Create Exam" icon={<Plus />} />
-      ) : (
-        <MainButton name="Join Exam" icon={<Plus />} />
-      )}
-      {navGroups}
+      {user.user_type === 'EXAMINER' && <MainButton name="Create Exam" icon={<Plus />} />}
+      {user.user_type === 'EXAMINEE' && <MainButton name="Join Exam" icon={<Plus />} />}
+      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'center' }}>
+        {user.user_type === 'ADMIN' && (
+          <Chip
+            sx={{ px: 2, py: 2.5 }}
+            label={<Typography variant="h5">Admin Panel</Typography>}
+            color="error"
+            icon={<AdminPanelSettingsIcon />}
+          />
+        )}
+      </Box>
+
+      {user.user_type === 'ADMIN' ? adminNavGroups : navGroups}
     </Box>
   );
 };

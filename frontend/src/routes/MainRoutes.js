@@ -32,6 +32,12 @@ const RecentActions = Loadable(lazy(() => import('pages/recent-actions')));
 const ExamSchedules = Loadable(lazy(() => import('pages/exam-schedules')));
 const Rules = Loadable(lazy(() => import('pages/rules')));
 
+// Admin
+
+const AdminUsers = Loadable(lazy(() => import('pages/admin-users')));
+const AdminExams = Loadable(lazy(() => import('pages/admin-exams')));
+const AdminPayments = Loadable(lazy(() => import('pages/admin-payments')));
+
 // ==============================|| MAIN ROUTING ||============================== //
 
 const MainRoutes = {
@@ -43,16 +49,13 @@ const MainRoutes = {
       children: [
         {
           path: '/',
-          element: <DashboardDefault />
+          element: <MyExams />
         },
         {
           path: 'color',
           element: <Color />
         },
-        {
-          path: 'dashboard',
-          element: <DashboardDefault />
-        },
+
         {
           path: 'sample-page',
           element: <SamplePage />
@@ -98,20 +101,8 @@ const MainRoutes = {
           element: <PublicExamQuestionDetails />
         },
         {
-          path: 'my-profile',
-          element: <MyProfile />
-        },
-        {
           path: 'exam-schedules',
           element: <ExamSchedules />
-        },
-        {
-          path: 'rules',
-          element: <Rules />
-        },
-        {
-          path: 'recent-actions',
-          element: <RecentActions />
         }
       ]
     },
@@ -125,6 +116,44 @@ const MainRoutes = {
         {
           path: 'my-exams/exam-details/examinee-result',
           element: <ExamineeResult />
+        }
+      ]
+    },
+    {
+      element: <RequireAuth allowedTypes={['ADMIN']} />,
+      children: [
+        {
+          path: 'dashboard',
+          element: <DashboardDefault />
+        },
+        {
+          path: 'admin-exams',
+          element: <AdminExams />
+        },
+        {
+          path: 'admin-users',
+          element: <AdminUsers />
+        },
+        {
+          path: 'admin-payments',
+          element: <AdminPayments />
+        }
+      ]
+    },
+    {
+      element: <RequireAuth allowedTypes={['ADMIN', 'EXAMINER', 'EXAMINEE']} />,
+      children: [
+        {
+          path: 'my-profile',
+          element: <MyProfile />
+        },
+        {
+          path: 'rules',
+          element: <Rules />
+        },
+        {
+          path: 'recent-actions',
+          element: <RecentActions />
         }
       ]
     }

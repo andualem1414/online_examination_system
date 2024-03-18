@@ -8,10 +8,18 @@ export const getPaymentsAPI = async (id) => {
     throw new Error('Failed to fetch payments', error);
   }
 };
+export const getAllPaymentsAPI = async () => {
+  try {
+    const response = await axiosPrivate.get(`exams/payments/all/`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch all payments', error);
+  }
+};
 
 export const getPaymentCodeAPI = async () => {
   try {
-    const response = await axiosPrivate.get(`exams/payments/code`);
+    const response = await axiosPrivate.get(`exams/payments/code/`);
     return response.data;
   } catch (error) {
     throw new Error('Failed to fetch code', error);

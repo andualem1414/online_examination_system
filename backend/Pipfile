@@ -9,6 +9,14 @@ djangorestframework = "*"
 djangorestframework-simplejwt = "*"
 django-cors-headers = "*"
 pillow = "*"
+matplotlib = "*"
+tensorflow = "*"
+opencv-python = "*"
+pandas = "*"
+numpy = "*"
+scikit-learn = "*"
+deepface = "==0.0.80"
+keras = "==2.15.0"
 
 [dev-packages]
 

@@ -1,11 +1,20 @@
-from rest_framework import generics
+import uuid
+import os
+from pathlib import Path
+from django.conf import settings
+
 from .models import User
+from django.contrib.auth.models import Group
+from .serializers import UserSerializer
+
+from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
-from .serializers import UserSerializer
+from rest_framework.decorators import api_view
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth.models import Group
+
+from .compare_face import compare_face
 
 
 # Create your views here.
@@ -60,3 +69,37 @@ class UserUpdateAPIView(generics.UpdateAPIView):
         user = self.request.user
 
         return qs.filter(pk=user.id)
+
+
+class VerifyUserView(APIView):
+    parser_classes = [MultiPartParser, FormParser]  # Allow multipart form data
+
+    def store_image(self, image_file):
+        if image_file is None:
+            return Response({"error": "No image file uploaded"}, status=400)
+
+        # Handle image processing and storage logic here
+        filename = f"temp/{uuid.uuid4()}.{image_file.name}"
+        filepath = os.path.join(settings.MEDIA_ROOT, filename)
+
+        with open(filepath, "wb+") as destination:
+            for chunk in image_file.chunks():
+                destination.write(chunk)
+
+        return filepath
+
+    def post(self, request):
+        image_file = request.FILES.get("image")
+        if image_file:
+            current_image = self.store_image(image_file)
+        else:
+            return Response({"verified": False})
+
+        profile_image = self.request.user.profile_picture.path
+
+        result = compare_face(current_image, profile_image)
+        print(result)
+        verified = result["verified"] if result else False
+        # Return a success response (optional data about the uploaded image)
+        os.remove(current_image)
+        return Response({"verified": verified})

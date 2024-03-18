@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import * as dayjs from 'dayjs';
@@ -66,6 +66,15 @@ const TakeExam = () => {
 
   const [selectedImage, setSelectedImage] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
+  const intervalRef = useRef(null); // Store the interval ID
+
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      console.log('hello');
+    }, 10000); // Adjust interval duration as needed
+
+    return () => clearInterval(intervalRef.current); // Cleanup function
+  }, []);
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];

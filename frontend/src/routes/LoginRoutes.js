@@ -10,6 +10,7 @@ import RequireAuth from 'layout/RequireAuth';
 
 // render - login
 const AuthLogin = Loadable(lazy(() => import('pages/authentication/Login')));
+const AdminLogin = Loadable(lazy(() => import('pages/authentication/AdminLogin')));
 const AuthRegister = Loadable(lazy(() => import('pages/authentication/Register')));
 const TakeExam = Loadable(lazy(() => import('pages/take-exam')));
 
@@ -22,6 +23,10 @@ const LoginRoutes = {
     {
       path: 'login',
       element: <AuthLogin />
+    },
+    {
+      path: 'admin/login',
+      element: <AdminLogin />
     },
     {
       path: 'register',

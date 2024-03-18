@@ -23,6 +23,7 @@ import { dispatch } from 'store/index';
 import { updateExam, deleteExam } from 'store/reducers/exam';
 import { useSelector } from 'react-redux';
 import { deleteExamineeExam } from 'store/reducers/examineeExam';
+import StartExamModal from 'components/modals/StartExamModal';
 
 const HeaderDetailsComponent = (props) => {
   const user = useSelector((state) => state.user.userDetails);
@@ -68,10 +69,15 @@ const HeaderDetailsComponent = (props) => {
     }
   ];
 
-  let [openConfimation, setOpenConfimation] = useState(false);
   let [warning, setwarning] = useState('');
   let [confirmButton, setconfirmButton] = useState('');
+
+  let [openConfimation, setOpenConfimation] = useState(false);
+  let [openStartExam, setOpenStartExam] = useState(false);
+
   let handleConfimationClose = () => setOpenConfimation(false);
+  let handleOpenStartExamClose = () => setOpenStartExam(false);
+  let handleOpenStartExamOpen = () => setOpenStartExam(true);
 
   let handleConfimationOpen = (warning, confirmButton) => {
     setwarning(warning);
@@ -132,6 +138,11 @@ const HeaderDetailsComponent = (props) => {
         handleConfimationClick={handleConfimationClick}
         warning={warning}
         ConfirmButton={confirmButton}
+      />
+      <StartExamModal
+        openStartExam={openStartExam}
+        handleOpenStartExamClose={handleOpenStartExamClose}
+        handleStartExam={handleStartExam}
       />
       <ExamForm
         open={open}
@@ -410,7 +421,7 @@ const HeaderDetailsComponent = (props) => {
                     variant="contained"
                     color="success"
                     onClick={(e) => {
-                      handleStartExam();
+                      handleOpenStartExamOpen();
                     }}
                     disabled={examDetails.status === 'Live' ? false : true}
                   >

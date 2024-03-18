@@ -5,7 +5,8 @@ import {
   examDetailsAPI,
   createExamAPI,
   updateExamAPI,
-  deleteExamAPI
+  deleteExamAPI,
+  getAllExamsAPI
 } from 'api/exams';
 
 const initialState = {
@@ -19,6 +20,12 @@ export const fetchExams = createAsyncThunk('exam/fetchExams', async () => {
   const response = await getExamsAPI();
   return response;
 });
+
+export const fetchAllExams = createAsyncThunk('exam/fetchAllExams', async () => {
+  const response = await getAllExamsAPI();
+  return response;
+});
+
 export const fetchPublicExams = createAsyncThunk('exam/fetchPublicExams', async () => {
   const response = await getPublicExamsAPI();
   return response;
@@ -60,6 +67,19 @@ const exam = createSlice({
         state.loading = false;
       })
       .addCase(fetchExams.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      // Fetch Exam
+      .addCase(fetchAllExams.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllExams.fulfilled, (state, action) => {
+        state.exams = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchAllExams.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })

@@ -31,3 +31,25 @@ export const updateUserAPI = async (id, data) => {
     throw new Error('Failed to update User', error);
   }
 };
+
+export const verifyUserAPI = async (data) => {
+  try {
+    const response = await axiosPrivate.post(`users/verify-user/`, data, {
+      headers: {
+        'Content-Type': 'multipart/form-data' // Required for file uploads
+      }
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to verify User', error);
+  }
+};
+
+export const getAllUsersAPI = async () => {
+  try {
+    const response = await axiosPrivate.get(`/users/list/`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch All User', error);
+  }
+};

@@ -1,5 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getPaymentsAPI, getPaymentCodeAPI, createPaymentAPI } from 'api/payments';
+import {
+  getPaymentsAPI,
+  getPaymentCodeAPI,
+  createPaymentAPI,
+  getAllPaymentsAPI
+} from 'api/payments';
 
 const initialState = {
   payments: [],
@@ -10,6 +15,10 @@ const initialState = {
 
 export const fetchPayments = createAsyncThunk('payment/fetchPayments', async (id) => {
   const response = await getPaymentsAPI(id);
+  return response;
+});
+export const fetchAllPayments = createAsyncThunk('payment/fetchAllPayments', async (id) => {
+  const response = await getAllPaymentsAPI(id);
   return response;
 });
 export const fetchPaymentCode = createAsyncThunk('payment/fetchPaymentCode', async () => {
@@ -38,6 +47,19 @@ const payment = createSlice({
         state.loading = false;
       })
       .addCase(fetchPayments.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      // Fetch payment
+      .addCase(fetchAllPayments.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllPayments.fulfilled, (state, action) => {
+        state.payments = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchAllPayments.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })

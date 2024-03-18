@@ -36,7 +36,8 @@ import { useNavigate } from 'react-router-dom';
 
 // ============================|| FIREBASE - LOGIN ||============================ //
 
-const AuthLogin = () => {
+const AuthLogin = (props) => {
+  const { email, password, navigatePath } = props;
   const [checked, setChecked] = React.useState(false);
 
   const [showPassword, setShowPassword] = React.useState(false);
@@ -56,8 +57,8 @@ const AuthLogin = () => {
     <>
       <Formik
         initialValues={{
-          email: 'user1@gmail.com',
-          password: 'a123434!',
+          email: email,
+          password: password,
           submit: null
         }}
         validationSchema={Yup.object().shape({
@@ -89,7 +90,7 @@ const AuthLogin = () => {
                   navigate(originalUrl, { replace: true });
                 } else {
                   // Redirect the user to a default page, such as the home page
-                  navigate('/my-exams');
+                  navigate(navigatePath);
                 }
               }
             });

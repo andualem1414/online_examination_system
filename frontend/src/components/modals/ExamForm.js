@@ -38,7 +38,7 @@ import { createPayment, fetchPaymentCode } from 'store/reducers/payments';
 
 const getPaymentCodeAPI = async () => {
   try {
-    const response = await axiosPrivate.get(`exams/payments/code`);
+    const response = await axiosPrivate.get(`exams/payments/code/`);
     return response.data;
   } catch (error) {
     throw new Error('Failed to fetch code', error);

@@ -8,6 +8,14 @@ export const getExamsAPI = async () => {
     throw new Error('Failed to fetch Exams', error);
   }
 };
+export const getAllExamsAPI = async () => {
+  try {
+    const response = await axiosPrivate.get(`/exams/admin-exams`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch All Exams', error);
+  }
+};
 
 export const getPublicExamsAPI = async () => {
   try {

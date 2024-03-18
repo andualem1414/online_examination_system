@@ -10,6 +10,19 @@ from .models import Exam, Payment
 from .serializers import ExamSerializer, PaymentSerializer
 
 
+class AdminExamListAPIView(HavePermissionMixin, generics.ListAPIView):
+    queryset = Exam.objects.all()
+    serializer_class = ExamSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        user = self.request.user
+        if user.user_type != "ADMIN":
+            raise serializers.ValidationError({"details": "Not Authorized"})
+
+        return qs
+
+
 class ExamListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIView):
     queryset = Exam.objects.all()
     serializer_class = ExamSerializer
@@ -114,6 +127,11 @@ class PaymentListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIView):
             exam=exam,
             amount=amount,
         )
+
+
+class ListAllPaymentAPIView(HavePermissionMixin, generics.ListAPIView):
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer
 
 
 class PaymentDetailAPIView(HavePermissionMixin, generics.RetrieveAPIView):

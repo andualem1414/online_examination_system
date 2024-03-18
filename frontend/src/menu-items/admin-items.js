@@ -1,10 +1,10 @@
-// assets
 import { DashboardOutlined } from '@ant-design/icons';
 import { ClipboardList } from 'react-huge-icons/outline';
 import { CalendarDot } from 'react-huge-icons/outline';
 import { Exam } from 'react-huge-icons/outline';
 import { Share } from 'react-huge-icons/outline';
 
+import pages from './pages';
 // icons
 const icons = {
   DashboardOutlined,
@@ -21,35 +21,35 @@ const dashboard = {
   title: 'Navigation',
   type: 'group',
   children: [
-    // {
-    //   id: 'dashboard',
-    //   title: 'Dashboard',
-    //   type: 'item',
-    //   url: '/dashboard',
-    //   icon: icons.DashboardOutlined,
-    //   breadcrumbs: false
-    // },
     {
-      id: 'my-exams',
-      title: 'My Exams',
+      id: 'dashboard',
+      title: 'Dashboard',
       type: 'item',
-      url: '/my-exams',
+      url: '/dashboard',
+      icon: icons.DashboardOutlined,
+      breadcrumbs: false
+    },
+    {
+      id: 'admin-exams',
+      title: 'Exams',
+      type: 'item',
+      url: '/admin-exams',
       icon: icons.Exam,
       breadcrumbs: true
     },
     {
-      id: 'public-exams',
-      title: 'Public Exams',
+      id: 'admin-users',
+      title: 'Users',
       type: 'item',
-      url: '/public-exams',
+      url: '/admin-users',
       icon: icons.Share,
       breadcrumbs: true
     },
     {
-      id: 'exam-schedules',
-      title: 'Exam Schedules',
+      id: 'admin-payments',
+      title: 'Payments',
       type: 'item',
-      url: '/exam-schedules',
+      url: '/admin-payments',
       icon: icons.CalendarDot,
       breadcrumbs: true
     },
@@ -64,4 +64,8 @@ const dashboard = {
   ]
 };
 
-export default dashboard;
+const adminItems = {
+  items: [dashboard, pages]
+};
+
+export default adminItems;

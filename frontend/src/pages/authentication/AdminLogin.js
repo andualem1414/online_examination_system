@@ -14,11 +14,11 @@ const Login = () => (
     <Grid container spacing={3}>
       <Grid item xs={12}>
         <Typography variant="h3" textAlign="center">
-          Login
+          Admin Login
         </Typography>
       </Grid>
       <Grid item xs={12}>
-        <AuthLogin email="user1@gmail.com" password="a123434!" navigatePath="/my-exams" />
+        <AuthLogin email="adminuser@gmail.com" password="admin123" navigatePath="/admin-exams" />
       </Grid>
     </Grid>
   </AuthWrapper>
