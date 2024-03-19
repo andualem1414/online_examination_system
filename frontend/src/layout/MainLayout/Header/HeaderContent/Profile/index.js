@@ -115,11 +115,7 @@ const Profile = () => {
       >
         <Stack direction="row" spacing={2} alignItems="center" sx={{ p: 0.5 }}>
           {user.profile_picture ? (
-            <Avatar
-              alt="profile user"
-              src={process.env.REACT_APP_DATABASE_URL + user.profile_picture}
-              sx={{ width: 32, height: 32 }}
-            />
+            <Avatar alt="profile user" src={user.profile_picture} sx={{ width: 32, height: 32 }} />
           ) : (
             <Avatar alt="profile user" sx={{ width: 32, height: 32 }} />
           )}
@@ -164,15 +160,28 @@ const Profile = () => {
                       <Grid container justifyContent="space-between" alignItems="center">
                         <Grid item>
                           <Stack direction="row" spacing={1.25} alignItems="center">
-                            <Avatar
-                              alt="profile user"
-                              src={avatar1}
-                              sx={{ width: 32, height: 32 }}
-                            />
+                            {user.profile_picture ? (
+                              <Avatar
+                                alt="profile user"
+                                src={user.profile_picture}
+                                sx={{ width: 32, height: 32 }}
+                              />
+                            ) : (
+                              <Avatar alt="profile user" sx={{ width: 32, height: 32 }} />
+                            )}
                             <Stack>
-                              <Typography variant="h6">John Doe</Typography>
-                              <Typography variant="body2" color="textSecondary">
-                                UI/UX Designer
+                              <Typography variant="h6">{user.full_name}</Typography>
+                              <Typography
+                                variant="body2"
+                                color="textSecondary"
+                                style={{
+                                  width: 150,
+                                  whiteSpace: 'nowrap',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis'
+                                }}
+                              >
+                                {user.description}
                               </Typography>
                             </Stack>
                           </Stack>
@@ -184,53 +193,6 @@ const Profile = () => {
                         </Grid>
                       </Grid>
                     </CardContent>
-                    {open && (
-                      <>
-                        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                          <Tabs
-                            variant="fullWidth"
-                            value={value}
-                            onChange={handleChange}
-                            aria-label="profile tabs"
-                          >
-                            <Tab
-                              sx={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                textTransform: 'capitalize'
-                              }}
-                              icon={
-                                <UserOutlined style={{ marginBottom: 0, marginRight: '10px' }} />
-                              }
-                              label="Profile"
-                              {...a11yProps(0)}
-                            />
-                            <Tab
-                              sx={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                textTransform: 'capitalize'
-                              }}
-                              icon={
-                                <SettingOutlined style={{ marginBottom: 0, marginRight: '10px' }} />
-                              }
-                              label="Setting"
-                              {...a11yProps(1)}
-                            />
-                          </Tabs>
-                        </Box>
-                        <TabPanel value={value} index={0} dir={theme.direction}>
-                          <ProfileTab handleLogout={handleLogout} />
-                        </TabPanel>
-                        <TabPanel value={value} index={1} dir={theme.direction}>
-                          <SettingTab />
-                        </TabPanel>
-                      </>
-                    )}
                   </MainCard>
                 </ClickAwayListener>
               </Paper>

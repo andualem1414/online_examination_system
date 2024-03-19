@@ -26,7 +26,7 @@ const ExamSchedules = () => {
     if (user.user_type === 'EXAMINEE') {
       dispatch(fetchExamineeExams());
     }
-  });
+  }, []);
   const handleDateClick = (arg) => {
     if (user.user_type === 'EXAMINEE') {
       localStorage.setItem('examineeExamId', arg.event.id);

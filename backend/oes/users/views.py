@@ -5,7 +5,10 @@ from django.conf import settings
 
 from .models import User
 from django.contrib.auth.models import Group
-from .serializers import UserSerializer, RecentActionSerializer
+from .serializers import (
+    UserSerializer,
+    RecentActionSerializer,
+)
 
 from rest_framework import generics
 from rest_framework.views import APIView
@@ -15,6 +18,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 
 from auditlog.models import LogEntry
+from rest_framework import status
 
 from .compare_face import compare_face
 
@@ -38,6 +42,35 @@ class RecentActionsListAPIView(generics.ListAPIView):
         return qs.filter(actor_id=user.id)
 
 
+class ChangePasswordView(APIView):
+
+    def post(self, request):
+        user = request.user
+        data = request.data
+
+        # Check if the old password matches
+        if not user.check_password(data.get("old_password")):
+            return Response(
+                {"error": "Old password is incorrect"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Check if the new passwords match
+        if data.get("new_password") != data.get("confirm_new_password"):
+            return Response(
+                {"error": "New passwords do not match"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Set the new password and save the user
+        user.set_password(data.get("new_password"))
+        user.save()
+
+        return Response(
+            {"message": "Password changed successfully"}, status=status.HTTP_200_OK
+        )
+
+
 class UserCreateAPIView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -55,14 +88,28 @@ class UserCreateAPIView(generics.CreateAPIView):
         user.save()
 
 
-class UserDetailAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+# class UserDetailAPIView(generics.GenericAPIView):
+#     queryset = User.objects.all()
+#     serializer_class = UserSerializer
+#     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        # Get the authenticated user
+#     def get(self, request):
+#         # Get the authenticated user
+
+
+#         user = User.objects.get(pk=request.user.id)
+#         serializer = UserSerializer(user)
+#         return Response(serializer.data)
+class UserDetailAPIView(generics.RetrieveAPIView):
+    serializer_class = UserSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        # Retrieve the current authenticated user
         user = request.user
 
-        serializer = UserSerializer(user)
+        # Serialize user data
+        serializer = self.get_serializer(user)
+
         return Response(serializer.data)
 
 

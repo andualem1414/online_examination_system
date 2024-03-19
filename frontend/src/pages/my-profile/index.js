@@ -36,6 +36,7 @@ import PropTypes from 'prop-types';
 import { dispatch } from 'store/index';
 import { fetchPayments } from 'store/reducers/payments';
 import { updateUser } from 'store/reducers/user';
+import { axiosPrivate } from 'api/axios';
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -70,6 +71,14 @@ const MyProfile = () => {
     setValue(newValue);
   };
 
+  const changePassword = async (data) => {
+    try {
+      const response = await axiosPrivate.post(`users/change-password/`, data);
+      return response.data;
+    } catch (error) {
+      return error?.response;
+    }
+  };
   useEffect(() => {
     dispatch(fetchPayments(userDetails.id));
   }, []);
@@ -123,7 +132,7 @@ const MyProfile = () => {
             {userDetails?.profile_picture ? (
               <Avatar
                 alt="profile user"
-                src={process.env.REACT_APP_DATABASE_URL + userDetails.profile_picture}
+                src={userDetails.profile_picture}
                 sx={{ mt: 2, width: 100, height: 100 }}
               />
             ) : (
@@ -182,6 +191,7 @@ const MyProfile = () => {
                       enqueueSnackbar('Details Updated successfully', { variant: 'success' });
                     }
                   });
+                  console.log(userDetails);
 
                   setStatus({ success: false });
                   setSubmitting(false);
@@ -367,7 +377,161 @@ const MyProfile = () => {
               handleRowClick={handleRowClick}
             />
           </CustomTabPanel>
-          <CustomTabPanel value={value} index={1}></CustomTabPanel>
+          <CustomTabPanel value={value} index={2}>
+            <Formik
+              initialValues={{
+                old_password: '',
+                new_password: '',
+                confirm_new_password: '',
+
+                submit: null
+              }}
+              validationSchema={Yup.object().shape({
+                old_password: Yup.string().max(255).required('old password is required'),
+                new_password: Yup.string().max(255).required('new password is required'),
+                confirm_new_password: Yup.string().max(255).required('confirm password required')
+              })}
+              onSubmit={(values, { setErrors, setStatus, setSubmitting }) => {
+                console.log(values);
+
+                try {
+                  changePassword(values).then((response) => {
+                    console.log(response);
+                    if (response.status === 400) {
+                      enqueueSnackbar(response.data.error, { variant: 'error' });
+                    } else {
+                      enqueueSnackbar('Password Updated successfully', { variant: 'success' });
+                    }
+                  });
+                  // dispatch(updateUser({ id: userDetails.id, data: values })).then((data) => {
+                  //   console.log(data);
+                  //   if (data.type === 'user/updateUser/fulfilled') {
+                  //     enqueueSnackbar('Details Updated successfully', { variant: 'success' });
+                  //   }
+                  // });
+
+                  setStatus({ success: false });
+                  setSubmitting(false);
+                } catch (err) {
+                  console.error(err);
+                  setStatus({ success: false });
+                  setErrors({ submit: err.message });
+                  setSubmitting(false);
+                }
+              }}
+            >
+              {({
+                errors,
+                handleBlur,
+                handleChange,
+                handleSubmit,
+                isSubmitting,
+                touched,
+                values,
+                setFieldValue
+              }) => (
+                <form noValidate onSubmit={handleSubmit}>
+                  <Grid container spacing={5} display="flex" justifyContent="center">
+                    <Grid
+                      item
+                      container
+                      xs={12}
+                      md={6}
+                      display="flex"
+                      justifyContent="center"
+                      spacing={4}
+                    >
+                      <Grid item xs={12}>
+                        <Stack spacing={1}>
+                          <InputLabel htmlFor="old_password">Old Password</InputLabel>
+                          <OutlinedInput
+                            id="old_password"
+                            type="password"
+                            value={values.old_password}
+                            name="old_password"
+                            onBlur={handleBlur}
+                            onChange={handleChange}
+                            sx={{ borderRadius: '14px' }}
+                            placeholder="Old Password"
+                            fullWidth
+                            error={Boolean(touched.old_password && errors.old_password)}
+                          />
+                          {touched.old_password && errors.old_password && (
+                            <FormHelperText error id="helper-text-old_password-signup">
+                              {errors.old_password}
+                            </FormHelperText>
+                          )}
+                        </Stack>
+                      </Grid>
+                      <Grid item xs={12}>
+                        <Stack spacing={1}>
+                          <InputLabel htmlFor="new_password">New Password</InputLabel>
+                          <OutlinedInput
+                            fullWidth
+                            error={Boolean(touched.new_password && errors.new_password)}
+                            id="new_password"
+                            type="password"
+                            value={values.new_password}
+                            name="new_password"
+                            onBlur={handleBlur}
+                            sx={{ borderRadius: '14px' }}
+                            onChange={handleChange}
+                            placeholder="New Password"
+                            inputProps={{}}
+                          />
+                          {touched.new_password && errors.new_password && (
+                            <FormHelperText error id="helper-text-new_password-signup">
+                              {errors.new_password}
+                            </FormHelperText>
+                          )}
+                        </Stack>
+                      </Grid>
+                      <Grid item xs={12}>
+                        <Stack spacing={1}>
+                          <InputLabel htmlFor="confirm_new_password">Confirm password</InputLabel>
+                          <OutlinedInput
+                            fullWidth
+                            error={Boolean(
+                              touched.confirm_new_password && errors.confirm_new_password
+                            )}
+                            id="confirm_new_password"
+                            type="password"
+                            value={values.confirm_new_password}
+                            name="confirm_new_password"
+                            onBlur={handleBlur}
+                            onChange={handleChange}
+                            sx={{ borderRadius: '14px' }}
+                            placeholder="Confirm Password"
+                            inputProps={{}}
+                          />
+                          {touched.confirm_new_password && errors.confirm_new_password && (
+                            <FormHelperText error id="helper-text-confirm_new_password-signup">
+                              {errors.confirm_new_password}
+                            </FormHelperText>
+                          )}
+                        </Stack>
+                      </Grid>
+                      <Grid item xs={8}>
+                        <AnimateButton>
+                          <Button
+                            disableElevation
+                            disabled={isSubmitting}
+                            fullWidth
+                            size="large"
+                            type="submit"
+                            variant="contained"
+                            color="primary"
+                          >
+                            Update Password
+                          </Button>
+                        </AnimateButton>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </form>
+              )}
+            </Formik>
+          </CustomTabPanel>
         </MainPaper>
       </Grid>
     </Grid>

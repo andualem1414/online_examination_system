@@ -11,6 +11,7 @@ urlpatterns = [
     path("create/", views.UserCreateAPIView.as_view()),
     path("<int:pk>/update/", views.UserUpdateAPIView.as_view()),
     path("details/", views.UserDetailAPIView.as_view(), name="user_detail"),
+    path("change-password/", views.ChangePasswordView.as_view()),
     # user verify
     path("verify-user/", views.VerifyUserView.as_view()),
     # Token
