@@ -13,7 +13,8 @@ const MainButton = ({ name, icon }) => {
     title: '',
     description: '',
     start_time: dayjs(),
-    end_time: ''
+    end_time: '',
+    max_examinees: 0
   };
 
   return (

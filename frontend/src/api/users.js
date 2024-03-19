@@ -53,3 +53,12 @@ export const getAllUsersAPI = async () => {
     throw new Error('Failed to fetch All User', error);
   }
 };
+
+export const getRecentActionsAPI = async () => {
+  try {
+    const response = await axiosPrivate.get(`users/recent-actions/`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch RecentActions', error);
+  }
+};

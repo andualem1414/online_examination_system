@@ -46,7 +46,8 @@ const HeaderDetailsComponent = (props) => {
     title: examDetails?.title,
     description: examDetails?.description,
     start_time: dayjs(examDetails?.start_time),
-    end_time: dayjs(examDetails?.end_time)
+    end_time: dayjs(examDetails?.end_time),
+    max_examinees: examDetails?.max_examinees
   };
 
   // Dropdown Items

@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "auditlog",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -57,6 +58,7 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+    "users.mixins.AuditlogMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -159,3 +161,15 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": datetime.timedelta(hours=10),
     "REFRESH_TOKEN_LIFETIME": datetime.timedelta(hours=15),
 }
+
+AUDITLOG_INCLUDE_ALL_MODELS = True
+# AUDITLOG_EXCLUDE_TRACKING_MODELS = (
+#     "<app_name>",
+#     "<app_name>.<model>"
+# )
+AUDITLOG_INCLUDE_TRACKING_MODELS = (
+    {
+        "model": "users.User",
+        "exclude_fields": ["last_login"],
+    },
+)

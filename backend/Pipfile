@@ -17,6 +17,7 @@ numpy = "*"
 scikit-learn = "*"
 deepface = "==0.0.80"
 keras = "==2.15.0"
+django-auditlog = "*"
 
 [dev-packages]
 

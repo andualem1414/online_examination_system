@@ -5,7 +5,7 @@ from django.conf import settings
 
 from .models import User
 from django.contrib.auth.models import Group
-from .serializers import UserSerializer
+from .serializers import UserSerializer, RecentActionSerializer
 
 from rest_framework import generics
 from rest_framework.views import APIView
@@ -13,6 +13,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
+
+from auditlog.models import LogEntry
 
 from .compare_face import compare_face
 
@@ -23,6 +25,17 @@ from .compare_face import compare_face
 class UserListAPIView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+
+class RecentActionsListAPIView(generics.ListAPIView):
+    queryset = LogEntry.objects.all()
+    serializer_class = RecentActionSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        user = self.request.user
+
+        return qs.filter(actor_id=user.id)
 
 
 class UserCreateAPIView(generics.CreateAPIView):

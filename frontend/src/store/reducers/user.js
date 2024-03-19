@@ -4,10 +4,12 @@ import {
   updateUserAPI,
   userDetailsAPI,
   verifyUserAPI,
-  getAllUsersAPI
+  getAllUsersAPI,
+  getRecentActionsAPI
 } from 'api/users';
 
 const initialState = {
+  recentActions: [],
   users: [],
   userDetails: {},
   verified: false,
@@ -17,6 +19,10 @@ const initialState = {
 
 export const fetchAllUsers = createAsyncThunk('exam/fetchAllUsers', async () => {
   const response = await getAllUsersAPI();
+  return response;
+});
+export const fetchRecentActions = createAsyncThunk('exam/fetchRecentActions', async () => {
+  const response = await getRecentActionsAPI();
   return response;
 });
 
@@ -55,6 +61,18 @@ const user = createSlice({
         state.loading = false;
       })
       .addCase(fetchAllUsers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchRecentActions.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchRecentActions.fulfilled, (state, action) => {
+        state.recentActions = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchRecentActions.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })

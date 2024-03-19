@@ -50,7 +50,6 @@ const ExamForm = (props) => {
   const { enqueueSnackbar } = useSnackbar();
 
   const [paid, setPaid] = useState(false);
-  const [maxExaminees, setMaxExaminees] = useState(0);
   const [paymentCode, setPaymentCode] = useState('');
 
   const dispatch = useDispatch();
@@ -127,20 +126,21 @@ const ExamForm = (props) => {
                 description: initialValues.description,
                 start_time: initialValues.start_time,
                 end_time: initialValues.end_time,
+                max_examinees: initialValues.max_examinees,
                 submit: null
               }}
               validationSchema={Yup.object().shape({
                 title: Yup.string().required('Title is required'),
                 description: Yup.string().required('Description is required'),
                 start_time: Yup.string().required('Start Time is required'),
-                end_time: Yup.string().required('End Time is required')
+                end_time: Yup.string().required('End Time is required'),
+                max_examinees: Yup.number().min(1, 'Atleast one Examinee')
               })}
               onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
                 try {
                   if (new Date(values.start_time) > new Date(values.end_time)) {
                     throw new Error('Start Time must be less than End Time');
                   }
-                  values.max_examinees = maxExaminees;
                   modalType === 'Create'
                     ? dispatch(createExam(values)).then((data) => {
                         if (data.type === 'exam/createExam/fulfilled') {
@@ -340,21 +340,27 @@ const ExamForm = (props) => {
                           <Stack sx={{ mb: 4 }} spacing={2}>
                             <Stack direction="row" spacing={2}>
                               <Stack spacing={2}>
-                                <Typography variant="h5" htmlFor="point">
+                                <Typography variant="h5" htmlFor="max_examinees">
                                   Max Examinees:
                                 </Typography>
                                 <OutlinedInput
-                                  id="point"
+                                  id="max_examinees"
                                   type="number"
-                                  value={maxExaminees}
-                                  name="point"
+                                  value={values.max_examinees}
+                                  name="max_examinees"
                                   onBlur={handleBlur}
-                                  onChange={(e, value) => {
-                                    setMaxExaminees(e.target.value);
-                                  }}
+                                  onChange={handleChange}
                                   sx={{ width: '100px', borderRadius: 4 }}
-                                  error={Boolean(touched.point && errors.point)}
+                                  error={Boolean(touched.max_examinees && errors.max_examinees)}
                                 />
+                                {touched.max_examinees && errors.max_examinees && (
+                                  <FormHelperText
+                                    error
+                                    id="standard-weight-helper-text-max_examinees"
+                                  >
+                                    {errors.max_examinees}
+                                  </FormHelperText>
+                                )}
                               </Stack>
                               <Stack spacing={2}>
                                 <Typography variant="h5" htmlFor="point">
