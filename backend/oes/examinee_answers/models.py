@@ -26,7 +26,7 @@ class ExamineeAnswer(models.Model):
 class Flag(models.Model):
     FLAG_TYPE_CHOICES = (
         ("FACE_LOST", "Face_Lost"),
-        ("ANOTHER_PERSON", "Another_person"),
+        ("SOMEONE_DETECTED", "Someone_Detected"),
     )
 
     type = models.CharField(max_length=50, choices=FLAG_TYPE_CHOICES)

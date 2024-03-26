@@ -5,6 +5,8 @@ import MuiBreadcrumbs from '@mui/material/Breadcrumbs';
 import { Grid, Typography, Box } from '@mui/material';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
+import { useSelector } from 'react-redux';
+
 // project imports
 
 // ==============================|| BREADCRUMBS ||============================== //
@@ -12,6 +14,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 const Breadcrumbs = () => {
   const location = useLocation();
   const paths = location.pathname.split('/');
+  const user = useSelector((state) => state.user.userDetails);
 
   const breadcrumbs = paths.map((path, index) => ({
     label: path
@@ -25,10 +28,22 @@ const Breadcrumbs = () => {
 
   return (
     <Box border={false} sx={{ mb: 3, bgcolor: 'transparent' }} content={false}>
-      <Grid container direction="column" justifyContent="flex-start" alignItems="flex-start" spacing={1}>
+      <Grid
+        container
+        direction="column"
+        justifyContent="flex-start"
+        alignItems="flex-start"
+        spacing={1}
+      >
         <Grid item>
           <MuiBreadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
-            <Typography component={Link} to="/dashboard" color="textSecondary" variant="h6" sx={{ textDecoration: 'none' }}>
+            <Typography
+              component={Link}
+              to={user.user_type === 'ADMIN' ? '/admin-exams' : '/my-exams'}
+              color="textSecondary"
+              variant="h6"
+              sx={{ textDecoration: 'none' }}
+            >
               Home
             </Typography>
             {breadcrumbs.map(

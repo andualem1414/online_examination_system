@@ -24,6 +24,9 @@ class Exam(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     max_examinees = models.IntegerField(blank=True, null=True)
 
+    total_mark = models.IntegerField(default=0, blank=True, null=True)
+    questions_count = models.IntegerField(default=0, blank=True)
+
     @property
     def status(self):
         if self.end_time < timezone.localtime():

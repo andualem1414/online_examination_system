@@ -145,6 +145,7 @@ const StartExamModal = (props) => {
                 height={240}
                 ref={webcamRef}
                 width={320}
+                style={{ borderRadius: '5%' }}
               />
               {loading && <CircularProgress />}
               <Button

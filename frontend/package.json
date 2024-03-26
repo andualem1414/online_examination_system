@@ -24,6 +24,7 @@
     "axios": "^1.6.7",
     "dayjs": "^1.11.10",
     "docx": "^8.5.0",
+    "face-api.js": "^0.22.2",
     "file-saver": "^2.0.5",
     "formik": "^2.2.9",
     "framer-motion": "^7.3.6",

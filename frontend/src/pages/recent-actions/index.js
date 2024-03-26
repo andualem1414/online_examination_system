@@ -142,7 +142,7 @@ const RecentActions = () => {
 
                     <Grid xs={4} item>
                       <Tooltip title={from}>
-                        <Chip label={from} color="error" variant="light" />
+                        <Chip label={from} sx={{ width: '150px' }} color="error" variant="light" />
                       </Tooltip>
                     </Grid>
                     <Grid xs={4} item>

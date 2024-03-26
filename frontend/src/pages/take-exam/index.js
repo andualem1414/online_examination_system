@@ -2,7 +2,10 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import * as dayjs from 'dayjs';
-
+import Webcam from 'react-webcam';
+import * as faceapi from 'face-api.js';
+import CircularProgress from '@mui/material/CircularProgress';
+import LinearProgress from '@mui/material/LinearProgress';
 // Material Ui
 import {
   AppBar,
@@ -20,11 +23,12 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
-  TextField
+  TextField,
+  Chip
 } from '@mui/material';
-
 import { useTheme } from '@mui/material/styles';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import Modal from '@mui/material/Modal';
 
 // redux imports
 import { useSelector } from 'react-redux';
@@ -35,7 +39,7 @@ import { fetchQuestions } from 'store/reducers/question';
 // Custom components
 import MinimalLogo from 'components/Logo/MinimalLogo';
 import MainPaper from 'components/MainPaper';
-import { msToTime, shuffle } from 'utils/utils';
+import { dataURLtoFile, msToTime, shuffle } from 'utils/utils';
 import {
   createExamineeAnswer,
   fetchExamineeAnswers,
@@ -43,6 +47,7 @@ import {
 } from 'store/reducers/examineeAnswer';
 import Countdown from 'react-countdown';
 import { createFlag } from 'store/reducers/flag';
+import MainCard from 'components/MainCard';
 
 const drawerWidth = 70;
 let answers = {};
@@ -55,16 +60,24 @@ const TakeExam = () => {
 
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
+  const webcamRef = useRef(null);
 
   const [questions, setQuestions] = useState([]);
   let [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
   let [currentAnswer, setCurrentAnswer] = useState('');
+  let [startVideo, setStartVideo] = useState(false);
+  let [facesCount, setfacesCount] = useState(0);
+  let [startExam, setStartExam] = useState(false);
+
+  let [flagged, setFlagged] = useState(false);
+  const [flagImage, setFlagImage] = useState(null);
+  const [flagType, setFlagType] = useState('');
+  const [flagId, setFlagId] = useState(null);
 
   const dispatch = useDispatch();
   const theme = useTheme();
 
-  const [selectedImage, setSelectedImage] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const intervalRef = useRef(null); // Store the interval ID
 
@@ -76,28 +89,46 @@ const TakeExam = () => {
     return () => clearInterval(intervalRef.current); // Cleanup function
   }, []);
 
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    setSelectedImage(file);
+  // const handleImageChange = (event) => {
+  //   const file = event.target.files[0];
+  //   setSelectedImage(file);
 
-    setImageUrl(URL.createObjectURL(file)); // Generate a preview URL
-  };
+  //   setImageUrl(URL.createObjectURL(file)); // Generate a preview URL
+  // };
 
-  const addFlag = (id) => {
-    const formData = new FormData();
-    formData.append('type', 'FACE_LOST'); // Add other data if needed
-    formData.append('image', selectedImage);
+  const addFlag = () => {
+    console.log(flagType, flagImage, flagId);
+    // const formData = new FormData();
+    // const imageData = dataURLtoFile(flagImage, 'captured_image.jpg');
 
-    dispatch(createFlag({ id: 89, data: formData })).then((data) => {});
+    // formData.append('type', flagType); // Add other data if needed
+    // formData.append('image', imageData);
+
+    // dispatch(createFlag({ id: flagId, data: formData })).then((data) => {
+    //   console.log(data);
+    // });
   };
 
   useEffect(() => {
     dispatch(fetchExamineeExamDetails(examineeExamId)).then((data) => {
       dispatch(fetchQuestions(data?.payload?.exam?.id)).then((data) => {
-        setQuestions(shuffle(data?.payload));
+        if (data.type === 'question/fetchQuestions/rejected') {
+          enqueueSnackbar('Failed to fetch questions', { variant: 'error' });
+          navigate('/my-exams/exam-details');
+        } else {
+          setQuestions(shuffle(data?.payload));
+        }
       });
       dispatch(fetchExamineeAnswers(data?.payload?.exam?.id));
     });
+    async function loadModels() {
+      await faceapi.loadTinyFaceDetectorModel('/models');
+      await faceapi.loadFaceLandmarkModel('/models');
+      await faceapi.loadFaceRecognitionModel('/models');
+
+      setStartVideo(true);
+    }
+    loadModels();
   }, []);
 
   useEffect(() => {
@@ -132,6 +163,10 @@ const TakeExam = () => {
             data: { answer: currentAnswer }
           })
         );
+      if (flagged) {
+        setFlagId(answers[currentQuestionIndex].id);
+        addFlag();
+      }
     } else {
       if (currentAnswer) {
         dispatch(createExamineeAnswer({ question: question.id, answer: currentAnswer })).then(
@@ -143,10 +178,15 @@ const TakeExam = () => {
 
               answers[currentQuestionIndex] = { id: id, answer: currentAnswer };
             }
+            if (flagged) {
+              setFlagId(answers[currentQuestionIndex].id);
+              addFlag();
+            }
           }
         );
       }
     }
+    setFlagged(false);
     console.log(answers);
     if (type === 'next') {
       answers[currentQuestionIndex + 1]
@@ -191,13 +231,17 @@ const TakeExam = () => {
       <Countdown
         date={time} // Convert to milliseconds
         onComplete={handleTimerEnd}
+        onTick={(timeDelta) => {
+          localStorage.setItem('remainingTime', timeDelta.total / 1000);
+        }}
         renderer={(props) => (
           <Stack direction="row" spacing={2}>
             <Typography variant="h5" color="secondary">
               Remaining Time:
             </Typography>
             <Typography variant="h4" component="div">
-              {props.hours}: {props.minutes}: {props.seconds}
+              {String(props.hours).padStart(2, '0')}: {String(props.minutes).padStart(2, '0')}:{' '}
+              {String(props.seconds).padStart(2, '0')}
             </Typography>
           </Stack>
         )}
@@ -205,8 +249,56 @@ const TakeExam = () => {
     );
   };
 
+  const handleUserMedia = () => {
+    console.log('Video Started!');
+    setInterval(async () => {
+      const detections = await faceapi
+        .detectAllFaces(
+          webcamRef.current.video,
+          new faceapi.TinyFaceDetectorOptions({
+            scoreThreshold: 0.1
+          })
+        )
+        .withFaceLandmarks();
+
+      // const resizedDetections = faceapi.resizeResults(
+      //     detections,
+      //     displaySize
+      // );
+
+      console.log(detections);
+      setfacesCount(detections.length);
+      if (detections.length > 1) {
+      }
+
+      setStartExam(true);
+      // faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
+    }, 100);
+  };
+
   return (
     <>
+      <Modal
+        open={!startExam}
+        onClose={() => {}}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <MainCard
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            p: 3
+          }}
+        >
+          <Stack direction="column" spacing={2} display="flex" alignItems="center">
+            <CircularProgress color="success" thickness={6} size={80} />
+            <Typography variant="h4">Searching for Faces...</Typography>
+          </Stack>
+        </MainCard>
+      </Modal>
       <Box sx={{ display: 'flex', width: '100%' }}>
         <Drawer variant="permanent" open={true}>
           <Stack
@@ -390,16 +482,43 @@ const TakeExam = () => {
                   Question Flags
                 </Typography>
                 <Divider sx={{ mt: 1, mb: 2 }} />
+                {startVideo && (
+                  <Webcam
+                    screenshotFormat="image/jpeg"
+                    audio={false}
+                    height={1}
+                    ref={webcamRef}
+                    width={1}
+                    onUserMedia={handleUserMedia}
+                    style={{ borderRadius: '5%' }}
+                  />
+                )}
+                <Typography>{facesCount}</Typography>
 
                 <Stack direction="column" sx={{ ml: 4 }}>
-                  {/* {flags.map((flag) => {
-                return <Chip variant="light" color="error" lable={flag} />;
-              })} */}
+                  <Stack direction="column" spacing={2}>
+                    <Chip
+                      variant="light"
+                      onClick={() => {
+                        console.log(answers[currentQuestionIndex]?.id);
+                        setFlagged(true);
+                        setFlagImage(webcamRef.current.getScreenshot());
+                        setFlagType('FACE_LOST');
+                      }}
+                      color="error"
+                      label="NO_FACE"
+                    />
+                    <Chip variant="light" color="error" label="SOME_ONE_ELSE" />
+
+                    {/* {flags.map((flag) => {
+                      return <Chip variant="light" color="error" lable={flag} />;
+                })} */}
+                  </Stack>
                 </Stack>
               </MainPaper>
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid item xs={10}>
               <Button
                 variant="outlined"
                 onClick={(event) => handleNavigate('prev')}
@@ -418,21 +537,6 @@ const TakeExam = () => {
                 </Button>
               )}
             </Grid>
-
-            {/* <Grid item xs={12}>
-              <TextField
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                fullWidth
-                variant="outlined"
-                helperText="Select an image"
-              />
-
-              <Button variant="outlined" onClick={(event) => {}} sx={{ mr: 2 }}>
-                Submit
-              </Button>
-            </Grid> */}
           </Grid>
         </Box>
       </Box>

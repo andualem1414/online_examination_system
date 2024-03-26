@@ -196,6 +196,19 @@ const HeaderDetailsComponent = (props) => {
                   }
                 />
               </Tooltip>
+              {/* Delete Button for exam */}
+              {examDetails.status === 'Conducted' && user.user_type === 'EXAMINER' && (
+                <Chip
+                  sx={{ px: 1 }}
+                  color="error"
+                  icon={<DeleteRoundedIcon color="error" fontSize="small" />}
+                  label={<Typography>Delete</Typography>}
+                  onClick={() =>
+                    handleConfimationOpen('Are you sure you want to delete this exam?', 'Delete')
+                  }
+                  variant="outlined"
+                />
+              )}
 
               {/* TO Public switcher */}
               {examDetails.status === 'Conducted' && user.user_type === 'EXAMINER' && (
@@ -262,20 +275,6 @@ const HeaderDetailsComponent = (props) => {
                     inputProps={{ 'aria-label': 'controlled' }}
                   />
                 </Stack>
-              )}
-
-              {/* Delete Button for exam */}
-              {examDetails.status === 'Conducted' && user.user_type === 'EXAMINER' && (
-                <Chip
-                  sx={{ px: 1 }}
-                  color="error"
-                  icon={<DeleteRoundedIcon color="error" fontSize="small" />}
-                  label={<Typography>Delete</Typography>}
-                  onClick={() =>
-                    handleConfimationOpen('Are you sure you want to delete this exam?', 'Delete')
-                  }
-                  variant="outlined"
-                />
               )}
 
               {/* Leave Exam chip */}
@@ -402,7 +401,11 @@ const HeaderDetailsComponent = (props) => {
                     <Chip
                       color="success"
                       variant="light"
-                      label={<Typography variant="h5">9/10{examineeExamDetails.score}</Typography>}
+                      label={
+                        <Typography variant="h4">
+                          {examineeExamDetails.score} / {examineeExamDetails?.exam?.total_mark}
+                        </Typography>
+                      }
                     />
                   </Stack>
                 </Stack>

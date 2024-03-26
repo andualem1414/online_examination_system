@@ -76,7 +76,6 @@ const ExamDetails = () => {
     } else {
       setButtonName({ name: 'Add Question', disabled: false });
     }
-
     // For Fetching Questions or Examinee Answers
     if (user.user_type === 'EXAMINER') {
       dispatch(fetchQuestions(examDetails?.id));
@@ -269,6 +268,13 @@ const ExamDetails = () => {
         {
           name: 'Number of Questions',
           value: user.user_type === 'EXAMINER' ? questions.length : examineeAnswers.length
+        },
+        {
+          name: 'Total Marks',
+          value:
+            user.user_type === 'EXAMINER'
+              ? examDetails.total_mark
+              : examineeExamDetails?.exam?.total_mark
         }
       ]
     }

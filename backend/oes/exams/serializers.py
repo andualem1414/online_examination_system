@@ -12,6 +12,8 @@ class ExamSerializer(serializers.ModelSerializer):
     )
     exam_code = serializers.CharField(read_only=True)
     created_by = serializers.PrimaryKeyRelatedField(read_only=True)
+    total_mark = serializers.IntegerField(read_only=True)
+    questions_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Exam
@@ -31,6 +33,8 @@ class ExamSerializer(serializers.ModelSerializer):
             "created_at",
             "duration",
             "status",
+            "total_mark",
+            "questions_count",
         ]
 
 

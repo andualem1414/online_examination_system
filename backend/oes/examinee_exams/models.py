@@ -9,7 +9,7 @@ class ExamineeExam(models.Model):
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     examinee = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    score = models.IntegerField(blank=True, null=True)
+    score = models.IntegerField(default=0, blank=True, null=True)
     total_time = models.TimeField(blank=True, null=True)
 
     joined_date = models.DateTimeField(auto_now_add=True)

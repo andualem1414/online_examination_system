@@ -369,7 +369,7 @@ const MyProfile = () => {
               )}
             </Formik>
           </CustomTabPanel>
-          <CustomTabPanel value={value} index={1}>
+          <CustomTabPanel value={value} index={userDetails.user_type === 'EXAMINEE' ? 2 : 1}>
             <TableComponent
               headCells={headCells}
               rows={payments}
@@ -377,7 +377,7 @@ const MyProfile = () => {
               handleRowClick={handleRowClick}
             />
           </CustomTabPanel>
-          <CustomTabPanel value={value} index={2}>
+          <CustomTabPanel value={value} index={userDetails.user_type === 'EXAMINEE' ? 1 : 2}>
             <Formik
               initialValues={{
                 old_password: '',
