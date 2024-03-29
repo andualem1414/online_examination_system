@@ -17,6 +17,7 @@ import { fetchExamDetails } from 'store/reducers/exam';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { filterData, secondsToHMS } from 'utils/utils';
+import { generateWordDocument } from 'utils/wordCreator';
 
 const PublicExamDetails = () => {
   const dispatch = useDispatch();
@@ -79,7 +80,9 @@ const PublicExamDetails = () => {
       ]
     }
   ];
-
+  const download = (event) => {
+    generateWordDocument(event, questions, examDetails);
+  };
   const handleRowClick = (event, id) => {
     localStorage.setItem('questionId', id);
     navigate('/public-exams/public-exam-details/Question-details');
@@ -140,6 +143,7 @@ const PublicExamDetails = () => {
             rows={filterData(questions, searchValue, 'question')}
             title="Questions"
             handleRowClick={handleRowClick}
+            download={download}
           />
         ) : (
           <Typography variant="h5" textAlign="center">

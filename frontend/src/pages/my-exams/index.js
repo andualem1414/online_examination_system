@@ -112,6 +112,7 @@ const MyExam = () => {
         <SearchField handleOnChange />
       </Grid>
       {/* Exam List */}
+      {console.log(exams)}
       <Grid item xs={12} md={8} display="block" justifyContent="center">
         {loading ? (
           <div>Loading...</div>

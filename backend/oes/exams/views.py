@@ -24,7 +24,7 @@ class AdminExamListAPIView(HavePermissionMixin, generics.ListAPIView):
 
 
 class ExamListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIView):
-    queryset = Exam.objects.all()
+    queryset = Exam.objects.order_by("-created_at").all()
     serializer_class = ExamSerializer
 
     def get_queryset(self):

@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchExamineeAnswerDetails } from 'store/reducers/examineeAnswer';
 import { fetchFlags } from 'store/reducers/flag';
-
+import FlagIcon from '@mui/icons-material/Flag';
 // Material Ui
 import { Typography, Grid, Divider, Stack, Chip } from '@mui/material';
 import MainPaper from 'components/MainPaper';
@@ -19,8 +19,8 @@ const QuestionDetails = () => {
   useEffect(() => {
     dispatch(fetchExamineeAnswerDetails(examineeAnswerId));
   }, []);
+
   useEffect(() => {
-    console.log(examineeAnswerDetails.id);
     dispatch(fetchFlags(examineeAnswerDetails.id));
   }, [examineeAnswerDetails]);
 
@@ -110,9 +110,18 @@ const QuestionDetails = () => {
             </Typography>
             <Divider sx={{ mt: 1, mb: 2 }} />
 
-            <Stack direction="column" sx={{ ml: 4 }}>
+            <Stack direction="column" spacing={2} sx={{ ml: 4 }}>
               {flags.map((flag) => {
-                return <Chip variant="light" color="error" lable={flag} />;
+                const lable = flag.type;
+                console.log(lable);
+                return (
+                  <Chip
+                    variant="light"
+                    icon={<FlagIcon />}
+                    color="error"
+                    lable={<Typography>{lable}</Typography>}
+                  />
+                );
               })}
             </Stack>
           </MainPaper>

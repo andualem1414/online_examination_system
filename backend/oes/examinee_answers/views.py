@@ -149,6 +149,12 @@ class FlagListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIView):
             examinee_answer = ExamineeAnswer.objects.get(
                 pk=self.request.query_params["examinee-answer"]
             )
+            if Flag.objects.filter(examinee_answer=examinee_answer).exists():
+                raise serializers.ValidationError({"message": "Flag already exist"})
+        else:
+            raise serializers.ValidationError(
+                {"message": "Please provide examiee answer."}
+            )
 
         serializer.save(examinee_answer=examinee_answer)
 

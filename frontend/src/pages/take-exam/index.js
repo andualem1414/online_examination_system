@@ -5,6 +5,7 @@ import * as dayjs from 'dayjs';
 import Webcam from 'react-webcam';
 import * as faceapi from 'face-api.js';
 import CircularProgress from '@mui/material/CircularProgress';
+import FlagIcon from '@mui/icons-material/Flag';
 import LinearProgress from '@mui/material/LinearProgress';
 // Material Ui
 import {
@@ -46,7 +47,7 @@ import {
   updateExamineeAnswer
 } from 'store/reducers/examineeAnswer';
 import Countdown from 'react-countdown';
-import { createFlag } from 'store/reducers/flag';
+import { createFlag, fetchFlags } from 'store/reducers/flag';
 import MainCard from 'components/MainCard';
 
 const drawerWidth = 70;
@@ -55,6 +56,7 @@ const TakeExam = () => {
   const remainingTime = localStorage.getItem('remainingTime');
 
   const examineeExamDetails = useSelector((state) => state.examineeExam.examineeExamDetails);
+  const flags = useSelector((state) => state.flag.flags);
   const examineeExamId = localStorage.getItem('examineeExamId');
   const prev_answers = useSelector((state) => state.examineeAnswer.examineeAnswers);
 
@@ -69,11 +71,12 @@ const TakeExam = () => {
   let [startVideo, setStartVideo] = useState(false);
   let [facesCount, setfacesCount] = useState(0);
   let [startExam, setStartExam] = useState(false);
+  let [flagWarning, setFlagWarning] = useState(false);
 
   let [flagged, setFlagged] = useState(false);
   const [flagImage, setFlagImage] = useState(null);
   const [flagType, setFlagType] = useState('');
-  const [flagId, setFlagId] = useState(null);
+  const [flagId, setFlagId] = useState(0);
 
   const dispatch = useDispatch();
   const theme = useTheme();
@@ -96,17 +99,17 @@ const TakeExam = () => {
   //   setImageUrl(URL.createObjectURL(file)); // Generate a preview URL
   // };
 
-  const addFlag = () => {
+  const addFlag = (flagId) => {
     console.log(flagType, flagImage, flagId);
-    // const formData = new FormData();
-    // const imageData = dataURLtoFile(flagImage, 'captured_image.jpg');
+    const formData = new FormData();
+    const imageData = dataURLtoFile(flagImage, 'captured_image.jpg');
 
-    // formData.append('type', flagType); // Add other data if needed
-    // formData.append('image', imageData);
+    formData.append('type', flagType); // Add other data if needed
+    formData.append('image', imageData);
 
-    // dispatch(createFlag({ id: flagId, data: formData })).then((data) => {
-    //   console.log(data);
-    // });
+    dispatch(createFlag({ id: flagId, data: formData })).then((data) => {
+      console.log(data);
+    });
   };
 
   useEffect(() => {
@@ -164,8 +167,7 @@ const TakeExam = () => {
           })
         );
       if (flagged) {
-        setFlagId(answers[currentQuestionIndex].id);
-        addFlag();
+        addFlag(answers[currentQuestionIndex].id);
       }
     } else {
       if (currentAnswer) {
@@ -179,8 +181,7 @@ const TakeExam = () => {
               answers[currentQuestionIndex] = { id: id, answer: currentAnswer };
             }
             if (flagged) {
-              setFlagId(answers[currentQuestionIndex].id);
-              addFlag();
+              addFlag(answers[currentQuestionIndex].id);
             }
           }
         );
@@ -192,12 +193,14 @@ const TakeExam = () => {
       answers[currentQuestionIndex + 1]
         ? setCurrentAnswer(answers[currentQuestionIndex + 1].answer)
         : setCurrentAnswer('');
-
+      dispatch(fetchFlags(answers[currentQuestionIndex + 1]?.id));
       setCurrentQuestionIndex((prev) => prev + 1);
+      console.log(flags);
     } else {
       answers[currentQuestionIndex - 1]
         ? setCurrentAnswer(answers[currentQuestionIndex - 1].answer)
         : setCurrentAnswer('');
+      dispatch(fetchFlags(answers[currentQuestionIndex - 1]?.id));
 
       setCurrentQuestionIndex((prev) => prev - 1);
     }
@@ -216,6 +219,7 @@ const TakeExam = () => {
     enqueueSnackbar('Exam Successfully Conducted', { variant: 'success' });
     localStorage.setItem('examineeExamId', examineeExamId);
     navigate('/my-exams/exam-details');
+    window.location.reload();
   };
 
   const handleTimerEnd = (e) => {
@@ -268,7 +272,13 @@ const TakeExam = () => {
 
       console.log(detections);
       setfacesCount(detections.length);
-      if (detections.length > 1) {
+      if (detections.length < 1) {
+        console.log('FACE_LOST');
+        setFlagWarning(true);
+      } else if (detections.length > 2) {
+        enqueueSnackbar('Someone else Detected!', { variant: 'error' });
+      } else {
+        setFlagWarning(false);
       }
 
       setStartExam(true);
@@ -294,8 +304,32 @@ const TakeExam = () => {
           }}
         >
           <Stack direction="column" spacing={2} display="flex" alignItems="center">
-            <CircularProgress color="success" thickness={6} size={80} />
+            <CircularProgress color="success" thickness={5} size={80} />
             <Typography variant="h4">Searching for Faces...</Typography>
+          </Stack>
+        </MainCard>
+      </Modal>
+      <Modal
+        open={flagWarning}
+        onClose={() => {}}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <MainCard
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            p: 3
+          }}
+        >
+          <Stack direction="column" spacing={2} display="flex" alignItems="center">
+            <CircularProgress color="success" thickness={5} size={80} />
+            <Typography variant="h4">Face Lost Searching for Faces...</Typography>
+            <Typography variant="h5" color="error">
+              Question will be Flagged after 5 seconds...
+            </Typography>
           </Stack>
         </MainCard>
       </Modal>
@@ -493,28 +527,51 @@ const TakeExam = () => {
                     style={{ borderRadius: '5%' }}
                   />
                 )}
-                <Typography>{facesCount}</Typography>
 
                 <Stack direction="column" sx={{ ml: 4 }}>
-                  <Stack direction="column" spacing={2}>
-                    <Chip
+                  <Stack
+                    direction="column"
+                    spacing={2}
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    {/* <Chip
                       variant="light"
+                      icon={<FlagIcon />}
                       onClick={() => {
-                        console.log(answers[currentQuestionIndex]?.id);
                         setFlagged(true);
                         setFlagImage(webcamRef.current.getScreenshot());
                         setFlagType('FACE_LOST');
                       }}
+                      sx={{ width: '60%' }}
                       color="error"
                       label="NO_FACE"
-                    />
-                    <Chip variant="light" color="error" label="SOME_ONE_ELSE" />
+                    /> */}
+                    {/* <Chip variant="light" color="error" label="SOME_ONE_ELSE" /> */}
 
-                    {/* {flags.map((flag) => {
-                      return <Chip variant="light" color="error" lable={flag} />;
-                })} */}
+                    {flags.length > 0 ? (
+                      flags.map((flag) => {
+                        console.log(flag.type);
+                        const lable = flag.type;
+                        return (
+                          <Chip
+                            icon={<FlagIcon />}
+                            variant="light"
+                            sx={{ width: '60%' }}
+                            color="error"
+                            label={lable}
+                          />
+                        );
+                      })
+                    ) : (
+                      <Typography variant="h5" textAlign="center">
+                        No flags for this question.
+                      </Typography>
+                    )}
                   </Stack>
                 </Stack>
+                {/* <Typography>{facesCount}</Typography> */}
               </MainPaper>
             </Grid>
 

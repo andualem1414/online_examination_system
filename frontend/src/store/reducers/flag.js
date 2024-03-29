@@ -35,6 +35,7 @@ const flag = createSlice({
       })
       .addCase(fetchFlags.rejected, (state, action) => {
         state.loading = false;
+        state.flags = [];
         state.error = action.error.message;
       })
       // Create Flag
@@ -48,6 +49,7 @@ const flag = createSlice({
       })
       .addCase(createFlag.rejected, (state, action) => {
         state.loading = false;
+
         state.error = action.error.message;
       });
   }

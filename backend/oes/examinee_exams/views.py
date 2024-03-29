@@ -15,7 +15,7 @@ from .serializers import ExamineeExamSerializer, ExamineeExamUpdateSerializer
 
 
 class ExamineeExamListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIView):
-    queryset = ExamineeExam.objects.all()
+    queryset = ExamineeExam.objects.order_by("-joined_date").all()
     serializer_class = ExamineeExamSerializer
 
     def get_queryset(self):
