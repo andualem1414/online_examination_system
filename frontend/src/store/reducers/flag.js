@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getFlagsAPI, createFlagAPI } from 'api/flags';
+import { getFlagsAPI, createFlagAPI, deleteFlagAPI } from 'api/flags';
 
 const initialState = {
   flags: [],
@@ -16,6 +16,11 @@ export const fetchFlags = createAsyncThunk('flag/fetchFlags', async (id) => {
 export const createFlag = createAsyncThunk('flag/createFlag', async ({ id, data }) => {
   const response = await createFlagAPI(id, data);
   return response;
+});
+
+export const deleteFlag = createAsyncThunk('flag/deleteFlag', async ({ id, examineeExamId }) => {
+  await deleteFlagAPI(id, examineeExamId);
+  return id;
 });
 
 const flag = createSlice({
@@ -50,6 +55,18 @@ const flag = createSlice({
       .addCase(createFlag.rejected, (state, action) => {
         state.loading = false;
 
+        state.error = action.error.message;
+      })
+      // Delete Flag
+      .addCase(deleteFlag.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteFlag.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(deleteFlag.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.error.message;
       });
   }

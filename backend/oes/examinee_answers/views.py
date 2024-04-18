@@ -14,6 +14,7 @@ from .serializers import (
     FlagSerializer,
 )
 from rest_framework.parsers import MultiPartParser, FormParser
+from examinee_exams.utils import calculate_score
 
 # Create your views here.
 
@@ -174,3 +175,21 @@ class FlagDestroyAPIView(HavePermissionMixin, generics.DestroyAPIView):
     queryset = Flag.objects.all()
     serializer_class = FlagSerializer
     lookup = "pk"
+
+    def perform_destroy(self, instance):
+        examinee_answer = instance.examinee_answer
+        exam = examinee_answer.exam
+        instance.delete()
+
+        examinee_exam_id = self.request.GET.get("examinee-exam", "")
+
+        examinee_exam = ExamineeExam.objects.get(pk=examinee_exam_id)
+
+        score, flags = calculate_score(examinee_exam.examinee, exam)
+
+        print(examinee_exam)
+        if examinee_exam:
+            examinee_exam.score = score
+            examinee_exam.flags = flags
+            examinee_exam.save()
+        print(score, flags)

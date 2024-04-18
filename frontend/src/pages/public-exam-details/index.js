@@ -85,7 +85,7 @@ const PublicExamDetails = () => {
   };
   const handleRowClick = (event, id) => {
     localStorage.setItem('questionId', id);
-    navigate('/public-exams/public-exam-details/Question-details');
+    navigate('/public-exams/public-exam-details/question-details');
   };
 
   const handleSearchOnChange = (e) => {

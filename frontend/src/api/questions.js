@@ -1,5 +1,22 @@
 import { axiosPrivate } from './axios';
 
+export const getQuestionPoolAPI = async (id) => {
+  try {
+    const response = await axiosPrivate.get(`/questions/question-pool/`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch Questions', error);
+  }
+};
+
+export const createQuestionPoolAPI = async (data) => {
+  try {
+    const response = await axiosPrivate.post(`/questions/question-pool/`, data);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to create Questions', error);
+  }
+};
 export const getQuestionsAPI = async (id) => {
   try {
     const response = await axiosPrivate.get(`/questions/?exam-id=${id}`);

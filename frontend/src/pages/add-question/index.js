@@ -54,6 +54,7 @@ const AddQuestion = () => {
     ? {
         exam: examId,
         question: questionDetails.question,
+        description: questionDetails.description,
         answer: questionDetails.answer,
         point: questionDetails.point,
         choices: JSON.parse(questionDetails.choices),
@@ -63,6 +64,7 @@ const AddQuestion = () => {
     : {
         exam: examId,
         question: '',
+        description: '',
         answer: questionType === 'TRUE_FALSE' ? 'True' : '',
         point: 0,
         choices: choices,
@@ -176,6 +178,30 @@ const AddQuestion = () => {
                     {touched.question && errors.question && (
                       <FormHelperText error id="standard-weight-helper-text-question">
                         {errors.question}
+                      </FormHelperText>
+                    )}
+                  </Stack>
+                </Grid>
+
+                <Grid item>
+                  <Stack spacing={1}>
+                    <InputLabel htmlFor="description">Description</InputLabel>
+                    <OutlinedInput
+                      id="description"
+                      type="text"
+                      multiline
+                      value={values.description}
+                      name="description"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      placeholder="Enter Your description Here"
+                      fullWidth
+                      sx={{ borderRadius: '14px' }}
+                      error={Boolean(touched.description && errors.description)}
+                    />
+                    {touched.description && errors.description && (
+                      <FormHelperText error id="standard-weight-helper-text-description">
+                        {errors.description}
                       </FormHelperText>
                     )}
                   </Stack>

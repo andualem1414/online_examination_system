@@ -4,15 +4,28 @@ import {
   questionDetailsAPI,
   createQuestionAPI,
   updateQuestionAPI,
-  deleteQuestionAPI
+  deleteQuestionAPI,
+  getQuestionPoolAPI,
+  createQuestionPoolAPI
 } from 'api/questions';
 
 const initialState = {
   questions: [],
+  questionPool: [],
   questionDetails: {},
   loading: false,
   error: null
 };
+
+export const fetchQuestionPool = createAsyncThunk('question/fetchQuestionPool', async (id) => {
+  const response = await getQuestionPoolAPI(id);
+  return response;
+});
+
+export const createQuestionPool = createAsyncThunk('question/createQuestionPool', async (data) => {
+  const response = await createQuestionPoolAPI(data);
+  return response;
+});
 
 export const fetchQuestions = createAsyncThunk('question/fetchQuestions', async (id) => {
   const response = await getQuestionsAPI(id);
@@ -45,6 +58,32 @@ const question = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // Fetch Question Pool
+      .addCase(fetchQuestionPool.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchQuestionPool.fulfilled, (state, action) => {
+        state.questionPool = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchQuestionPool.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      // Create Question Pool
+      .addCase(createQuestionPool.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createQuestionPool.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(createQuestionPool.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+
       // Fetch Question
       .addCase(fetchQuestions.pending, (state) => {
         state.loading = true;

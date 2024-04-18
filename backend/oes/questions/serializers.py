@@ -12,6 +12,7 @@ class QuestionSerializer(serializers.ModelSerializer):
             "id",
             "exam",
             "question",
+            "description",
             "choices",
             "answer",
             "point",

@@ -9,6 +9,7 @@ from examinee_answers.models import ExamineeAnswer, Flag
 
 from .models import ExamineeExam
 from .serializers import ExamineeExamSerializer, ExamineeExamUpdateSerializer
+from .utils import calculate_score
 
 
 # Create your views here.
@@ -70,18 +71,6 @@ class ExamineeExamUpdateAPIView(HavePermissionMixin, generics.UpdateAPIView):
     serializer_class = ExamineeExamUpdateSerializer
     lookup = "pk"
 
-    def calculate_score(self, user, exam):
-        score, flags = 0, 0
-        answers = ExamineeAnswer.objects.filter(examinee=user, exam=exam)
-
-        for answer in answers:
-            if Flag.objects.filter(examinee_answer=answer).exists():
-                flags += 1
-                continue
-            score += answer.result
-
-        return [score, flags]
-
     def perform_update(self, serializer):
         instance = serializer.instance
         exam = instance.exam
@@ -96,7 +85,7 @@ class ExamineeExamUpdateAPIView(HavePermissionMixin, generics.UpdateAPIView):
 
         total_time = serializer.validated_data.pop("total_time")
 
-        score, flags = self.calculate_score(self.request.user, exam)
+        score, flags = calculate_score(self.request.user, exam)
 
         serializer.validated_data["score"] = score
         serializer.validated_data["total_time"] = total_time

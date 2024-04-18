@@ -38,6 +38,14 @@ const dashboard = {
       breadcrumbs: true
     },
     {
+      id: 'question-pool',
+      title: 'My Question Pool',
+      type: 'item',
+      url: '/question-pool',
+      icon: icons.ClipboardList,
+      breadcrumbs: true
+    },
+    {
       id: 'public-exams',
       title: 'Public Exams',
       type: 'item',

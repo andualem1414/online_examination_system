@@ -25,3 +25,13 @@ export const createFlagAPI = async (id, data) => {
     throw new Error('Failed to create Flag', error);
   }
 };
+
+export const deleteFlagAPI = async (id, examineeExamId) => {
+  try {
+    await axiosPrivate.delete(
+      `examinee-answers/flags/${id}/delete/?examinee-exam=${examineeExamId}`
+    );
+  } catch (error) {
+    throw new Error('Failed to delete Flag', error);
+  }
+};

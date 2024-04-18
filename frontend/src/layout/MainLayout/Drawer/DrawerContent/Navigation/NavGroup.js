@@ -12,8 +12,12 @@ import NavItem from './NavItem';
 const NavGroup = ({ item }) => {
   const menu = useSelector((state) => state.menu);
   const { drawerOpen } = menu;
+  const user = useSelector((state) => state.user.userDetails);
 
   const navCollapse = item.children?.map((menuItem) => {
+    if (menuItem.id === 'question-pool' && user.user_type !== 'EXAMINER') {
+      return null;
+    }
     return <NavItem key={menuItem.id} item={menuItem} level={1} />;
   });
 

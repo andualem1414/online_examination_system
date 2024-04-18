@@ -31,6 +31,7 @@ const MyProfile = Loadable(lazy(() => import('pages/my-profile')));
 const RecentActions = Loadable(lazy(() => import('pages/recent-actions')));
 const ExamSchedules = Loadable(lazy(() => import('pages/exam-schedules')));
 const Rules = Loadable(lazy(() => import('pages/rules')));
+const QuestionPool = Loadable(lazy(() => import('pages/question-pool')));
 
 // Admin
 
@@ -97,7 +98,7 @@ const MainRoutes = {
           element: <PublicExamDetails />
         },
         {
-          path: 'public-exams/public-exam-details/Question-details',
+          path: 'public-exams/public-exam-details/question-details',
           element: <PublicExamQuestionDetails />
         },
         {
@@ -116,6 +117,10 @@ const MainRoutes = {
         {
           path: 'my-exams/exam-details/examinee-result',
           element: <ExamineeResult />
+        },
+        {
+          path: 'question-pool',
+          element: <QuestionPool />
         }
       ]
     },

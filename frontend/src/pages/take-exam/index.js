@@ -2,11 +2,12 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import * as dayjs from 'dayjs';
-import Webcam from 'react-webcam';
+
 import * as faceapi from 'face-api.js';
+import Webcam from 'react-webcam';
+
 import CircularProgress from '@mui/material/CircularProgress';
 import FlagIcon from '@mui/icons-material/Flag';
-import LinearProgress from '@mui/material/LinearProgress';
 // Material Ui
 import {
   AppBar,
@@ -27,6 +28,7 @@ import {
   TextField,
   Chip
 } from '@mui/material';
+
 import { useTheme } from '@mui/material/styles';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Modal from '@mui/material/Modal';
@@ -36,6 +38,7 @@ import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import { fetchExamineeExamDetails, updateExamineeExam } from 'store/reducers/examineeExam';
 import { fetchQuestions } from 'store/reducers/question';
+import { verifyUser } from 'store/reducers/user';
 
 // Custom components
 import MinimalLogo from 'components/Logo/MinimalLogo';
@@ -52,65 +55,35 @@ import MainCard from 'components/MainCard';
 
 const drawerWidth = 70;
 let answers = {};
+
 const TakeExam = () => {
-  const remainingTime = localStorage.getItem('remainingTime');
-
-  const examineeExamDetails = useSelector((state) => state.examineeExam.examineeExamDetails);
-  const flags = useSelector((state) => state.flag.flags);
-  const examineeExamId = localStorage.getItem('examineeExamId');
-  const prev_answers = useSelector((state) => state.examineeAnswer.examineeAnswers);
-
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const webcamRef = useRef(null);
 
+  const remainingTime = localStorage.getItem('remainingTime');
+  const examineeExamId = localStorage.getItem('examineeExamId');
+
+  const examineeExamDetails = useSelector((state) => state.examineeExam.examineeExamDetails);
+  const prev_answers = useSelector((state) => state.examineeAnswer.examineeAnswers);
+  const flags = useSelector((state) => state.flag.flags);
+
   const [questions, setQuestions] = useState([]);
   let [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-
   let [currentAnswer, setCurrentAnswer] = useState('');
+
   let [startVideo, setStartVideo] = useState(false);
-  let [facesCount, setfacesCount] = useState(0);
   let [startExam, setStartExam] = useState(false);
   let [flagWarning, setFlagWarning] = useState(false);
+  let [faceLostSecondCount, setFaceLostSecondCount] = useState(0);
 
   let [flagged, setFlagged] = useState(false);
   const [flagImage, setFlagImage] = useState(null);
   const [flagType, setFlagType] = useState('');
-  const [flagId, setFlagId] = useState(0);
 
   const dispatch = useDispatch();
   const theme = useTheme();
-
-  const [imageUrl, setImageUrl] = useState(null);
   const intervalRef = useRef(null); // Store the interval ID
-
-  useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      console.log('hello');
-    }, 10000); // Adjust interval duration as needed
-
-    return () => clearInterval(intervalRef.current); // Cleanup function
-  }, []);
-
-  // const handleImageChange = (event) => {
-  //   const file = event.target.files[0];
-  //   setSelectedImage(file);
-
-  //   setImageUrl(URL.createObjectURL(file)); // Generate a preview URL
-  // };
-
-  const addFlag = (flagId) => {
-    console.log(flagType, flagImage, flagId);
-    const formData = new FormData();
-    const imageData = dataURLtoFile(flagImage, 'captured_image.jpg');
-
-    formData.append('type', flagType); // Add other data if needed
-    formData.append('image', imageData);
-
-    dispatch(createFlag({ id: flagId, data: formData })).then((data) => {
-      console.log(data);
-    });
-  };
 
   useEffect(() => {
     dispatch(fetchExamineeExamDetails(examineeExamId)).then((data) => {
@@ -124,6 +97,7 @@ const TakeExam = () => {
       });
       dispatch(fetchExamineeAnswers(data?.payload?.exam?.id));
     });
+
     async function loadModels() {
       await faceapi.loadTinyFaceDetectorModel('/models');
       await faceapi.loadFaceLandmarkModel('/models');
@@ -152,6 +126,87 @@ const TakeExam = () => {
     setCurrentAnswer(answers[0]?.answer || '');
   }, [questions]);
 
+  const flagger = (flagType) => {
+    setFlagged(true);
+    if (webcamRef.current) {
+      const video = webcamRef.current.video;
+      const canvas = document.createElement('canvas');
+
+      // Set canvas dimensions to match video dimensions
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      // Draw video frame onto canvas
+      const context = canvas.getContext('2d');
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Get image data URL from canvas
+      const imageSrc = canvas.toDataURL('image/jpeg');
+
+      // Set captured screenshot in state
+
+      setFlagImage(imageSrc);
+    }
+    setFlagType(flagType);
+  };
+
+  const handleVerify = () => {
+    if (webcamRef.current && !flagWarning) {
+      const video = webcamRef.current.video;
+      const canvas = document.createElement('canvas');
+
+      // Set canvas dimensions to match video dimensions
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      // Draw video frame onto canvas
+      const context = canvas.getContext('2d');
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Get image data URL from canvas
+      const imageSrc = canvas.toDataURL('image/jpeg');
+
+      const formData = new FormData();
+      const imageData = dataURLtoFile(imageSrc, 'captured_image.jpg');
+
+      formData.append('image', imageData);
+      return dispatch(verifyUser(formData)).then((data) => {
+        if (data.type === 'user/verifyUser/fulfilled' && data.payload.verified === true) {
+          return true;
+          // enqueueSnackbar('Successfully verified', { variant: 'success' });
+        } else {
+          enqueueSnackbar('Failed to verify user', { variant: 'error' });
+          flagger('SOMEONE_DETECTED');
+          return false;
+        }
+      });
+    }
+    return true;
+  };
+
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      if (handleVerify()) {
+        console.log('true');
+      }
+    }, 10000); // Adjust interval duration as needed
+
+    return () => clearInterval(intervalRef.current); // Cleanup function
+  }, []);
+
+  const addFlag = (flagId, flagImage, flagType) => {
+    console.log(flagType, flagImage, flagId);
+    const formData = new FormData();
+    const imageData = dataURLtoFile(flagImage, 'captured_image.jpg');
+
+    formData.append('type', flagType); // Add other data if needed
+    formData.append('image', imageData);
+
+    dispatch(createFlag({ id: flagId, data: formData })).then((data) => {
+      console.log(data);
+    });
+  };
+
   const handleNavigate = (type) => {
     const question = questions[currentQuestionIndex];
     console.log(answers);
@@ -167,12 +222,12 @@ const TakeExam = () => {
           })
         );
       if (flagged) {
-        addFlag(answers[currentQuestionIndex].id);
+        addFlag(answers[currentQuestionIndex].id, flagImage, flagType);
       }
     } else {
       if (currentAnswer) {
-        dispatch(createExamineeAnswer({ question: question.id, answer: currentAnswer })).then(
-          (data) => {
+        dispatch(createExamineeAnswer({ question: question.id, answer: currentAnswer }))
+          .then((data) => {
             if (data.payload) {
               answers[currentQuestionIndex] = { id: data.payload.id, answer: currentAnswer };
             } else {
@@ -180,15 +235,18 @@ const TakeExam = () => {
 
               answers[currentQuestionIndex] = { id: id, answer: currentAnswer };
             }
-            if (flagged) {
-              addFlag(answers[currentQuestionIndex].id);
+          })
+          .then(() => {
+            if (flagged && answers[currentQuestionIndex]) {
+              addFlag(answers[currentQuestionIndex].id, flagImage, flagType);
             }
-          }
-        );
+          });
       }
     }
+
     setFlagged(false);
     console.log(answers);
+
     if (type === 'next') {
       answers[currentQuestionIndex + 1]
         ? setCurrentAnswer(answers[currentQuestionIndex + 1].answer)
@@ -226,6 +284,50 @@ const TakeExam = () => {
     console.log(e);
   };
 
+  const handleUserMedia = () => {
+    console.log('Video Started!');
+    setInterval(async () => {
+      const detections = await faceapi
+        .detectAllFaces(
+          webcamRef.current.video,
+          new faceapi.TinyFaceDetectorOptions({
+            scoreThreshold: 0.1
+          })
+        )
+        .withFaceLandmarks();
+
+      // const resizedDetections = faceapi.resizeResults(
+      //     detections,
+      //     displaySize
+      // );
+
+      console.log(detections);
+
+      if (detections.length < 1) {
+        console.log('FACE_LOST');
+        setFlagWarning(true);
+
+        setFaceLostSecondCount((prev) => {
+          prev = prev + 100;
+          console.log(prev);
+          if (prev === 5000) {
+            flagger('FACE_LOST');
+          }
+          return prev;
+        });
+      } else if (detections.length > 2) {
+        enqueueSnackbar('Someone else Detected!', { variant: 'error' });
+        flagger('SOMEONE_DETECTED');
+      } else {
+        setFlagWarning(false);
+        setFaceLostSecondCount(0);
+      }
+
+      setStartExam(true);
+      // faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
+    }, 100);
+  };
+
   const time = React.useMemo(() => {
     return Date.now() + remainingTime * 1000;
   }, []);
@@ -253,39 +355,6 @@ const TakeExam = () => {
     );
   };
 
-  const handleUserMedia = () => {
-    console.log('Video Started!');
-    setInterval(async () => {
-      const detections = await faceapi
-        .detectAllFaces(
-          webcamRef.current.video,
-          new faceapi.TinyFaceDetectorOptions({
-            scoreThreshold: 0.1
-          })
-        )
-        .withFaceLandmarks();
-
-      // const resizedDetections = faceapi.resizeResults(
-      //     detections,
-      //     displaySize
-      // );
-
-      console.log(detections);
-      setfacesCount(detections.length);
-      if (detections.length < 1) {
-        console.log('FACE_LOST');
-        setFlagWarning(true);
-      } else if (detections.length > 2) {
-        enqueueSnackbar('Someone else Detected!', { variant: 'error' });
-      } else {
-        setFlagWarning(false);
-      }
-
-      setStartExam(true);
-      // faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
-    }, 100);
-  };
-
   return (
     <>
       <Modal
@@ -309,6 +378,7 @@ const TakeExam = () => {
           </Stack>
         </MainCard>
       </Modal>
+      {/* Searching for faces */}
       <Modal
         open={flagWarning}
         onClose={() => {}}
@@ -333,6 +403,7 @@ const TakeExam = () => {
           </Stack>
         </MainCard>
       </Modal>
+
       <Box sx={{ display: 'flex', width: '100%' }}>
         <Drawer variant="permanent" open={true}>
           <Stack
@@ -505,6 +576,8 @@ const TakeExam = () => {
                 </Stack>
               </Grid>
             )}
+
+            {/* Details and Flags Card */}
             <Grid item xs={4}>
               <MainPaper sx={{ minHeight: '400px', p: 3, mt: 3.7 }}>
                 <Typography variant="h4">Rules</Typography>
@@ -524,7 +597,6 @@ const TakeExam = () => {
                     ref={webcamRef}
                     width={1}
                     onUserMedia={handleUserMedia}
-                    style={{ borderRadius: '5%' }}
                   />
                 )}
 
@@ -536,18 +608,37 @@ const TakeExam = () => {
                     justifyContent="center"
                     alignItems="center"
                   >
-                    {/* <Chip
+                    <Chip
                       variant="light"
                       icon={<FlagIcon />}
                       onClick={() => {
                         setFlagged(true);
-                        setFlagImage(webcamRef.current.getScreenshot());
+                        console.log(webcamRef.current.getScreenshot());
+                        if (webcamRef.current) {
+                          const video = webcamRef.current.video;
+                          const canvas = document.createElement('canvas');
+
+                          // Set canvas dimensions to match video dimensions
+                          canvas.width = video.videoWidth;
+                          canvas.height = video.videoHeight;
+
+                          // Draw video frame onto canvas
+                          const context = canvas.getContext('2d');
+                          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                          // Get image data URL from canvas
+                          const imageSrc = canvas.toDataURL('image/jpeg');
+
+                          // Set captured screenshot in state
+
+                          setFlagImage(imageSrc);
+                        }
                         setFlagType('FACE_LOST');
                       }}
                       sx={{ width: '60%' }}
                       color="error"
                       label="NO_FACE"
-                    /> */}
+                    />
                     {/* <Chip variant="light" color="error" label="SOME_ONE_ELSE" /> */}
 
                     {flags.length > 0 ? (

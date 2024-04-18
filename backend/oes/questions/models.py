@@ -15,7 +15,8 @@ class Question(models.Model):
     )
 
     type = models.CharField(max_length=50, choices=QUESTION_TYPE_CHOICES)
-    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     question = models.TextField()
 
@@ -34,14 +35,15 @@ def update_exam_total_marks(sender, instance, **kwargs):
     # Get the exam associated with the question
     exam = instance.exam  # Assuming a ForeignKey relationship
 
-    # Calculate the new total marks (consider logic for handling different question types)
-    total_marks = sum(question.point for question in exam.question_set.all())
-    questions_count = exam.question_set.all().count()
+    if exam:
+        # Calculate the new total marks (consider logic for handling different question types)
+        total_marks = sum(question.point for question in exam.question_set.all())
+        questions_count = exam.question_set.all().count()
 
-    # Update the exam model with the new total marks
-    exam.questions_count = questions_count
-    exam.total_mark = total_marks
-    exam.save()
+        # Update the exam model with the new total marks
+        exam.questions_count = questions_count
+        exam.total_mark = total_marks
+        exam.save()
 
 
 # Connect the receiver function to the signals

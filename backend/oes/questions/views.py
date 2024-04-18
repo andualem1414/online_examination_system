@@ -1,4 +1,4 @@
-from rest_framework import generics, serializers
+from rest_framework import generics, serializers, mixins
 from rest_framework.response import Response
 from django.utils import timezone
 
@@ -7,6 +7,7 @@ from users.mixins import HavePermissionMixin
 
 from .models import Question
 from .serializers import QuestionSerializer
+import json
 
 
 # Create your views here.
@@ -19,10 +20,11 @@ class QuestionListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIView)
     def perform_create(self, serializer):
         exam = serializer.validated_data["exam"]
 
-        if exam.created_by != self.request.user:
-            raise serializers.ValidationError(
-                {"message": "You don't have access to this exam"}
-            )
+        if exam:
+            if exam.created_by != self.request.user:
+                raise serializers.ValidationError(
+                    {"message": "You don't have access to this exam"}
+                )
 
         serializer.save(created_by=self.request.user)
 
@@ -100,3 +102,41 @@ class QuestionDestroyAPIView(HavePermissionMixin, generics.DestroyAPIView):
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response({"message": "Question deleted successfully"}, status=200)
+
+
+class QuestionPoolMixinView(
+    mixins.ListModelMixin,
+    generics.GenericAPIView,
+):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        user = self.request.user
+
+        return qs.filter(created_by=user)
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        ids = json.loads(request.data["ids"])
+        examId = request.data["exam"]
+        exam = Exam.objects.get(pk=examId)
+
+        for id in ids:
+            question = Question.objects.get(pk=id)
+
+            Question.objects.create(
+                exam=exam,
+                type=question.type,
+                description=question.description,
+                question=question.question,
+                choices=question.choices,
+                answer=question.answer,
+                point=question.point,
+                created_by=self.request.user,
+            )
+
+        return Response({"message": "Questions Added successfully"}, status=200)

@@ -17,7 +17,12 @@ const DetailsComponent = (props) => {
               <Box sx={{ pl: 2, mt: 1.5, mb: 3 }}>
                 {item.descriptions.map((description) => {
                   return (
-                    <Stack sx={{ mb: 1 }} alignItems="center" direction="row" justifyContent="space-between">
+                    <Stack
+                      sx={{ mb: 1 }}
+                      alignItems="center"
+                      direction="row"
+                      justifyContent="space-between"
+                    >
                       <Typography>{description.name}</Typography>
                       <Typography color="primary" sx={{ fontWeight: 'bold' }}>
                         <Chip label={description.value} variant="light" color="primary" />

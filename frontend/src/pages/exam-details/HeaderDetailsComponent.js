@@ -31,7 +31,13 @@ const HeaderDetailsComponent = (props) => {
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
 
-  const { examDetails, examineeExamDetails, buttonName, handleButtonClick } = props;
+  const {
+    examDetails,
+    examineeExamDetails,
+    buttonName,
+    handleButtonClick,
+    setQuestionPoolSelectorModal
+  } = props;
 
   const date = new Date(examDetails?.start_time);
   const [copied, setCopied] = useState(false);
@@ -66,6 +72,14 @@ const HeaderDetailsComponent = (props) => {
       key: '3',
       label: (
         <Typography onClick={(e) => handleButtonClick('SHORT_ANSWER')}>Short Answer</Typography>
+      )
+    },
+    {
+      key: '4',
+      label: (
+        <Typography onClick={(e) => setQuestionPoolSelectorModal(true)}>
+          From Question Pool
+        </Typography>
       )
     }
   ];
