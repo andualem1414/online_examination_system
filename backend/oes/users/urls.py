@@ -20,4 +20,8 @@ urlpatterns = [
     path("token/verify/", TokenVerifyView.as_view(), name="token_verify"),
     # recent Action
     path("recent-actions/", views.RecentActionsListAPIView.as_view()),
+    # add and remove rules
+    path("rules/<int:pk>/list/", views.RuleListAPIView.as_view()),
+    path("rules/", views.RuleCreateAPIView.as_view()),
+    path("rules/<int:pk>/delete/", views.RuleDestroyAPIView.as_view()),
 ]

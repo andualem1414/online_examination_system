@@ -75,7 +75,7 @@ const AdminPayments = () => {
         {payments.length > 0 ? (
           <TableComponent
             headCells={headCells}
-            rows={filterData(payments, searchValue, 'amount')}
+            rows={filterData(payments, searchValue, ['amount'])}
             title="Payments"
             handleRowClick={() => {}}
           />

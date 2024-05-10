@@ -69,7 +69,7 @@ const AdminExams = () => {
         {exams.length > 0 ? (
           <TableComponent
             headCells={headCells}
-            rows={filterData(exams, searchValue, 'title')}
+            rows={filterData(exams, searchValue, ['title'])}
             title="Exams"
             handleRowClick={() => {}}
           />

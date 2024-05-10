@@ -62,3 +62,29 @@ export const getRecentActionsAPI = async () => {
     throw new Error('Failed to fetch RecentActions', error);
   }
 };
+export const getRulesAPI = async (id) => {
+  try {
+    const response = await axiosPrivate.get(`users/rules/${id}/list/`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch Rules', error);
+  }
+};
+
+export const createRulesAPI = async (data) => {
+  try {
+    const response = await axiosPrivate.post(`users/rules/`, data);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to create Rule', error);
+  }
+};
+
+export const deleteRulesAPI = async (id) => {
+  try {
+    const response = await axiosPrivate.delete(`users/rules/${id}/delete/`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to delete Rule', error);
+  }
+};

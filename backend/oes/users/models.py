@@ -69,3 +69,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self):
         """Return the short name for the user."""
         return self.first_name
+
+
+class Rule(models.Model):
+    examiner = models.ForeignKey(User, on_delete=models.CASCADE)
+    rule = models.TextField()

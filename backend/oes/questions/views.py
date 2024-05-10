@@ -115,7 +115,7 @@ class QuestionPoolMixinView(
         qs = super().get_queryset()
         user = self.request.user
 
-        return qs.filter(created_by=user)
+        return qs.filter(created_by=user).order_by("-created_at")
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)

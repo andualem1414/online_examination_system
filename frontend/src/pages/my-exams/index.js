@@ -46,12 +46,18 @@ const MyExam = () => {
       numeric: false,
       label: 'Description'
     },
+
     {
       id: 'status',
       numeric: false,
       label: 'Status',
       chip: true,
       chipColor: chipColorSelector
+    },
+    {
+      id: 'total_mark',
+      numeric: true,
+      label: 'Total Points'
     }
   ];
 
@@ -71,19 +77,30 @@ const MyExam = () => {
       descriptions: [
         {
           name: 'Number of exams',
-          value: exams.length
+          value: user.user_type === 'EXAMINER' ? exams.length : examineeExams.length
         },
         {
           name: 'Conducted',
-          value: exams.filter((exam) => exam.status === 'Conducted').length
+          value:
+            user.user_type === 'EXAMINER'
+              ? exams.filter((exam) => exam.status === 'Conducted').length
+              : examineeExams.filter((examineeExam) => examineeExam?.exam?.status === 'Conducted')
+                  .length
         },
         {
           name: 'Scheduled',
-          value: exams.filter((exam) => exam.status === 'Scheduled').length
+          value:
+            user.user_type === 'EXAMINER'
+              ? exams.filter((exam) => exam.status === 'Scheduled').length
+              : examineeExams.filter((examineeExam) => examineeExam?.exam?.status === 'Scheduled')
+                  .length
         },
         {
           name: 'Live',
-          value: exams.filter((exam) => exam.status === 'Live').length
+          value:
+            user.user_type === 'EXAMINER'
+              ? exams.filter((exam) => exam.status === 'Live').length
+              : examineeExams.filter((examineeExam) => examineeExam?.exam?.status === 'Live').length
         }
       ]
     }
@@ -111,18 +128,20 @@ const MyExam = () => {
       <Grid item xs={12} sx={{ display: { xs: 'block', md: 'none' } }}>
         <SearchField handleOnChange />
       </Grid>
+
       {/* Exam List */}
-      {console.log(exams)}
+      {console.log(exams, examineeExams)}
       <Grid item xs={12} md={8} display="block" justifyContent="center">
         {loading ? (
           <div>Loading...</div>
-        ) : exams.length > 0 || examineeExams.length > 0 ? (
+        ) : (user.user_type === 'EXAMINER' && exams.length > 0) ||
+          (user.user_type === 'EXAMINEE' && examineeExams.length > 0) ? (
           <TableComponent
             headCells={headCells}
             rows={
               user.user_type === 'EXAMINEE'
                 ? examineeExams.map((examineeExam) => examineeExam.exam)
-                : filterData(exams, searchValue, 'title')
+                : filterData(exams, searchValue, ['title', 'description'])
             }
             title="Exams"
             handleRowClick={handleRowClick}

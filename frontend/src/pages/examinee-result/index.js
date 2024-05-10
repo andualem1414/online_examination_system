@@ -19,7 +19,7 @@ const ExamineeResult = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const examineeExamId = localStorage.getItem('examineeAnswerId');
+  const examineeExamId = localStorage.getItem('examineeExamId');
   const examineeExamDetails = useSelector((state) => state.examineeExam.examineeExamDetails);
   const answersForSpecificExaminee = useSelector(
     (state) => state.examineeAnswer.answersForSpecificExaminee

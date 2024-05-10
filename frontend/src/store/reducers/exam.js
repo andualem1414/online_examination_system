@@ -107,6 +107,7 @@ const exam = createSlice({
         state.loading = false;
       })
       .addCase(fetchExamDetails.rejected, (state, action) => {
+        state.examDetails = {};
         state.loading = false;
         state.error = action.error.message;
       })

@@ -37,11 +37,16 @@ export const msToTime = (duration) => {
 };
 
 // Filter data based on search parameters
-export const filterData = (dataList, searchValue, field) => {
-  let newDataList =
-    searchValue.length > 0
-      ? dataList.filter((data) => data[field]?.toLowerCase()?.includes(searchValue))
-      : dataList;
+export const filterData = (dataList, searchValue, fields) => {
+  let newDataList = dataList;
+
+  if (searchValue.length > 0) {
+    for (let field of fields) {
+      newDataList = dataList.filter((data) =>
+        data[field].toLowerCase().includes(searchValue.toLowerCase())
+      );
+    }
+  }
 
   return newDataList;
 };

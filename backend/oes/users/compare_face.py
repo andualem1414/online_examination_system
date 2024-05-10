@@ -5,7 +5,8 @@ def compare_face(current_image, profile_picture):
 
     # result = DeepFace.verify(image1_path, image2_path)
     try:
-        result = DeepFace.verify(current_image, profile_picture)
+        # DeepFace.setThreshold(0.2)
+        result = DeepFace.verify(current_image, profile_picture, model_name="Facenet")
         return result
     except:
         return False

@@ -28,7 +28,8 @@ import { filterData } from 'utils/utils';
 import {
   createQuestionPool,
   fetchQuestionDetails,
-  fetchQuestionPool
+  fetchQuestionPool,
+  fetchQuestions
 } from 'store/reducers/question';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 const QuestionPoolModal = (props) => {
@@ -107,6 +108,7 @@ const QuestionPoolModal = (props) => {
         enqueueSnackbar('Question Added Successfully', {
           variant: 'success'
         });
+        dispatch(fetchQuestions(examId));
       }
     });
   };
@@ -190,7 +192,7 @@ const QuestionPoolModal = (props) => {
                 {questionPool?.length > 0 ? (
                   <TableComponentSelector
                     headCells={headCells}
-                    rows={filterData(questionPool, searchValue, 'description')}
+                    rows={filterData(questionPool, searchValue, ['question', 'description'])}
                     selected={selected}
                     setSelected={setSelected}
                     chipColorSelector={chipColorSelector}

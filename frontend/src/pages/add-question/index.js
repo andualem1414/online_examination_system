@@ -402,7 +402,7 @@ const AddQuestion = () => {
                         <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
                           Exam:
                         </Typography>
-                        <Typography>{examDetails.title}</Typography>
+                        <Typography>{examDetails?.title}</Typography>
                       </Stack>
                     </Stack>
                     {questionId && examDetails?.status !== 'Conducted' && (
@@ -419,7 +419,7 @@ const AddQuestion = () => {
                         </Button>
                       </AnimateButton>
                     )}
-                    {examDetails?.status !== 'Conducted' && (
+                    {(!examId || examDetails?.status !== 'Conducted') && (
                       <AnimateButton>
                         <Button
                           disableElevation

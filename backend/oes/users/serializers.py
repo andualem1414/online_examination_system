@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, Rule
 from auditlog.models import LogEntry
 
 
@@ -49,4 +49,12 @@ class RecentActionSerializer(serializers.ModelSerializer):
             2: "delete",
             # Add additional mappings for other action values if needed
         }
-        return actions_map.get(action_value, action_value)
+        return actions_map.get(action_value, "unknown")
+
+
+class RuleSerializer(serializers.ModelSerializer):
+    examiner = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Rule
+        fields = ["id", "examiner", "rule"]

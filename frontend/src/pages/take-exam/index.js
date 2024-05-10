@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import * as dayjs from 'dayjs';
+import SendIcon from '@mui/icons-material/Send';
 
 import * as faceapi from 'face-api.js';
 import Webcam from 'react-webcam';
@@ -38,7 +39,7 @@ import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import { fetchExamineeExamDetails, updateExamineeExam } from 'store/reducers/examineeExam';
 import { fetchQuestions } from 'store/reducers/question';
-import { verifyUser } from 'store/reducers/user';
+import { fetchRules, verifyUser } from 'store/reducers/user';
 
 // Custom components
 import MinimalLogo from 'components/Logo/MinimalLogo';
@@ -52,14 +53,19 @@ import {
 import Countdown from 'react-countdown';
 import { createFlag, fetchFlags } from 'store/reducers/flag';
 import MainCard from 'components/MainCard';
-
+import FullScreenButton from './FullScreenButton';
+import screenfull from 'screenfull';
 const drawerWidth = 70;
 let answers = {};
+let flagged = new Set();
+// let currentQuestionIndex = 0;
 
 const TakeExam = () => {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const webcamRef = useRef(null);
+
+  const rules = useSelector((state) => state.user.rules);
 
   const remainingTime = localStorage.getItem('remainingTime');
   const examineeExamId = localStorage.getItem('examineeExamId');
@@ -77,13 +83,42 @@ const TakeExam = () => {
   let [flagWarning, setFlagWarning] = useState(false);
   let [faceLostSecondCount, setFaceLostSecondCount] = useState(0);
 
-  let [flagged, setFlagged] = useState(false);
+  // let [flagged, setFlagged] = useState(new Set());
   const [flagImage, setFlagImage] = useState(null);
   const [flagType, setFlagType] = useState('');
 
   const dispatch = useDispatch();
   const theme = useTheme();
   const intervalRef = useRef(null); // Store the interval ID
+
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const containerRef = useRef(document.body);
+
+  const toggleFullScreen = () => {
+    if (isFullScreen) {
+      screenfull.exit();
+    } else {
+      screenfull.request(containerRef.current);
+    }
+    setIsFullScreen(!isFullScreen);
+  };
+
+  useEffect(() => {
+    const changeHandler = () => {
+      setIsFullScreen(screenfull.isFullscreen);
+      let fullScreen = screenfull.isFullscreen;
+      if (fullScreen === false) {
+        console.log('hellow');
+        navigate('/my-exams/exam-details');
+        window.location.reload();
+      }
+      console.log(screenfull.isFullscreen);
+    };
+
+    screenfull.on('change', changeHandler);
+
+    return () => screenfull.off('change', changeHandler);
+  }, []);
 
   useEffect(() => {
     dispatch(fetchExamineeExamDetails(examineeExamId)).then((data) => {
@@ -96,6 +131,7 @@ const TakeExam = () => {
         }
       });
       dispatch(fetchExamineeAnswers(data?.payload?.exam?.id));
+      dispatch(fetchRules(data?.payload?.exam?.created_by));
     });
 
     async function loadModels() {
@@ -105,7 +141,9 @@ const TakeExam = () => {
 
       setStartVideo(true);
     }
-    loadModels();
+    if (examineeExamDetails?.exam?.remote) {
+      loadModels();
+    }
   }, []);
 
   useEffect(() => {
@@ -121,13 +159,21 @@ const TakeExam = () => {
         }
       });
     });
-
+    if (answers[0]) {
+      dispatch(fetchFlags(answers[0]?.id));
+    }
     console.log(answers);
     setCurrentAnswer(answers[0]?.answer || '');
   }, [questions]);
 
   const flagger = (flagType) => {
-    setFlagged(true);
+    // setFlagged(true);
+    setCurrentQuestionIndex((prev) => {
+      console.log('*****************************8', prev);
+      flagged.add(prev);
+      return prev;
+    });
+
     if (webcamRef.current) {
       const video = webcamRef.current.video;
       const canvas = document.createElement('canvas');
@@ -148,10 +194,13 @@ const TakeExam = () => {
       setFlagImage(imageSrc);
     }
     setFlagType(flagType);
+    console.log(flagged);
   };
 
   const handleVerify = () => {
-    if (webcamRef.current && !flagWarning) {
+    setFlagWarning((prev) => console.log(prev));
+    if (webcamRef.current && flagWarning === false) {
+      console.log('verifying...');
       const video = webcamRef.current.video;
       const canvas = document.createElement('canvas');
 
@@ -186,13 +235,18 @@ const TakeExam = () => {
 
   useEffect(() => {
     intervalRef.current = setInterval(() => {
-      if (handleVerify()) {
-        console.log('true');
+      console.log('******************', flagWarning);
+      if (flagWarning === false) {
+        handleVerify()
+          ? console.log('face verified successfully!')
+          : console.log('face not verified!');
+      } else {
+        console.log('No face to verify');
       }
     }, 10000); // Adjust interval duration as needed
 
     return () => clearInterval(intervalRef.current); // Cleanup function
-  }, []);
+  }, [flagWarning]);
 
   const addFlag = (flagId, flagImage, flagType) => {
     console.log(flagType, flagImage, flagId);
@@ -221,7 +275,7 @@ const TakeExam = () => {
             data: { answer: currentAnswer }
           })
         );
-      if (flagged) {
+      if (flagged.has(currentQuestionIndex) && answers[currentQuestionIndex]) {
         addFlag(answers[currentQuestionIndex].id, flagImage, flagType);
       }
     } else {
@@ -237,14 +291,13 @@ const TakeExam = () => {
             }
           })
           .then(() => {
-            if (flagged && answers[currentQuestionIndex]) {
+            if (flagged.has(currentQuestionIndex) && answers[currentQuestionIndex]) {
               addFlag(answers[currentQuestionIndex].id, flagImage, flagType);
             }
           });
       }
     }
 
-    setFlagged(false);
     console.log(answers);
 
     if (type === 'next') {
@@ -252,6 +305,7 @@ const TakeExam = () => {
         ? setCurrentAnswer(answers[currentQuestionIndex + 1].answer)
         : setCurrentAnswer('');
       dispatch(fetchFlags(answers[currentQuestionIndex + 1]?.id));
+      // currentQuestionIndex = currentQuestionIndex + 1;
       setCurrentQuestionIndex((prev) => prev + 1);
       console.log(flags);
     } else {
@@ -259,7 +313,7 @@ const TakeExam = () => {
         ? setCurrentAnswer(answers[currentQuestionIndex - 1].answer)
         : setCurrentAnswer('');
       dispatch(fetchFlags(answers[currentQuestionIndex - 1]?.id));
-
+      // currentQuestionIndex = currentQuestionIndex - 1;
       setCurrentQuestionIndex((prev) => prev - 1);
     }
   };
@@ -286,12 +340,13 @@ const TakeExam = () => {
 
   const handleUserMedia = () => {
     console.log('Video Started!');
+    toggleFullScreen();
     setInterval(async () => {
       const detections = await faceapi
         .detectAllFaces(
           webcamRef.current.video,
           new faceapi.TinyFaceDetectorOptions({
-            scoreThreshold: 0.1
+            scoreThreshold: 0.4
           })
         )
         .withFaceLandmarks();
@@ -308,14 +363,14 @@ const TakeExam = () => {
         setFlagWarning(true);
 
         setFaceLostSecondCount((prev) => {
-          prev = prev + 100;
+          prev = prev + 500;
           console.log(prev);
           if (prev === 5000) {
             flagger('FACE_LOST');
           }
           return prev;
         });
-      } else if (detections.length > 2) {
+      } else if (detections.length >= 2) {
         enqueueSnackbar('Someone else Detected!', { variant: 'error' });
         flagger('SOMEONE_DETECTED');
       } else {
@@ -325,7 +380,7 @@ const TakeExam = () => {
 
       setStartExam(true);
       // faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
-    }, 100);
+    }, 500);
   };
 
   const time = React.useMemo(() => {
@@ -358,7 +413,7 @@ const TakeExam = () => {
   return (
     <>
       <Modal
-        open={!startExam}
+        open={!startExam && examineeExamDetails?.exam?.remote}
         onClose={() => {}}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
@@ -582,9 +637,32 @@ const TakeExam = () => {
               <MainPaper sx={{ minHeight: '400px', p: 3, mt: 3.7 }}>
                 <Typography variant="h4">Rules</Typography>
                 <Divider sx={{ my: 2 }} />
-                <Stack direction="column" sx={{ ml: 2, mb: 6 }}>
-                  <Typography variant="subtitle">Only You should be in the exam</Typography>
+                <Stack direction="row" sx={{ mb: 2, ml: 2 }} spacing={2} alignItems="center">
+                  <SendIcon sx={{ fontSize: 18 }} />
+                  <Typography sx={{ fontSize: 18 }}>You can't change Tabs while in exam</Typography>
                 </Stack>
+                <Stack direction="row" sx={{ mb: 2, ml: 2 }} spacing={2} alignItems="center">
+                  <SendIcon sx={{ fontSize: 18 }} />
+                  <Typography sx={{ fontSize: 18 }}>You can't exit fullScreen</Typography>
+                </Stack>
+                <Stack direction="row" sx={{ mb: 2, ml: 2 }} spacing={2} alignItems="center">
+                  <SendIcon sx={{ fontSize: 18 }} />
+                  <Typography sx={{ fontSize: 18 }}>
+                    Your face should match your profile picture
+                  </Typography>
+                </Stack>
+                <Stack direction="row" sx={{ mb: 2, ml: 2 }} spacing={2} alignItems="center">
+                  <SendIcon sx={{ fontSize: 18 }} />
+                  <Typography sx={{ fontSize: 18 }}>Only you should be in the exam</Typography>
+                </Stack>
+                {rules.map((rule) => {
+                  return (
+                    <Stack direction="row" sx={{ mb: 2, ml: 2 }} alignItems="center" spacing={2}>
+                      <SendIcon sx={{ fontSize: 18 }} />
+                      <Typography sx={{ fontSize: 18 }}>{rule.rule}</Typography>
+                    </Stack>
+                  );
+                })}
                 <Typography variant="h4" sx={{ my: 2 }}>
                   Question Flags
                 </Typography>
@@ -608,7 +686,7 @@ const TakeExam = () => {
                     justifyContent="center"
                     alignItems="center"
                   >
-                    <Chip
+                    {/* <Chip
                       variant="light"
                       icon={<FlagIcon />}
                       onClick={() => {
@@ -638,7 +716,7 @@ const TakeExam = () => {
                       sx={{ width: '60%' }}
                       color="error"
                       label="NO_FACE"
-                    />
+                    /> */}
                     {/* <Chip variant="light" color="error" label="SOME_ONE_ELSE" /> */}
 
                     {flags.length > 0 ? (
@@ -680,9 +758,11 @@ const TakeExam = () => {
                   Finish Exam
                 </Button>
               ) : (
-                <Button variant="contained" onClick={(event) => handleNavigate('next')}>
-                  Next
-                </Button>
+                <>
+                  <Button variant="contained" onClick={(event) => handleNavigate('next')}>
+                    Next
+                  </Button>
+                </>
               )}
             </Grid>
           </Grid>

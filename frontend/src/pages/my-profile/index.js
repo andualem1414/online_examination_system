@@ -33,10 +33,11 @@ import AnimateButton from 'components/@extended/AnimateButton';
 import TableComponent from 'components/TableComponent';
 
 import PropTypes from 'prop-types';
-import { dispatch } from 'store/index';
+
 import { fetchPayments } from 'store/reducers/payments';
 import { updateUser } from 'store/reducers/user';
 import { axiosPrivate } from 'api/axios';
+import { useDispatch } from 'react-redux';
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -62,6 +63,7 @@ CustomTabPanel.propTypes = {
 
 const MyProfile = () => {
   const userDetails = useSelector((state) => state.user.userDetails);
+  const dispatch = useDispatch();
   console.log(userDetails);
   const payments = useSelector((state) => state.payment.payments);
   const { enqueueSnackbar } = useSnackbar();
@@ -370,12 +372,19 @@ const MyProfile = () => {
             </Formik>
           </CustomTabPanel>
           <CustomTabPanel value={value} index={userDetails.user_type === 'EXAMINEE' ? 2 : 1}>
-            <TableComponent
-              headCells={headCells}
-              rows={payments}
-              title="Payments"
-              handleRowClick={handleRowClick}
-            />
+            {payments.length > 0 ? (
+              <TableComponent
+                headCells={headCells}
+                rows={payments}
+                title="Payments"
+                handleRowClick={handleRowClick}
+              />
+            ) : (
+              <Typography textAlign="center" variant="h5">
+                {' '}
+                No Payments found
+              </Typography>
+            )}
           </CustomTabPanel>
           <CustomTabPanel value={value} index={userDetails.user_type === 'EXAMINEE' ? 1 : 2}>
             <Formik

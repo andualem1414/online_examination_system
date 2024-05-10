@@ -140,7 +140,7 @@ const PublicExamDetails = () => {
         {questions.length > 0 ? (
           <TableComponent
             headCells={headCells}
-            rows={filterData(questions, searchValue, 'question')}
+            rows={filterData(questions, searchValue, ['question'])}
             title="Questions"
             handleRowClick={handleRowClick}
             download={download}

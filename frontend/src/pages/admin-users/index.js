@@ -74,7 +74,7 @@ const AdminUsers = () => {
         {users.length > 0 ? (
           <TableComponent
             headCells={headCells}
-            rows={filterData(users, searchValue, 'full_name')}
+            rows={filterData(users, searchValue, ['full_name'])}
             title="Users"
             handleRowClick={() => {}}
           />

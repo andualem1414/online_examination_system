@@ -229,7 +229,7 @@ const ExamDetails = () => {
   const handleRowClick = (event, id) => {
     if (user.user_type === 'EXAMINER') {
       if (buttonName.name === 'Questions') {
-        localStorage.setItem('examineeAnswerId', id);
+        localStorage.setItem('examineeExamId', id);
         navigate('/my-exams/exam-details/examinee-result');
       } else {
         dispatch(fetchQuestionDetails(id)).then((data) => {
@@ -326,7 +326,7 @@ const ExamDetails = () => {
               examineesForSpecificExams.length > 0 ? (
                 <TableComponent
                   headCells={headCellsForExaminees}
-                  rows={filterData(examineesForSpecificExams, searchValue, 'full_name')}
+                  rows={filterData(examineesForSpecificExams, searchValue, ['full_name'])}
                   title="Examinees"
                   handleRowClick={handleRowClick}
                   download={examineeListDownload}
@@ -339,7 +339,7 @@ const ExamDetails = () => {
             ) : questions.length > 0 ? (
               <TableComponent
                 headCells={headCells}
-                rows={filterData(questions, searchValue, 'question')}
+                rows={filterData(questions, searchValue, ['question'])}
                 title="Questions"
                 handleRowClick={handleRowClick}
                 download={user.user_type === 'EXAMINER' && download}

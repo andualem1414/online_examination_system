@@ -149,7 +149,11 @@ const AuthRegister = (props) => {
               {user_type === 'EXAMINEE' && (
                 <Grid item xs={12}>
                   <InputLabel htmlFor="profile_picture">Profile Image*</InputLabel>
-
+                  <InputLabel htmlFor="profile_picture">
+                    <Typography sx={{ color: 'forestgreen' }}>
+                      Must be your picture (used for facial recognition){' '}
+                    </Typography>
+                  </InputLabel>
                   <TextField
                     type="file"
                     id="profile_picture"

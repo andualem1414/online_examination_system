@@ -12,7 +12,7 @@ import MainPaper from 'components/MainPaper';
 
 const QuestionDetails = () => {
   const dispatch = useDispatch();
-
+  const user = useSelector((state) => state.user.userDetails);
   const examineeExam = useSelector((state) => state.examineeExam.examineeExamDetails);
   const { enqueueSnackbar } = useSnackbar();
   const examineeAnswerId = localStorage.getItem('examineeAnswerId');
@@ -37,6 +37,8 @@ const QuestionDetails = () => {
     dispatch(deleteFlag({ id: flagId, examineeExamId: examineeExamId })).then((data) => {
       if (data.type === 'flag/deleteFlag/fulfilled') {
         enqueueSnackbar('Flag Deleted', { variant: 'success' });
+      } else {
+        enqueueSnackbar('Falied to Delete Flag', { variant: 'error' });
       }
     });
     setShowDeleteConfirmation(false);
@@ -201,21 +203,23 @@ const QuestionDetails = () => {
                         color="error"
                         label={<Typography>{label}</Typography>}
                       />
-                      <Typography
-                        textAlign="center"
-                        onClick={() => {
-                          setCurrentFlagId(flag.id);
-                          setShowDeleteConfirmation(true);
-                        }}
-                        sx={{
-                          mt: 1,
-                          color: 'blue',
-                          cursor: 'pointer',
-                          textDecoration: 'underline'
-                        }}
-                      >
-                        Delete
-                      </Typography>
+                      {user.user_type === 'EXAMINER' && (
+                        <Typography
+                          textAlign="center"
+                          onClick={() => {
+                            setCurrentFlagId(flag.id);
+                            setShowDeleteConfirmation(true);
+                          }}
+                          sx={{
+                            mt: 1,
+                            color: 'blue',
+                            cursor: 'pointer',
+                            textDecoration: 'underline'
+                          }}
+                        >
+                          Delete
+                        </Typography>
+                      )}
                     </Stack>
                   );
                 })

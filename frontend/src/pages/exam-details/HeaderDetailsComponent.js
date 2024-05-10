@@ -19,15 +19,15 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 
 // Redux
-import { dispatch } from 'store/index';
+
 import { updateExam, deleteExam } from 'store/reducers/exam';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { deleteExamineeExam } from 'store/reducers/examineeExam';
 import StartExamModal from 'components/modals/StartExamModal';
 
 const HeaderDetailsComponent = (props) => {
   const user = useSelector((state) => state.user.userDetails);
-
+  let dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
 
@@ -278,7 +278,7 @@ const HeaderDetailsComponent = (props) => {
                             enqueueSnackbar('Question is Now REMOTE', { variant: 'info' });
                           }
                           if (data.payload.remote === false) {
-                            enqueueSnackbar('Question is Now NOT REMOTE', { variant: 'info' });
+                            enqueueSnackbar('Question is Now IN PERSON', { variant: 'info' });
                           }
                         }
                         if (data.type === 'exam/examUpdate/rejected') {
@@ -435,16 +435,29 @@ const HeaderDetailsComponent = (props) => {
                   >
                     Leave Exam
                   </Button>
-                  <Button
-                    variant="contained"
-                    color="success"
-                    onClick={(e) => {
-                      handleOpenStartExamOpen();
-                    }}
-                    disabled={examDetails.status === 'Live' ? false : true}
-                  >
-                    Start Exam
-                  </Button>
+                  {examDetails.remote === false ? (
+                    <Button
+                      variant="contained"
+                      color="success"
+                      onClick={(e) => {
+                        handleStartExam();
+                      }}
+                      disabled={examDetails.status === 'Live' ? false : true}
+                    >
+                      Start Exam
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="contained"
+                      color="success"
+                      onClick={(e) => {
+                        handleOpenStartExamOpen();
+                      }}
+                      disabled={examDetails.status === 'Live' ? false : true}
+                    >
+                      Start Exam
+                    </Button>
+                  )}
                 </Stack>
               )}
             </Grid>

@@ -3,12 +3,9 @@ import os
 from pathlib import Path
 from django.conf import settings
 
-from .models import User
+from .models import User, Rule
 from django.contrib.auth.models import Group
-from .serializers import (
-    UserSerializer,
-    RecentActionSerializer,
-)
+from .serializers import UserSerializer, RecentActionSerializer, RuleSerializer
 
 from rest_framework import generics
 from rest_framework.views import APIView
@@ -39,7 +36,7 @@ class RecentActionsListAPIView(generics.ListAPIView):
         qs = super().get_queryset()
         user = self.request.user
 
-        return qs.filter(actor_id=user.id)
+        return qs.filter(actor_id=user.id).order_by("-timestamp")
 
 
 class ChangePasswordView(APIView):
@@ -118,6 +115,11 @@ class UserDestroyAPIView(generics.DestroyAPIView):
     serializer_class = UserSerializer
     lookup_field = "pk"
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({"message": "user deleted successfully"}, status=200)
+
 
 class UserUpdateAPIView(generics.UpdateAPIView):
     queryset = User.objects.all()
@@ -129,6 +131,37 @@ class UserUpdateAPIView(generics.UpdateAPIView):
         user = self.request.user
 
         return qs.filter(pk=user.id)
+
+
+class RuleCreateAPIView(generics.CreateAPIView):
+    queryset = Rule.objects.all()
+    serializer_class = RuleSerializer
+
+    def perform_create(self, serializer):
+
+        return serializer.save(examiner=self.request.user)
+
+
+class RuleListAPIView(generics.ListAPIView):
+    queryset = Rule.objects.all()
+    serializer_class = RuleSerializer
+
+    def get_queryset(self):
+        my_pk = self.request.parser_context["kwargs"]["pk"]
+
+        return super().get_queryset().filter(examiner=my_pk)
+
+
+class RuleDestroyAPIView(generics.DestroyAPIView):
+    queryset = Rule.objects.all()
+    serializer_class = RuleSerializer
+    lookup_field = "pk"
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        id = instance.id
+        self.perform_destroy(instance)
+        return Response({"message": "Rule deleted successfully", "id": id}, status=200)
 
 
 class VerifyUserView(APIView):
@@ -158,8 +191,12 @@ class VerifyUserView(APIView):
         profile_image = self.request.user.profile_picture.path
 
         result = compare_face(current_image, profile_image)
+        verified = False
         print(result)
-        verified = result["verified"] if result else False
+
+        if result and result["distance"] < 0.315:
+            verified = True
+
         # Return a success response (optional data about the uploaded image)
         os.remove(current_image)
         return Response({"verified": verified})

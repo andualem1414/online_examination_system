@@ -50,6 +50,11 @@ const QuestionPool = () => {
       label: 'Question'
     },
     {
+      id: 'description',
+      numeric: false,
+      label: 'Description'
+    },
+    {
       id: 'type',
       numeric: false,
       label: 'Type',
@@ -66,6 +71,8 @@ const QuestionPool = () => {
   const handleRowClick = (event, id) => {
     dispatch(fetchQuestionDetails(id)).then((data) => {
       if (data.type === 'question/questionDetails/fulfilled') {
+        console.log(data?.payload);
+        localStorage.setItem('examId', data?.payload?.exam);
         const questionType = data.payload.type;
         navigate('/my-exams/exam-details/add-question', {
           state: { questionId: id, questionType: questionType }
@@ -111,7 +118,7 @@ const QuestionPool = () => {
         ) : questionPool?.length > 0 ? (
           <TableComponent
             headCells={headCells}
-            rows={filterData(questionPool, searchValue, 'title')}
+            rows={filterData(questionPool, searchValue, ['title'])}
             title="Exams"
             handleRowClick={handleRowClick}
           />
@@ -138,7 +145,7 @@ const QuestionPool = () => {
                 </Typography>
                 <Divider sx={{ mt: 1 }} />
                 <Stack
-                  sx={{ pl: 2, mt: 1.5, mb: 3 }}
+                  sx={{ pl: 2, mt: 1.5 }}
                   alignItems="center"
                   direction="row"
                   justifyContent="space-between"
@@ -146,6 +153,51 @@ const QuestionPool = () => {
                   <Typography>Number of questions</Typography>
                   <Typography color="primary" sx={{ fontWeight: 'bold' }}>
                     <Chip label={questionPool.length} variant="light" color="primary" />
+                  </Typography>
+                </Stack>
+                <Stack
+                  sx={{ pl: 2, mt: 1.5 }}
+                  alignItems="center"
+                  direction="row"
+                  justifyContent="space-between"
+                >
+                  <Typography>Number of True/False</Typography>
+                  <Typography color="primary" sx={{ fontWeight: 'bold' }}>
+                    <Chip
+                      label={questionPool.filter((e) => e.type === 'TRUE_FALSE').length}
+                      variant="light"
+                      color="primary"
+                    />
+                  </Typography>
+                </Stack>
+                <Stack
+                  sx={{ pl: 2, mt: 1.5 }}
+                  alignItems="center"
+                  direction="row"
+                  justifyContent="space-between"
+                >
+                  <Typography>Number of Choice</Typography>
+                  <Typography color="primary" sx={{ fontWeight: 'bold' }}>
+                    <Chip
+                      label={questionPool.filter((e) => e.type === 'CHOICE').length}
+                      variant="light"
+                      color="primary"
+                    />
+                  </Typography>
+                </Stack>
+                <Stack
+                  sx={{ pl: 2, mt: 1.5 }}
+                  alignItems="center"
+                  direction="row"
+                  justifyContent="space-between"
+                >
+                  <Typography>Number of Short Answers</Typography>
+                  <Typography color="primary" sx={{ fontWeight: 'bold' }}>
+                    <Chip
+                      label={questionPool.filter((e) => e.type === 'SHORT_ANSWER').length}
+                      variant="light"
+                      color="primary"
+                    />
                   </Typography>
                 </Stack>
               </Box>

@@ -185,7 +185,7 @@ export const generateWordDocument = (event, questions, examDetails) => {
   });
 
   // Call saveDocumentToFile with the document instance and a filename
-  saveDocumentToFile(doc, 'New Document.docx');
+  saveDocumentToFile(doc, `${examDetails?.title}.docx`);
 };
 
 const saveDocumentToFile = (doc, fileName) => {

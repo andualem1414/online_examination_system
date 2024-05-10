@@ -5,7 +5,7 @@ import MainPaper from './MainPaper';
 const DetailsComponent = (props) => {
   const { data } = props;
   return (
-    <MainPaper component="div" sx={{ overflow: 'auto', p: 4, height: '370px' }}>
+    <MainPaper component="div" sx={{ overflow: 'auto', p: 4, height: '400px' }}>
       <Stack>
         {data.map((item) => {
           return (

@@ -46,8 +46,13 @@ const PublicExam = () => {
       label: 'Description'
     },
     {
+      id: 'questions_count',
+      numeric: true,
+      label: 'Questions'
+    },
+    {
       id: 'created_at',
-      numeric: false,
+      numeric: true,
       date: true,
       label: 'Date Created',
       chip: true,
@@ -99,7 +104,7 @@ const PublicExam = () => {
         ) : exams.length > 0 ? (
           <TableComponent
             headCells={headCells}
-            rows={filterData(exams, searchValue, 'title')}
+            rows={filterData(exams, searchValue, ['title', 'description'])}
             title="Exams"
             handleRowClick={handleRowClick}
           />

@@ -150,6 +150,7 @@ const ExamForm = (props) => {
                             payment_method: 'telebirr'
                           };
                           dispatch(createPayment(paymentDetails));
+
                           enqueueSnackbar('Exam Created Successfully', {
                             variant: 'success'
                           });
@@ -388,7 +389,9 @@ const ExamForm = (props) => {
                               <IconButton
                                 aria-label="delete"
                                 onClick={() => {
-                                  setPaid(true);
+                                  if (paymentCode) {
+                                    setPaid(true);
+                                  }
                                 }}
                               >
                                 <RefreshIcon />

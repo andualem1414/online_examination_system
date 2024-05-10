@@ -40,7 +40,16 @@ const RecentActions = () => {
   };
 
   const handleRowClick = (event, id) => {
-    let currentChange = JSON.parse(recentActions.find((change) => change.id === id).changes);
+    let recentAction = recentActions.find((recentAction) => recentAction.id === id);
+    if (recentAction.action_display === 'create' || recentAction.action_display === 'delete') {
+      for (const key in recentAction.changes) {
+        if (key === 'id') {
+          setChanges([[key, recentAction.changes[key]]]);
+          return;
+        }
+      }
+    }
+    let currentChange = recentAction.changes;
     let newChanges = [];
 
     for (const key in currentChange) {
@@ -87,7 +96,7 @@ const RecentActions = () => {
         {recentActions?.length > 0 ? (
           <TableComponent
             headCells={headCells}
-            rows={filterData(recentActions, searchValue, 'title')}
+            rows={filterData(recentActions, searchValue, ['title'])}
             title="Recent Actions"
             handleRowClick={handleRowClick}
           />
@@ -125,14 +134,8 @@ const RecentActions = () => {
               </Grid>
 
               {changes?.map((change) => {
-                let from =
-                  new Date(change[1][0]).toString() === 'Invalid Date'
-                    ? change[1][0]
-                    : new Date(change[1][0]).toString();
-                let to =
-                  new Date(change[1][1]).toString() === 'Invalid Date'
-                    ? change[1][1]
-                    : new Date(change[1][1]).toString();
+                let from = change[1][0];
+                let to = change[1][1];
 
                 return (
                   <Grid item xs={12} container sx={{ my: 1 }}>

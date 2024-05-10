@@ -55,7 +55,7 @@ class PublicExamListAPIView(HavePermissionMixin, generics.ListAPIView):
     def get_queryset(self):
         qs = super().get_queryset()
 
-        return qs.filter(public=True)
+        return qs.filter(public=True).order_by("-created_at")
 
 
 class ExamDetailAPIView(HavePermissionMixin, generics.RetrieveAPIView):
@@ -111,16 +111,15 @@ class PaymentListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIView):
     serializer_class = PaymentSerializer
 
     def get_queryset(self):
-        return super().get_queryset()
+        qs = super().get_queryset()
+        user = self.request.user
+
+        return qs.filter(examiner=user).order_by("-created_at")
 
     def perform_create(self, serializer):
 
         exam = Exam.objects.get(pk=serializer.validated_data["exam_id"])
-        amount = 0
-        if exam.max_examinees < 50:
-            amount = 100
-        else:
-            amount = 150
+        amount = exam.max_examinees * 0.5
 
         serializer.save(
             examiner=self.request.user,

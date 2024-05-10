@@ -71,6 +71,7 @@ const AuthLogin = (props) => {
               headers: { 'Content-Type': 'application/json' }
             });
 
+            console.log(response);
             localStorage.setItem('accessToken', response?.data.access);
             localStorage.setItem('refreshToken', response?.data.refresh);
 
@@ -92,10 +93,13 @@ const AuthLogin = (props) => {
                   // Redirect the user to a default page, such as the home page
                   navigate(navigatePath);
                 }
+              } else {
+                enqueueSnackbar(`Wrong Username or password`, { variant: 'error' });
               }
             });
           } catch (err) {
             setStatus({ success: false });
+            enqueueSnackbar(`Wrong Username or password`, { variant: 'error' });
             setErrors({ submit: err.message });
             setSubmitting(false);
           }
