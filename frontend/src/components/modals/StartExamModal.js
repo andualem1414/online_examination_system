@@ -25,10 +25,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { verifyUser } from 'store/reducers/user';
 import { dataURLtoFile } from 'utils/utils';
 
-const steps = ['Accept Rules', 'Autorize if it is really you'];
-
 const StartExamModal = (props) => {
-  const { openStartExam, handleOpenStartExamClose, handleStartExam } = props;
+  const { openStartExam, handleOpenStartExamClose, handleStartExam, one_step } = props;
+
+  const steps = one_step ? ['Accept Rules '] : ['Accept Rules', 'Autorize if it is really you'];
+
   const [activeStep, setActiveStep] = React.useState(0);
   const verified = useSelector((state) => state.user.verified);
   const loading = useSelector((state) => state.user.loading);
@@ -170,7 +171,7 @@ const StartExamModal = (props) => {
           </Button>
 
           <Button onClick={handleNext} disabled={activeStep === 1 && !verified} variant="contained">
-            {activeStep === 1 ? 'Start Exam' : 'Continue'}
+            {activeStep === 1 || one_step === true ? 'Start Exam' : 'Continue'}
           </Button>
         </Stack>
       </MainPaper>

@@ -50,11 +50,13 @@ import {
   fetchExamineeAnswers,
   updateExamineeAnswer
 } from 'store/reducers/examineeAnswer';
+
 import Countdown from 'react-countdown';
 import { createFlag, fetchFlags } from 'store/reducers/flag';
 import MainCard from 'components/MainCard';
 import FullScreenButton from './FullScreenButton';
 import screenfull from 'screenfull';
+
 const drawerWidth = 70;
 let answers = {};
 let flagged = new Set();
@@ -366,6 +368,7 @@ const TakeExam = () => {
           prev = prev + 500;
           console.log(prev);
           if (prev === 5000) {
+            enqueueSnackbar('Face lost', { variant: 'error' });
             flagger('FACE_LOST');
           }
           return prev;
@@ -410,8 +413,38 @@ const TakeExam = () => {
     );
   };
 
+  const [startExamModal, setStartExamModal] = useState(
+    !examineeExamDetails?.exam?.remote ? true : false
+  );
   return (
     <>
+      <Modal open={startExamModal} onClose={() => {}} aria-labelledby="modal-modal-startExamModal">
+        <MainCard
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            p: 3
+          }}
+        >
+          <Typography id="modal-modal-title" variant="h5" sx={{ mb: 3 }}>
+            Start the Exam?
+          </Typography>
+          <Button
+            onClick={() => {
+              toggleFullScreen();
+
+              setStartExamModal(false);
+            }}
+            variant="contained"
+            sx={{ ml: 1 }}
+          >
+            Start Exam
+          </Button>
+        </MainCard>
+      </Modal>
+
       <Modal
         open={!startExam && examineeExamDetails?.exam?.remote}
         onClose={() => {}}

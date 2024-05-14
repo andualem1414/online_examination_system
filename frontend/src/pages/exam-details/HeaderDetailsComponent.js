@@ -158,6 +158,7 @@ const HeaderDetailsComponent = (props) => {
         openStartExam={openStartExam}
         handleOpenStartExamClose={handleOpenStartExamClose}
         handleStartExam={handleStartExam}
+        one_step={examDetails?.remote === false ? true : false}
       />
       <ExamForm
         open={open}
@@ -435,29 +436,17 @@ const HeaderDetailsComponent = (props) => {
                   >
                     Leave Exam
                   </Button>
-                  {examDetails.remote === false ? (
-                    <Button
-                      variant="contained"
-                      color="success"
-                      onClick={(e) => {
-                        handleStartExam();
-                      }}
-                      disabled={examDetails.status === 'Live' ? false : true}
-                    >
-                      Start Exam
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="contained"
-                      color="success"
-                      onClick={(e) => {
-                        handleOpenStartExamOpen();
-                      }}
-                      disabled={examDetails.status === 'Live' ? false : true}
-                    >
-                      Start Exam
-                    </Button>
-                  )}
+
+                  <Button
+                    variant="contained"
+                    color="success"
+                    onClick={(e) => {
+                      handleOpenStartExamOpen();
+                    }}
+                    disabled={examDetails.status === 'Live' ? false : true}
+                  >
+                    Start Exam
+                  </Button>
                 </Stack>
               )}
             </Grid>

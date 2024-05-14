@@ -203,7 +203,7 @@ const Rules = () => {
             <Typography sx={{ fontSize: 18 }}>Only you should be in the exam</Typography>
           </Stack>
           <Divider sx={{ mb: 3 }} />
-          {rules.length > 0 ? (
+          {user.user_type === 'EXAMINER' && rules.length > 0 ? (
             rules?.map((rule) => {
               return (
                 <Stack
@@ -224,7 +224,9 @@ const Rules = () => {
             })
           ) : (
             <Typography variant="h5" textAlign="center" sx={{ mb: 3 }}>
-              Add your custom Rule
+              {user.user_type === 'EXAMINER'
+                ? 'Add your custom Rule'
+                : 'Custom Rules will be added for exams'}
             </Typography>
           )}
           <Divider sx={{ mb: 3 }} />
@@ -236,11 +238,13 @@ const Rules = () => {
               disqualification from the examination.
             </Typography>
           </Stack>
-          <Stack direction="row" sx={{ mb: 2, ml: 2 }} spacing={2} justifyContent="flex-end">
-            <Button variant="contained" sx={{ width: '150px' }} onClick={() => setOpen(true)}>
-              Add rule
-            </Button>
-          </Stack>
+          {user.user_type === 'EXAMINER' && (
+            <Stack direction="row" sx={{ mb: 2, ml: 2 }} spacing={2} justifyContent="flex-end">
+              <Button variant="contained" sx={{ width: '150px' }} onClick={() => setOpen(true)}>
+                Add rule
+              </Button>
+            </Stack>
+          )}
         </MainCard>
       </Stack>
     </>
