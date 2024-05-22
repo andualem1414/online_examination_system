@@ -1,5 +1,5 @@
 // material-ui
-import { Box, Chip, Typography } from '@mui/material';
+import { Box, Chip, Typography, Stack } from '@mui/material';
 import { Plus } from 'react-huge-icons/solid';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import StorageRoundedIcon from '@mui/icons-material/StorageRounded';
@@ -32,13 +32,24 @@ const Navigation = () => {
       {user.user_type === 'EXAMINEE' && <MainButton name="Join Exam" icon={<Plus />} />}
       <Box sx={{ mb: 2, display: 'flex', justifyContent: 'center' }}>
         {user.user_type === 'ADMIN' && (
-          <Chip
-            sx={{ px: 2, py: 2.5 }}
-            label={<Typography variant="h5">DB Panel</Typography>}
-            color="error"
-            onClick={() => (window.location.href = process.env.REACT_APP_DATABASE_URL + '/admin')}
-            icon={<StorageRoundedIcon />}
-          />
+          <Stack direction="column" spacing={2}>
+            <Chip
+              sx={{ px: 2, py: 2.5 }}
+              label={<Typography variant="h5">DB Panel</Typography>}
+              color="error"
+              onClick={() => (window.location.href = process.env.REACT_APP_DATABASE_URL + '/admin')}
+              icon={<StorageRoundedIcon />}
+            />
+            <Chip
+              sx={{ px: 2, py: 2.5 }}
+              label={<Typography variant="h5">Chapa Panel</Typography>}
+              color="success"
+              onClick={() =>
+                (window.location.href = 'https://dashboard.chapa.co/dashboard/overview')
+              }
+              icon={<StorageRoundedIcon />}
+            />
+          </Stack>
         )}
       </Box>
 

@@ -32,6 +32,15 @@ export const updateUserAPI = async (id, data) => {
   }
 };
 
+export const deleteUserAPI = async (id) => {
+  try {
+    const response = await axiosPrivate.delete(`users/${id}/delete/`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to delete User', error);
+  }
+};
+
 export const verifyUserAPI = async (data) => {
   try {
     const response = await axiosPrivate.post(`users/verify-user/`, data, {

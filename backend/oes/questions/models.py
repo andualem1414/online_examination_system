@@ -33,17 +33,20 @@ class Question(models.Model):
 
 def update_exam_total_marks(sender, instance, **kwargs):
     # Get the exam associated with the question
-    exam = instance.exam  # Assuming a ForeignKey relationship
+    try:
+        exam = instance.exam  # Assuming a ForeignKey relationship
 
-    if exam:
-        # Calculate the new total marks (consider logic for handling different question types)
-        total_marks = sum(question.point for question in exam.question_set.all())
-        questions_count = exam.question_set.all().count()
+        if exam:
+            # Calculate the new total marks (consider logic for handling different question types)
+            total_marks = sum(question.point for question in exam.question_set.all())
+            questions_count = exam.question_set.all().count()
 
-        # Update the exam model with the new total marks
-        exam.questions_count = questions_count
-        exam.total_mark = total_marks
-        exam.save()
+            # Update the exam model with the new total marks
+            exam.questions_count = questions_count
+            exam.total_mark = total_marks
+            exam.save()
+    except:
+        print("error")
 
 
 # Connect the receiver function to the signals

@@ -129,7 +129,7 @@ const DashboardDefault = () => {
 
   const twoWeeks = [
     {
-      name: 'Page Views',
+      name: 'week 1',
       data: [
         exams.filter((exam) => differenceInDays(exam.created_at) === 1).length,
         exams.filter((exam) => differenceInDays(exam.created_at) === 2).length,
@@ -141,7 +141,7 @@ const DashboardDefault = () => {
       ]
     },
     {
-      name: 'Sessions',
+      name: 'week 2',
       data: [
         exams.filter((exam) => differenceInDays(exam.created_at) === 8).length,
         exams.filter((exam) => differenceInDays(exam.created_at) === 9).length,

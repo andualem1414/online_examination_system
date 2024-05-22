@@ -6,7 +6,7 @@ from questions.serializers import QuestionSerializer
 class ExamineeAnswerDetailSerializer(serializers.ModelSerializer):
     question = QuestionSerializer(read_only=True)
     examinee = serializers.PrimaryKeyRelatedField(read_only=True)
-    result = serializers.IntegerField(read_only=True)
+    result = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
     class Meta:
         model = ExamineeAnswer

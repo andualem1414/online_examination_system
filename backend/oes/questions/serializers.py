@@ -20,3 +20,20 @@ class QuestionSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
+
+class QuestionUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Question
+        fields = [
+            "id",
+            "question",
+            "description",
+            "choices",
+            "answer",
+            "point",
+            "type",
+            "created_at",
+            "updated_at",
+        ]

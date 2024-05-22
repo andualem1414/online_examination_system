@@ -194,8 +194,10 @@ class VerifyUserView(APIView):
         verified = False
         print(result)
 
-        if result and result["distance"] < 0.35:
-            verified = True
+        # if result and result["distance"] < 0.35:
+        #     verified = True
+        if result:
+            verified = result["verified"]
 
         # Return a success response (optional data about the uploaded image)
         os.remove(current_image)

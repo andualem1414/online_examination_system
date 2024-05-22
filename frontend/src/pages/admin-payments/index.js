@@ -1,5 +1,6 @@
 import { React, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { axiosPrivate } from 'api/axios';
 
 // Custom Components
 import TableComponent from 'components/TableComponent';
@@ -14,15 +15,30 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchAllExams, fetchExams } from 'store/reducers/exam';
 import { fetchExamineeExams } from 'store/reducers/examineeExam';
 import { filterData } from 'utils/utils';
-
+import { fetchAllPayments } from 'store/reducers/payments';
+const checkPaymentAPI = async (paymentCode) => {
+  try {
+    const response = await axiosPrivate.get(`exams/payments/check/`, {
+      params: { payment_code: paymentCode }
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch code', error);
+  }
+};
 const AdminPayments = () => {
   const payments = useSelector((state) => state.payment.payments);
 
   const dispatch = useDispatch();
   let [searchValue, setSearchValue] = useState('');
+  let [totalAmount, setTotalAmount] = useState(0);
 
   useEffect(() => {
-    dispatch(fetchAllExams());
+    dispatch(fetchAllPayments()).then(() => {
+      payments.map((payment) => {
+        setTotalAmount((prev) => prev + payment.amount);
+      });
+    });
   }, []);
 
   const handleSearchOnChange = (e) => {
@@ -63,6 +79,28 @@ const AdminPayments = () => {
       label: 'Date Created'
     }
   ];
+  const Detailsdata = [
+    {
+      title: 'Payment Details',
+      descriptions: [
+        {
+          name: 'Number of payments',
+          value: payments.length
+        },
+        {
+          name: 'Total amount',
+          value: totalAmount
+        }
+      ]
+    }
+  ];
+  const handleRowClick = (event, id) => {
+    let payment = payments.find((p) => p.id === id);
+    checkPaymentAPI(payment.payment_code).then((response) => {
+      let url = `https://checkout.chapa.co/checkout/test-payment-receipt/${response.reference}`;
+      window.open(url, '_blank');
+    });
+  };
 
   return (
     <Grid container spacing={2}>
@@ -77,7 +115,7 @@ const AdminPayments = () => {
             headCells={headCells}
             rows={filterData(payments, searchValue, ['amount'])}
             title="Payments"
-            handleRowClick={() => {}}
+            handleRowClick={handleRowClick}
           />
         ) : (
           <Typography variant="h5" textAlign="center">
@@ -91,7 +129,7 @@ const AdminPayments = () => {
           <SearchField handleSearchOnChange={handleSearchOnChange} />
         </Grid>
         <Grid item>
-          <DetailsComponent data={[]} />
+          <DetailsComponent data={Detailsdata} />
         </Grid>
       </Grid>
     </Grid>

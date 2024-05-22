@@ -19,7 +19,29 @@ import { fetchAllExams } from 'store/reducers/exam';
 
 const AdminExams = () => {
   const exams = useSelector((state) => state.exam.exams);
-
+  const Detailsdata = [
+    {
+      title: 'Exam Details',
+      descriptions: [
+        {
+          name: 'Number of exams',
+          value: exams.length
+        },
+        {
+          name: 'Conducted',
+          value: exams.filter((exam) => exam.status === 'Conducted').length
+        },
+        {
+          name: 'Scheduled',
+          value: exams.filter((exam) => exam.status === 'Scheduled').length
+        },
+        {
+          name: 'Live',
+          value: exams.filter((exam) => exam.status === 'Live').length
+        }
+      ]
+    }
+  ];
   const dispatch = useDispatch();
   let [searchValue, setSearchValue] = useState('');
 
@@ -85,7 +107,7 @@ const AdminExams = () => {
           <SearchField handleSearchOnChange={handleSearchOnChange} />
         </Grid>
         <Grid item>
-          <DetailsComponent data={[]} />
+          <DetailsComponent data={Detailsdata} />
         </Grid>
       </Grid>
     </Grid>

@@ -6,7 +6,7 @@ from exams.models import Exam
 from users.mixins import HavePermissionMixin
 
 from .models import Question
-from .serializers import QuestionSerializer
+from .serializers import QuestionSerializer, QuestionUpdateSerializer
 import json
 
 
@@ -25,8 +25,10 @@ class QuestionListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIView)
                 raise serializers.ValidationError(
                     {"message": "You don't have access to this exam"}
                 )
+        else:
+            exam = None
 
-        serializer.save(created_by=self.request.user)
+        serializer.save(created_by=self.request.user, exam=exam)
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -75,7 +77,7 @@ class QuestionDetailAPIView(HavePermissionMixin, generics.RetrieveAPIView):
 
 class QuestionUpdateAPIView(HavePermissionMixin, generics.UpdateAPIView):
     queryset = Question.objects.all()
-    serializer_class = QuestionSerializer
+    serializer_class = QuestionUpdateSerializer
     lookup = "pk"
 
     # check if you have created the question
@@ -115,7 +117,7 @@ class QuestionPoolMixinView(
         qs = super().get_queryset()
         user = self.request.user
 
-        return qs.filter(created_by=user).order_by("-created_at")
+        return qs.filter(created_by=user, exam=None).order_by("-created_at")
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)

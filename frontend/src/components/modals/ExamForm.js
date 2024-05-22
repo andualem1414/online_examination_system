@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { axiosPrivate } from 'api/axios';
 
@@ -35,10 +35,27 @@ import { createExam, updateExam, deleteExam } from 'store/reducers/exam';
 import Confirmation from './Confirmation';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { createPayment, fetchPaymentCode } from 'store/reducers/payments';
+import { Height } from '../../../node_modules/@mui/icons-material/index';
 
-const getPaymentCodeAPI = async () => {
+const getPaymentCodeAPI = async (amount, title) => {
+  const params = {
+    amount: amount,
+    title: title
+  };
+
   try {
-    const response = await axiosPrivate.get(`exams/payments/code/`);
+    const response = await axiosPrivate.get(`exams/payments/code/`, { params });
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch code', error);
+  }
+};
+
+const checkPaymentAPI = async (paymentCode) => {
+  try {
+    const response = await axiosPrivate.get(`exams/payments/check/`, {
+      params: { payment_code: paymentCode }
+    });
     return response.data;
   } catch (error) {
     throw new Error('Failed to fetch code', error);
@@ -48,6 +65,7 @@ const getPaymentCodeAPI = async () => {
 const ExamForm = (props) => {
   const { open, handleClose, modalType, initialValues, examId } = props;
   const { enqueueSnackbar } = useSnackbar();
+  const userDetails = useSelector((state) => state.user.userDetails);
 
   const [paid, setPaid] = useState(false);
   const [paymentCode, setPaymentCode] = useState('');
@@ -59,7 +77,10 @@ const ExamForm = (props) => {
   let [openConfimation, setOpenConfimation] = useState(false);
   let handleConfimationClose = () => setOpenConfimation(false);
   let handleConfimationOpen = () => setOpenConfimation(true);
-
+  useEffect(() => {
+    setPaid(false);
+    setPaymentCode('');
+  }, []);
   const handleConfimationClick = () => {
     dispatch(deleteExam(examId)).then((data) => {
       if (data.type === 'exam/deleteExam/fulfilled') {
@@ -73,6 +94,34 @@ const ExamForm = (props) => {
         enqueueSnackbar(data.error.message, {
           variant: 'error'
         });
+      }
+    });
+  };
+
+  const payWithChapa = (amount, title) => {
+    let returnUrl = '';
+
+    getPaymentCodeAPI(amount, title).then((response) => {
+      let data = JSON.parse(response.data);
+      if (data.status === 'failed') {
+        enqueueSnackbar('Error occured while creating payment', { variant: 'error' });
+        return;
+      }
+      setPaymentCode(response.code);
+
+      window.open(data.data.checkout_url, '_blank');
+      console.log(response.code, data);
+    });
+  };
+
+  const checkPayment = (paymentCode) => {
+    checkPaymentAPI(paymentCode).then((response) => {
+      if (response.paid) {
+        setPaid(true);
+        enqueueSnackbar('Payment verified', { variant: 'success' });
+      } else {
+        setPaid(false);
+        enqueueSnackbar('Not Paid', { variant: 'error' });
       }
     });
   };
@@ -147,7 +196,7 @@ const ExamForm = (props) => {
                           let paymentDetails = {
                             exam_id: data?.payload?.id,
                             payment_code: paymentCode,
-                            payment_method: 'telebirr'
+                            payment_method: 'Chapa'
                           };
                           dispatch(createPayment(paymentDetails));
 
@@ -246,9 +295,9 @@ const ExamForm = (props) => {
                       </Grid>
 
                       {/* Input for Start time and End time */}
-                      <Grid item container direction="row" spacing={2} sx={{ mt: 1 }}>
+                      <Grid item container direction="column" spacing={2}>
                         <Grid item xs={6}>
-                          <Stack spacing={1}>
+                          <Stack spacing={1} sx={{ width: '400px' }}>
                             <InputLabel htmlFor="start_time">Start Time</InputLabel>
                             <DatePicker
                               id="start_time"
@@ -270,7 +319,7 @@ const ExamForm = (props) => {
                           </Stack>
                         </Grid>
                         <Grid item xs={6}>
-                          <Stack spacing={1}>
+                          <Stack spacing={1} sx={{ width: '400px' }}>
                             <InputLabel htmlFor="end_time">End Time</InputLabel>
                             <DatePicker
                               id="end_time"
@@ -337,33 +386,33 @@ const ExamForm = (props) => {
                         </>
                       )}
                       {modalType === 'Create' && (
-                        <Stack sx={{ mb: 2 }} spacing={2}>
-                          <Stack sx={{ mb: 4 }} spacing={2}>
-                            <Stack direction="row" spacing={2}>
-                              <Stack spacing={2}>
-                                <Typography variant="h5" htmlFor="max_examinees">
-                                  Max Examinees:
-                                </Typography>
-                                <OutlinedInput
-                                  id="max_examinees"
-                                  type="number"
-                                  value={values.max_examinees}
-                                  name="max_examinees"
-                                  onBlur={handleBlur}
-                                  onChange={handleChange}
-                                  sx={{ width: '100px', borderRadius: 4 }}
-                                  error={Boolean(touched.max_examinees && errors.max_examinees)}
-                                />
-                                {touched.max_examinees && errors.max_examinees && (
-                                  <FormHelperText
-                                    error
-                                    id="standard-weight-helper-text-max_examinees"
-                                  >
-                                    {errors.max_examinees}
-                                  </FormHelperText>
-                                )}
-                              </Stack>
-                              <Stack spacing={2}>
+                        <MainPaper sx={{ p: 2 }}>
+                          <Stack sx={{ mb: 2 }} spacing={2}>
+                            <Stack sx={{ mb: 2 }} spacing={2}>
+                              <Stack direction="row" spacing={2}>
+                                <Stack spacing={1}>
+                                  <Typography htmlFor="max_examinees">Max Examinees:</Typography>
+                                  <OutlinedInput
+                                    id="max_examinees"
+                                    type="number"
+                                    value={values.max_examinees}
+                                    name="max_examinees"
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    sx={{ width: '100px', borderRadius: 4 }}
+                                    error={Boolean(touched.max_examinees && errors.max_examinees)}
+                                  />
+                                  {touched.max_examinees && errors.max_examinees && (
+                                    <FormHelperText
+                                      error
+                                      id="standard-weight-helper-text-max_examinees"
+                                    >
+                                      {errors.max_examinees}
+                                    </FormHelperText>
+                                  )}
+                                </Stack>
+
+                                {/* <Stack spacing={2}>
                                 <Typography variant="h5" htmlFor="point">
                                   Code:
                                 </Typography>
@@ -377,59 +426,62 @@ const ExamForm = (props) => {
                                   sx={{ width: '130px', borderRadius: 4 }}
                                   error={Boolean(touched.point && errors.point)}
                                 />
+                              </Stack> */}
+                              </Stack>
+
+                              <Stack direction="row">
+                                {paid ? (
+                                  <Chip label="Paid" color="success" />
+                                ) : (
+                                  <Chip label="Not Paid" color="error" />
+                                )}
+                                <IconButton
+                                  aria-label="delete"
+                                  onClick={() => {
+                                    checkPayment(paymentCode);
+                                  }}
+                                >
+                                  <RefreshIcon />
+                                </IconButton>
                               </Stack>
                             </Stack>
-
-                            <Stack direction="row">
-                              {paid ? (
-                                <Chip label="Paid" color="success" />
-                              ) : (
-                                <Chip label="Not Paid" color="error" />
-                              )}
-                              <IconButton
-                                aria-label="delete"
-                                onClick={() => {
-                                  if (paymentCode) {
-                                    setPaid(true);
-                                  }
-                                }}
-                              >
-                                <RefreshIcon />
-                              </IconButton>
+                            <Stack direction="row" spacing={2}>
+                              <Typography>Total Amount :</Typography>
+                              <Typography variant="h5">
+                                {' '}
+                                {values.max_examinees * 0.5} Birr{' '}
+                              </Typography>
                             </Stack>
+                            <AnimateButton>
+                              <Button
+                                disableElevation
+                                disabled={isSubmitting}
+                                fullWidth
+                                size="large"
+                                onClick={() => {
+                                  payWithChapa(values.max_examinees * 0.5, values.title);
+                                }}
+                                variant="outlined"
+                                color="success"
+                              >
+                                Pay with Chapa
+                              </Button>
+                            </AnimateButton>
+                            <AnimateButton>
+                              <Button
+                                disableElevation
+                                disabled={isSubmitting || !paid}
+                                fullWidth
+                                size="large"
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                              >
+                                Create Exam
+                              </Button>
+                            </AnimateButton>
                           </Stack>
-
-                          <AnimateButton>
-                            <Button
-                              disableElevation
-                              disabled={isSubmitting}
-                              fullWidth
-                              size="large"
-                              onClick={() => {
-                                getPaymentCodeAPI().then((response) => {
-                                  setPaymentCode(response.code);
-                                });
-                              }}
-                              variant="outlined"
-                              color="primary"
-                            >
-                              Generate Code
-                            </Button>
-                          </AnimateButton>
-                          <AnimateButton>
-                            <Button
-                              disableElevation
-                              disabled={isSubmitting || !paid}
-                              fullWidth
-                              size="large"
-                              type="submit"
-                              variant="contained"
-                              color="primary"
-                            >
-                              Create Exam
-                            </Button>
-                          </AnimateButton>
-                        </Stack>
+                        </MainPaper>
                       )}
                       {/* Create or Update Button */}
                     </Grid>

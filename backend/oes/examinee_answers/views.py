@@ -85,6 +85,7 @@ class ExamineeAnswerUpdateAPIView(HavePermissionMixin, generics.UpdateAPIView):
         answer = serializer.validated_data["answer"]
 
         result = calculate_result(question, answer)
+        print(result)
         serializer.validated_data["result"] = result
 
         return super().perform_update(serializer)
@@ -132,7 +133,7 @@ class FlagListCreateAPIView(HavePermissionMixin, generics.ListCreateAPIView):
         qs = super().get_queryset()
 
         if self.request.method == "GET":
-            if "examinee-answer" in self.request.query_params:
+            if self.request.query_params["examinee-answer"]:
                 examinee_answer = ExamineeAnswer.objects.get(
                     pk=self.request.query_params["examinee-answer"]
                 )

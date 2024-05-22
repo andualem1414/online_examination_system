@@ -82,3 +82,10 @@ export const dataURLtoFile = (dataURL, fileName) => {
   }
   return new File([u8arr], fileName, { type: mime });
 };
+
+export const truncateString = (str, maxLength, ending = '...') => {
+  if (typeof str === 'string') {
+    return str.length > maxLength ? str.slice(0, maxLength - ending.length) + ending : str;
+  }
+  return str;
+};

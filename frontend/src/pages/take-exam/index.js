@@ -200,7 +200,6 @@ const TakeExam = () => {
   };
 
   const handleVerify = () => {
-    setFlagWarning((prev) => console.log(prev));
     if (webcamRef.current && flagWarning === false) {
       console.log('verifying...');
       const video = webcamRef.current.video;
@@ -236,18 +235,15 @@ const TakeExam = () => {
   };
 
   useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      console.log('******************', flagWarning);
-      if (flagWarning === false) {
-        handleVerify()
-          ? console.log('face verified successfully!')
-          : console.log('face not verified!');
-      } else {
-        console.log('No face to verify');
-      }
-    }, 10000); // Adjust interval duration as needed
-
-    return () => clearInterval(intervalRef.current); // Cleanup function
+    console.log('******************', flagWarning);
+    if (flagWarning === false) {
+      handleVerify()
+        ? console.log('face verified successfully!')
+        : console.log('face not verified!');
+    } else {
+      console.log('No face to verify');
+    }
+    // Adjust interval duration as needed
   }, [flagWarning]);
 
   const addFlag = (flagId, flagImage, flagType) => {
@@ -348,7 +344,7 @@ const TakeExam = () => {
         .detectAllFaces(
           webcamRef.current.video,
           new faceapi.TinyFaceDetectorOptions({
-            scoreThreshold: 0.4
+            scoreThreshold: 0.3
           })
         )
         .withFaceLandmarks();
@@ -668,26 +664,35 @@ const TakeExam = () => {
             {/* Details and Flags Card */}
             <Grid item xs={4}>
               <MainPaper sx={{ minHeight: '400px', p: 3, mt: 3.7 }}>
-                <Typography variant="h4">Rules</Typography>
+                <Typography variant="h4">Exam Details</Typography>
                 <Divider sx={{ my: 2 }} />
-                <Stack direction="row" sx={{ mb: 2, ml: 2 }} spacing={2} alignItems="center">
-                  <SendIcon sx={{ fontSize: 18 }} />
-                  <Typography sx={{ fontSize: 18 }}>You can't change Tabs while in exam</Typography>
-                </Stack>
-                <Stack direction="row" sx={{ mb: 2, ml: 2 }} spacing={2} alignItems="center">
-                  <SendIcon sx={{ fontSize: 18 }} />
-                  <Typography sx={{ fontSize: 18 }}>You can't exit fullScreen</Typography>
-                </Stack>
-                <Stack direction="row" sx={{ mb: 2, ml: 2 }} spacing={2} alignItems="center">
-                  <SendIcon sx={{ fontSize: 18 }} />
-                  <Typography sx={{ fontSize: 18 }}>
-                    Your face should match your profile picture
+                <Stack
+                  sx={{ ml: 2, mb: 1 }}
+                  alignItems="center"
+                  direction="row"
+                  justifyContent="space-between"
+                >
+                  <Typography>Number of Questions</Typography>
+                  <Typography color="primary" sx={{ fontWeight: 'bold' }}>
+                    <Chip label={questions.length} variant="light" color="primary" />
                   </Typography>
                 </Stack>
-                <Stack direction="row" sx={{ mb: 2, ml: 2 }} spacing={2} alignItems="center">
-                  <SendIcon sx={{ fontSize: 18 }} />
-                  <Typography sx={{ fontSize: 18 }}>Only you should be in the exam</Typography>
+
+                <Stack
+                  sx={{ ml: 2, mb: 2 }}
+                  alignItems="center"
+                  direction="row"
+                  justifyContent="space-between"
+                >
+                  <Typography>Answered Question</Typography>
+                  <Typography color="primary" sx={{ fontWeight: 'bold' }}>
+                    <Chip label={Object.keys(answers).length} variant="light" color="primary" />
+                  </Typography>
                 </Stack>
+
+                <Typography variant="h4">Rules for this Exam</Typography>
+                <Divider sx={{ my: 2 }} />
+
                 {rules.map((rule) => {
                   return (
                     <Stack direction="row" sx={{ mb: 2, ml: 2 }} alignItems="center" spacing={2}>

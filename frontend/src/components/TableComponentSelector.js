@@ -23,6 +23,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
 import MainPaper from './MainPaper';
+import { truncateString } from 'utils/utils';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -247,7 +248,7 @@ export default function EnhancedTable(props) {
                       scope="row"
                       padding="none"
                     >
-                      {row.question}
+                      {truncateString(row.question, 50)}
                     </TableCell>
                     <TableCell onClick={(event) => handleRowClick(event, row.id)}>
                       {row.description}

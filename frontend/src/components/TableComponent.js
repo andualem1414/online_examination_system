@@ -25,6 +25,7 @@ import MainPaper from 'components/MainPaper';
 
 // icons
 import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded';
+import { truncateString } from 'utils/utils';
 
 // redux
 // import { useDispatch } from 'react-redux';
@@ -201,7 +202,7 @@ export default function EnhancedTable(props) {
                           ) : cell?.date ? (
                             new Date(item).toLocaleString()
                           ) : (
-                            item
+                            truncateString(item, 50)
                           )
                         ) : (
                           '-'

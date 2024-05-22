@@ -10,6 +10,7 @@ urlpatterns = [
     path("list/", views.UserListAPIView.as_view()),
     path("create/", views.UserCreateAPIView.as_view()),
     path("<int:pk>/update/", views.UserUpdateAPIView.as_view()),
+    path("<int:pk>/delete/", views.UserDestroyAPIView.as_view()),
     path("details/", views.UserDetailAPIView.as_view(), name="user_detail"),
     path("change-password/", views.ChangePasswordView.as_view()),
     # user verify

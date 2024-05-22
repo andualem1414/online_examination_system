@@ -2,9 +2,6 @@ import google.generativeai as genai
 
 from sentence_transformers import SentenceTransformer, util
 
-# Load the pre-trained model
-model = SentenceTransformer("all-mpnet-base-v2")
-
 import re
 import requests
 
@@ -34,12 +31,16 @@ def calculate_result(question, user_answer):
 
     if question.type == "SHORT_ANSWER":
         try:
-            #     response = requests.get("https://www.google.com", timeout=3)
-            #     gemini_score = gemini_call(question.answer, user_answer)
+            response = requests.get("https://www.google.com", timeout=3)
+            gemini_score = gemini_call(question.answer, user_answer)
+            print(gemini_score)
+            if gemini_score <= 0.2:
+                gemini_score = 0
+            result = gemini_score * question.point
 
-            #     result = gemini_score * question.point
+        except requests.exceptions.RequestException as e:
+            model = SentenceTransformer("all-mpnet-base-v2")
 
-            # except requests.exceptions.RequestException as e:
             print("no Internet")
             # custom model here
             sentence1_embedding = model.encode(question.answer)
@@ -48,8 +49,10 @@ def calculate_result(question, user_answer):
             cosine_similarity = util.pytorch_cos_sim(
                 sentence1_embedding, sentence2_embedding
             )
-
-            result = cosine_similarity.item() * question.point
+            score = cosine_similarity.item()
+            if score <= 0.2:
+                score = 0
+            result = score * question.point
 
         except Exception as e:
             print("An error occurred:", e)

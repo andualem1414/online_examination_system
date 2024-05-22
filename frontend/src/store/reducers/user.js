@@ -8,7 +8,8 @@ import {
   getRecentActionsAPI,
   getRulesAPI,
   createRulesAPI,
-  deleteRulesAPI
+  deleteRulesAPI,
+  deleteUserAPI
 } from 'api/users';
 
 const initialState = {
@@ -45,7 +46,10 @@ export const updateUser = createAsyncThunk('user/updateUser', async ({ id, data 
   const response = await updateUserAPI(id, data);
   return response;
 });
-
+export const deleteUser = createAsyncThunk('user/deleteUser', async (id) => {
+  const response = await deleteUserAPI(id);
+  return response;
+});
 export const verifyUser = createAsyncThunk('user/verifyUser', async (data) => {
   const response = await verifyUserAPI(data);
   return response;
@@ -132,6 +136,18 @@ const user = createSlice({
         state.loading = false;
       })
       .addCase(updateUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      // Delete User
+      .addCase(deleteUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteUser.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(deleteUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })

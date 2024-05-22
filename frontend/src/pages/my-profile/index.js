@@ -39,6 +39,17 @@ import { updateUser } from 'store/reducers/user';
 import { axiosPrivate } from 'api/axios';
 import { useDispatch } from 'react-redux';
 
+const checkPaymentAPI = async (paymentCode) => {
+  try {
+    const response = await axiosPrivate.get(`exams/payments/check/`, {
+      params: { payment_code: paymentCode }
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch code', error);
+  }
+};
+
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -124,7 +135,13 @@ const MyProfile = () => {
       chipColor: chipColorSelector
     }
   ];
-  const handleRowClick = () => {};
+  const handleRowClick = (event, id) => {
+    let payment = payments.find((p) => p.id === id);
+    checkPaymentAPI(payment.payment_code).then((response) => {
+      let url = `https://checkout.chapa.co/checkout/test-payment-receipt/${response.reference}`;
+      window.open(url, '_blank');
+    });
+  };
 
   return (
     <Grid container spacing={2}>
