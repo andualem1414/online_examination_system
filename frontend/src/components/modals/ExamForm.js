@@ -77,10 +77,12 @@ const ExamForm = (props) => {
   let [openConfimation, setOpenConfimation] = useState(false);
   let handleConfimationClose = () => setOpenConfimation(false);
   let handleConfimationOpen = () => setOpenConfimation(true);
+
   useEffect(() => {
     setPaid(false);
     setPaymentCode('');
-  }, []);
+  }, [open]);
+
   const handleConfimationClick = () => {
     dispatch(deleteExam(examId)).then((data) => {
       if (data.type === 'exam/deleteExam/fulfilled') {
@@ -397,6 +399,7 @@ const ExamForm = (props) => {
                                     type="number"
                                     value={values.max_examinees}
                                     name="max_examinees"
+                                    disabled={paid ? true : false}
                                     onBlur={handleBlur}
                                     onChange={handleChange}
                                     sx={{ width: '100px', borderRadius: 4 }}

@@ -5,6 +5,8 @@ import MainCard from 'components/MainCard';
 import Confirmation from '../../components/modals/Confirmation';
 import ExamForm from '../../components/modals/ExamForm';
 import { useNavigate } from 'react-router-dom';
+import ChecklistRtlRoundedIcon from '@mui/icons-material/ChecklistRtlRounded';
+import SummarizeRoundedIcon from '@mui/icons-material/SummarizeRounded';
 
 // Third Party
 import { Switch, Dropdown } from 'antd';
@@ -386,11 +388,18 @@ const HeaderDetailsComponent = (props) => {
                 <Button
                   variant="contained"
                   color={buttonName.name === 'Results' ? 'warning' : 'success'}
-                  sx={{ width: '110px' }}
+                  sx={{ width: '130px' }}
                   onClick={(e) => {
                     handleButtonClick(e.target.innerText);
                   }}
                   disabled={buttonName.disabled}
+                  startIcon={
+                    buttonName.name === 'Results' ? (
+                      <ChecklistRtlRoundedIcon />
+                    ) : (
+                      <SummarizeRoundedIcon />
+                    )
+                  }
                 >
                   {buttonName.name}
                 </Button>
