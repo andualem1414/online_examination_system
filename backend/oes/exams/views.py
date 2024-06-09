@@ -5,6 +5,7 @@ from rest_framework.decorators import api_view
 from django.utils import timezone
 import requests
 import json
+from rest_framework import status
 
 from users.mixins import HavePermissionMixin
 from .models import Exam, Payment
@@ -184,15 +185,20 @@ def payment_code(request, pk=None, *args, **kwargs):
         "Authorization": "Bearer CHASECK_TEST-BCcWyNcXHudjE2G08204AWYlZk0xZM9l",
         "Content-Type": "application/json",
     }
+    try: 
+        response = requests.post(url, json=payload, headers=headers)
+        response_data = response.text
+        print(response_data)
 
-    response = requests.post(url, json=payload, headers=headers)
-    response_data = response.text
-    print(response_data)
-
-    data = {"code": payment_code, "data": response_data}
+        data = {"code": payment_code, "data": response_data}
+    except:
+        return Response(
+            {"error": "No internet connection"}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
     return Response(data)
-
+ 
 
 @api_view(["GET"])
 def payment_check(request, pk=None, *args, **kwargs):

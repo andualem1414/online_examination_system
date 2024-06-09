@@ -37,31 +37,6 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import { createPayment, fetchPaymentCode } from 'store/reducers/payments';
 import { Height } from '../../../node_modules/@mui/icons-material/index';
 
-const getPaymentCodeAPI = async (amount, title) => {
-  const params = {
-    amount: amount,
-    title: title
-  };
-
-  try {
-    const response = await axiosPrivate.get(`exams/payments/code/`, { params });
-    return response.data;
-  } catch (error) {
-    throw new Error('Failed to fetch code', error);
-  }
-};
-
-const checkPaymentAPI = async (paymentCode) => {
-  try {
-    const response = await axiosPrivate.get(`exams/payments/check/`, {
-      params: { payment_code: paymentCode }
-    });
-    return response.data;
-  } catch (error) {
-    throw new Error('Failed to fetch code', error);
-  }
-};
-
 const ExamForm = (props) => {
   const { open, handleClose, modalType, initialValues, examId } = props;
   const { enqueueSnackbar } = useSnackbar();
@@ -78,6 +53,32 @@ const ExamForm = (props) => {
   let handleConfimationClose = () => setOpenConfimation(false);
   let handleConfimationOpen = () => setOpenConfimation(true);
 
+  const getPaymentCodeAPI = async (amount, title) => {
+    const params = {
+      amount: amount,
+      title: title
+    };
+
+    try {
+      const response = await axiosPrivate.get(`exams/payments/code/`, { params });
+      return response.data;
+    } catch (error) {
+      enqueueSnackbar('Error connecting check your internet', {
+        variant: 'error'
+      });
+    }
+  };
+
+  const checkPaymentAPI = async (paymentCode) => {
+    try {
+      const response = await axiosPrivate.get(`exams/payments/check/`, {
+        params: { payment_code: paymentCode }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to fetch code', error);
+    }
+  };
   useEffect(() => {
     setPaid(false);
     setPaymentCode('');
@@ -104,15 +105,17 @@ const ExamForm = (props) => {
     let returnUrl = '';
 
     getPaymentCodeAPI(amount, title).then((response) => {
-      let data = JSON.parse(response.data);
-      if (data.status === 'failed') {
-        enqueueSnackbar('Error occured while creating payment', { variant: 'error' });
-        return;
-      }
-      setPaymentCode(response.code);
+      if (response) {
+        let data = JSON.parse(response.data);
+        if (data.status === 'failed') {
+          enqueueSnackbar('Error occured while creating payment', { variant: 'error' });
+          return;
+        }
+        setPaymentCode(response.code);
 
-      window.open(data.data.checkout_url, '_blank');
-      console.log(response.code, data);
+        window.open(data.data.checkout_url, '_blank');
+        console.log(response.code, data);
+      }
     });
   };
 

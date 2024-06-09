@@ -235,16 +235,18 @@ const TakeExam = () => {
   };
 
   useEffect(() => {
-    console.log('******************', flagWarning);
-    if (flagWarning === false) {
-      handleVerify()
-        ? console.log('face verified successfully!')
-        : console.log('face not verified!');
-    } else {
-      console.log('No face to verify');
-    }
+    intervalRef.current = setInterval(() => {
+      console.log('******************', flagWarning);
+      if (flagWarning === false) {
+        handleVerify()
+          ? console.log('face verified successfully!')
+          : console.log('face not verified!');
+      } else {
+        console.log('No face to verify');
+      }
+    }, 10000);
     // Adjust interval duration as needed
-  }, [flagWarning]);
+  }, []);
 
   const addFlag = (flagId, flagImage, flagType) => {
     console.log(flagType, flagImage, flagId);
