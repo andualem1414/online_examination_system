@@ -14,7 +14,7 @@ chat = model.start_chat(history=[])
 
 def gemini_call(sentence1, sentence2):
     chat.send_message(
-        f'Imagine you are examiner grading examinee answers, rank this two answers based on only their precise meaning similarity on the scale of 1 to 10 and explain your reasoning. correct answer: "{sentence1}" and examinee answer: "{sentence2}" '
+        f'Imagine you are strict examiner grading examinee answers, rank this two answers based on only their precise meaning similarity on the scale of 1 to 10 and explain your reasoning. correct answer: "{sentence1}" and examinee answer: "{sentence2}" '
     )
     response2 = chat.send_message("give me a single number as response")
 
@@ -50,7 +50,7 @@ def calculate_result(question, user_answer):
                 sentence1_embedding, sentence2_embedding
             )
             score = cosine_similarity.item()
-            if score <= 0.2:
+            if score <= 0.3:
                 score = 0
             result = score * question.point
 

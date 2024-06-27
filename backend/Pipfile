@@ -21,6 +21,7 @@ django-auditlog = "*"
 sentence-transformers = "*"
 django-jet-reboot = "*"
 google-generativeai = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 

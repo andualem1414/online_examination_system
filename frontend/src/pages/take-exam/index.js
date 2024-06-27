@@ -111,7 +111,9 @@ const TakeExam = () => {
       let fullScreen = screenfull.isFullscreen;
       if (fullScreen === false) {
         console.log('hellow');
+        handleFinishExam();
         navigate('/my-exams/exam-details');
+
         window.location.reload();
       }
       console.log(screenfull.isFullscreen);
@@ -235,6 +237,10 @@ const TakeExam = () => {
   };
 
   useEffect(() => {
+    // Adjust interval duration as needed
+  }, []);
+
+  let intervalFaceChecker = () => {
     intervalRef.current = setInterval(() => {
       console.log('******************', flagWarning);
       if (flagWarning === false) {
@@ -244,10 +250,8 @@ const TakeExam = () => {
       } else {
         console.log('No face to verify');
       }
-    }, 10000);
-    // Adjust interval duration as needed
-  }, []);
-
+    }, 15000);
+  };
   const addFlag = (flagId, flagImage, flagType) => {
     console.log(flagType, flagImage, flagId);
     const formData = new FormData();
@@ -341,6 +345,7 @@ const TakeExam = () => {
   const handleUserMedia = () => {
     console.log('Video Started!');
     toggleFullScreen();
+    intervalFaceChecker();
     setInterval(async () => {
       const detections = await faceapi
         .detectAllFaces(
@@ -365,7 +370,7 @@ const TakeExam = () => {
         setFaceLostSecondCount((prev) => {
           prev = prev + 500;
           console.log(prev);
-          if (prev === 5000) {
+          if (prev === 3000) {
             enqueueSnackbar('Face lost', { variant: 'error' });
             flagger('FACE_LOST');
           }
@@ -484,7 +489,7 @@ const TakeExam = () => {
             <CircularProgress color="success" thickness={5} size={80} />
             <Typography variant="h4">Face Lost Searching for Faces...</Typography>
             <Typography variant="h5" color="error">
-              Question will be Flagged after 5 seconds...
+              Question will be Flagged after 3 seconds...
             </Typography>
           </Stack>
         </MainCard>
