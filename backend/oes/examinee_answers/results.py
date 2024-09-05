@@ -5,7 +5,7 @@ from sentence_transformers import SentenceTransformer, util
 import re
 import requests
 
-genai.configure(api_key="AIzaSyAKPrgmlP58gzUJFDS6xG6PFR00GbixaHQ")
+genai.configure(api_key="")
 model = genai.GenerativeModel("gemini-pro")
 
 
