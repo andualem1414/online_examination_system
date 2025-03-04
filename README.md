@@ -18,9 +18,11 @@ Final BSc project on online examination system with semantic analysis and face t
 # for backend
 
 pipenv install
+
 pipenv shell
 
 # for frontend
 
 yarn
+
 yarn start
